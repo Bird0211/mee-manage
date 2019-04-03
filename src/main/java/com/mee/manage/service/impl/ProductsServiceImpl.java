@@ -3,6 +3,7 @@ package com.mee.manage.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.IPage;
 import com.mee.manage.mapper.IProductsMapper;
 import com.mee.manage.po.Products;
 import com.mee.manage.service.IProductsService;
@@ -43,6 +44,7 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
             Products p = getProducts(proVo);
             ps.add(p);
         }
+
         return saveBatch(ps);
     }
 

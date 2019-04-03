@@ -20,4 +20,6 @@ public class SpecialSku {
 
     private Integer bath;
 
+
+
 }
