@@ -1,7 +1,7 @@
 spring:
   datasource:
-      url: jdbc:mysql://rm-gs5234ag5cc6te81j.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
-      #url: jdbc:mysql://rm-gs5234ag5cc6te81j1o.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+      #url: jdbc:mysql://rm-gs5234ag5cc6te81j.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+      url: jdbc:mysql://rm-gs5234ag5cc6te81j1o.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
       username: mee_store
       password: mvpWSjWQ2itv3KgYAZqSLV94WXe6l5sDoc5a5CTlTQBkRKSGf4yXy9ZuAohrzseVeGvZKpdB9VvdkojtAm0n1A==
       type: com.alibaba.druid.pool.DruidDataSource
