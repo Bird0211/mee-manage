@@ -43,8 +43,8 @@ public class LogAspect {
     @AfterReturning(returning = "ret" , pointcut = "log()")
     public void doAfterReturning(Object ret){
         //处理完请求后，返回内容
-        logger.info("方法返回值: = {}",ret);
-        logger.info("方法执行时间: = {} ms", (System.currentTimeMillis() - startTime.get()));
+        logger.info("Result: = {}",ret);
+        logger.info("Time: = {} ms", (System.currentTimeMillis() - startTime.get()));
     }
 
 }

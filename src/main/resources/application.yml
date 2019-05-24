@@ -33,10 +33,22 @@ spring:
             login-password: 123456
             exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
             reset-enable: false
-
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 1000MB
 server:
   port: 8801
+
 
 mybatis-plus:
   configuration:
     mapUnderscoreToCamelCase: true
+
+mee:
+  ocrApiKey: 2259c1572d88957
+  ocrUrl: https://api.ocr.space/parse/image
+
+
+
+
