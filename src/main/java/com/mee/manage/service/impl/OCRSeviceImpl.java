@@ -10,6 +10,7 @@ import com.recognition.software.jdeskew.ImageDeskew;
 import net.sourceforge.tess4j.ITessAPI;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.Word;
 import net.sourceforge.tess4j.util.ImageHelper;
 import net.sourceforge.tess4j.util.Utils;
 import org.slf4j.Logger;
@@ -23,11 +24,13 @@ import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -78,7 +81,16 @@ public class OCRSeviceImpl implements IOCRService {
 
     @Override
     public String textOCR(MultipartFile file, String language) {
-        /*
+        String ocrSpaceResult = null;
+
+        //ocrSpaceResult = tassOcr(file,language);
+        ocrSpaceResult = ocrSpfiace(file, language);
+
+        return ocrSpaceResult;
+    }
+
+    private String tassOcr(MultipartFile file, String language) {
+        String ocrSpaceResult = null;
         try {
             InputStream inputStream = file.getInputStream();
             int engineMode = ITessAPI.TessOcrEngineMode.OEM_LSTM_ONLY;
@@ -86,16 +98,14 @@ public class OCRSeviceImpl implements IOCRService {
 
             BufferedImage textImage = ImageIO.read(inputStream);
             logger.info(" engineMode = {} , pageSegMode = {} ",engineMode,pageSegMode);
-            String result = findOCR(textImage, language, engineMode, pageSegMode);
-            logger.info(result);
+            ocrSpaceResult = findOCR(textImage, language, engineMode, pageSegMode);
+            logger.info(ocrSpaceResult);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        */
-
-        String ocrSpaceResult = ocrSpfiace(file, language);
         return ocrSpaceResult;
+
     }
 
     private String ocrSpfiace(MultipartFile file, String language) {
@@ -116,6 +126,7 @@ public class OCRSeviceImpl implements IOCRService {
             parames.put("isSearchablePdfHideTextLayer", false);
             parames.put("scale", true);
             parames.put("isTable", true);
+            parames.put("OCREngine",2);
 
             result = JoddHttpUtils.sendPost(url, parames);
 
@@ -131,16 +142,18 @@ public class OCRSeviceImpl implements IOCRService {
 
                     TextOverlayVo textVo = parsedResultsVo.getTextOverlay();
                     if(textVo != null) {
-                        List<ProductsVo> productsVos = getProducts(textVo.getLines());
-                        logger.info(JSON.toJSONString(productsVos));
+                        InvoiceVo invoiceVo = textVo.getInVoice();
+                        logger.info(JSON.toJSONString(invoiceVo));
+                        result = JSON.toJSONString(invoiceVo);
                     }
-
                 }
             } else {
                 logger.info("OCR error!", vo.getErrorMessage());
             }
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -199,38 +212,6 @@ public class OCRSeviceImpl implements IOCRService {
         return products;
     }
 
-    private List<ProductsVo> getProducts(List<LineVo> lines){
-        if(lines == null || lines.isEmpty())
-            return null;
-
-        List<ProductsVo> products = new ArrayList<>();
-        for(LineVo line : lines) {
-            if (line == null)
-                continue;
-
-            List<WordsVo> words = line.getWords();
-            if(words == null || words.isEmpty())
-                continue;
-
-            logger.info("line start");
-            isFirstLine(words);
-            logger.info("line end");
-
-        }
-
-        return products;
-    }
-
-    private boolean isFirstLine(List<WordsVo> words){
-        if(words == null || words.isEmpty())
-            return false;
-
-        for(WordsVo word : words){
-            logger.info("Word = {}, [{},{}],Weight = {},Hight = {}",word.getWordText(),word.getTop(),word.getLeft(),word.getWidth(),word.getHeight());
-        }
-
-        return true;
-    }
 
 
     private Integer[] getFirstLine(String[] words){
@@ -242,17 +223,17 @@ public class OCRSeviceImpl implements IOCRService {
             if(words[i] == null || StringUtils.isEmpty(words[i]))
                 continue;
 
-            if (isCorrect(words[i],"description")){
+            if (Tools.isCorrect(words[i],"description")){
                 if(location == null)
                     location = new Integer[3];
 
                 location[0] = i;
-            } else if(isCorrect(words[i],"qty") || isCorrect(words[i],"quantity")) {
+            } else if(Tools.isCorrect(words[i],"qty") || Tools.isCorrect(words[i],"quantity")) {
                 if(location == null)
                     location = new Integer[3];
 
                 location[1] = i;
-            } else if(isCorrect(words[i],"unit price")) {
+            } else if(Tools.isCorrect(words[i],"unit price")) {
                 if (location == null)
                     location = new Integer[3];
 
@@ -304,10 +285,10 @@ public class OCRSeviceImpl implements IOCRService {
         ProductsVo products = new ProductsVo();
 
         if(!StringUtils.isEmpty(name))
-            products.setName(name);
+            products.setContent(name);
 
         if (!StringUtils.isEmpty(num) && Tools.isNumeric(num)){
-            products.setNum(Integer.parseInt(num));
+            products.setNum(Double.parseDouble(num));
         }
 
         if (!StringUtils.isEmpty(price) && Tools.isNumeric(price))
@@ -317,21 +298,6 @@ public class OCRSeviceImpl implements IOCRService {
         return products;
     }
 
-
-    private boolean isCorrect(String word,String target){
-        if(word == null || StringUtils.isEmpty(word))
-            return false;
-
-//        logger.info("word = {}, target = {}",word.toLowerCase(),target);
-        boolean flag = false;
-        //String correct = EnWordChecker.getInstance().correct(word.toLowerCase());
-        float similarity = SimilarityStrUtil.getSimilarityRatio(word.toLowerCase().trim(),target.toLowerCase().trim());
-        logger.info("word = {}/ target = {} = {}",word,target.toLowerCase(),similarity);
-        if(similarity > 0.80)
-            flag = true;
-
-        return flag;
-    }
 
     /**
      * MultipartFile 转换成File
@@ -436,7 +402,7 @@ public class OCRSeviceImpl implements IOCRService {
             logger.info("page mode = {}", 3);
 
             String result = null;
-            textImage = convertImage(textImage);
+            textImage = Tools.convertImage(textImage);
             result = instance.doOCR(textImage);
             logger.info("Finish doOCR");
             double end = System.currentTimeMillis();
@@ -450,84 +416,10 @@ public class OCRSeviceImpl implements IOCRService {
         }
     }
 
-    //对图片进行处理 - 提高识别度
-    private BufferedImage convertImage(BufferedImage image) throws Exception {
-        //按指定宽高创建一个图像副本
-        //image = ImageHelper.getSubImage(image, 0, 0, image.getWidth(), image.getHeight());
-        //图像转换成灰度的简单方法 - 黑白处理
-//        image = ImageHelper.convertImageToGrayscale(image);
-        //锐化
-//        image = ImageHelper.convertImageToBinary(image);
-        //图像缩放 - 放大n倍图像
-//        image = ImageHelper.getScaledInstance(image, image.getWidth() * 3, image.getHeight() * 3);
 
-        //去除歪斜
-//        image = rotateImage(image);
 
-        //降噪
-        image = ssn(image);
 
-        //二值化
-//        image = ImageHelper.convertImageToBinary(image);
 
-        return image;
-    }
-
-    private BufferedImage ssn(BufferedImage image) {
-        int w = image.getWidth();
-        int h = image.getHeight();
-        int[] pix = new int[w * h];
-        image.getRGB(0, 0, w, h, pix, 0, w);
-        int[] newpix = snnFiltering(pix, w, h);
-        image.setRGB(0, 0, w, h, newpix, 0, w);
-        return image;
-    }
-
-    /**
-     * 对称近邻均值滤波
-     *
-     * @param pix 像素矩阵数组
-     * @param w   矩阵的宽
-     * @param h   矩阵的高
-     * @return 处理后的数组
-     */
-    private int[] snnFiltering(int[] pix, int w, int h) {
-        int[] newpix = new int[w * h];
-        int n = 9;
-        int temp, i1, i2, sum;
-        int[] temp1 = new int[n];
-        int[] temp2 = new int[n / 2];
-        ColorModel cm = ColorModel.getRGBdefault();
-        int r = 0;
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                if (x != 0 && x != w - 1 && y != 0 && y != h - 1) {
-                    sum = 0;
-                    temp1[0] = cm.getRed(pix[x - 1 + (y - 1) * w]);
-                    temp1[1] = cm.getRed(pix[x + (y - 1) * w]);
-                    temp1[2] = cm.getRed(pix[x + 1 + (y - 1) * w]);
-                    temp1[3] = cm.getRed(pix[x - 1 + (y) * w]);
-                    temp1[4] = cm.getRed(pix[x + (y) * w]);
-                    temp1[5] = cm.getRed(pix[x + 1 + (y) * w]);
-                    temp1[6] = cm.getRed(pix[x - 1 + (y + 1) * w]);
-                    temp1[7] = cm.getRed(pix[x + (y + 1) * w]);
-                    temp1[8] = cm.getRed(pix[x + 1 + (y + 1) * w]);
-                    for (int k = 0; k < n / 2; k++) {
-                        i1 = Math.abs(temp1[n / 2] - temp1[k]);
-                        i2 = Math.abs(temp1[n / 2] - temp1[n - k - 1]);
-                        temp2[k] = i1 < i2 ? temp1[k] : temp1[n - k - 1];  //选择最接近原像素值的一个邻近像素
-                        sum = sum + temp2[k];
-                    }
-                    r = sum / (n / 2);
-                    //System.out.println("pix:" + temp1[4] + "  r:" + r);
-                    newpix[y * w + x] = 255 << 24 | r << 16 | r << 8 | r;
-                } else {
-                    newpix[y * w + x] = pix[y * w + x];
-                }
-            }
-        }
-        return newpix;
-    }
 
     private BufferedImage rotateImage(BufferedImage textImg) {
         ImageDeskew id = new ImageDeskew(textImg);

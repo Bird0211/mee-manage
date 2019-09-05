@@ -7,7 +7,11 @@ public enum StatusCode {
     SYS_ERROR(118000, "Sys Error"),
     DB_ERROR(118001, "DB Error"),
     USER_NOT_EXIST(118002,"User Not Exist"),
-    PARAM_ERROR(118003,"Param error");
+    PARAM_ERROR(118003,"Param error"),
+    WEIMOB_TOKEN_ERROR(118004,"Weimob token error")
+
+
+    ;
 
     private int code;
 

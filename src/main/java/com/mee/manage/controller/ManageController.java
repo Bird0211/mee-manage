@@ -4,11 +4,9 @@ package com.mee.manage.controller;
 import com.alibaba.fastjson.JSON;
 import com.mee.manage.po.Fee;
 import com.mee.manage.po.User;
-import com.mee.manage.service.IFeeService;
-import com.mee.manage.service.ISettleService;
-import com.mee.manage.service.ISpecialSkuService;
-import com.mee.manage.service.IUserService;
+import com.mee.manage.service.*;
 import com.mee.manage.util.StatusCode;
+import com.mee.manage.vo.AuthenticationVo;
 import com.mee.manage.vo.MeeResult;
 import com.mee.manage.vo.SettleFeeVo;
 import com.mee.manage.vo.SettleVo;
@@ -40,6 +38,9 @@ public class ManageController {
 
     @Autowired
     ISettleService settleService;
+
+    @Autowired
+    IAuthenticationService authService;
 
     @RequestMapping(value = "/getuser", method = RequestMethod.POST)
     public MeeResult queryUser(@RequestParam("name") String name) {
@@ -108,6 +109,26 @@ public class ManageController {
 
         } catch (Exception ex) {
             logger.error("settlement error",ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/authentication",method = RequestMethod.POST)
+    public MeeResult authentication(@RequestBody AuthenticationVo auth) {
+        logger.info("Params: = {}", JSON.toJSONString(auth));
+        MeeResult meeResult = new MeeResult();
+        try {
+            if(authService.checkAuth(auth))
+                meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+
+            else
+                meeResult.setStatusCode(StatusCode.FAIL.getCode());
+
+        } catch (Exception ex) {
+            logger.error("authentication error",ex);
             meeResult.setStatusCode(StatusCode.FAIL.getCode());
         }
 

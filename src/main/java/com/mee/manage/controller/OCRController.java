@@ -2,8 +2,10 @@ package com.mee.manage.controller;
 
 
 import com.mee.manage.po.User;
+import com.mee.manage.service.IDataMiningService;
 import com.mee.manage.service.IOCRService;
 import com.mee.manage.util.StatusCode;
+import com.mee.manage.vo.MatchingRequest;
 import com.mee.manage.vo.MeeResult;
 
 import net.sourceforge.tess4j.ITessAPI;
@@ -25,6 +27,9 @@ public class OCRController {
 
     @Autowired
     IOCRService iocrService;
+
+    @Autowired
+    IDataMiningService dataMiningService;
 
     @RequestMapping(value = "/imageRecognition", method = RequestMethod.POST)
     public MeeResult imageRecognition(@RequestParam(value = "file") MultipartFile file) {
@@ -49,6 +54,21 @@ public class OCRController {
         MeeResult meeResult = new MeeResult();
         try {
             String result = iocrService.textOCR(file,"eng");
+            meeResult.setData(result);
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+
+        }catch (Exception ex) {
+            logger.error("OCR error: {} ",ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/matching", method = RequestMethod.POST)
+    public MeeResult matchingInvoice(@RequestBody MatchingRequest request) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            String result = dataMiningService.classification(request);
             meeResult.setData(result);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
 

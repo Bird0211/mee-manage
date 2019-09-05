@@ -9,6 +9,7 @@
  */
 package com.mee.manage.util;
 
+import com.alibaba.fastjson.JSON;
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
 
@@ -77,8 +78,23 @@ public class JoddHttpUtils {
                 .formEncoding(encoding).form(params).contentType(contentType).send();
         return httpResponse.accept(encoding).bodyText();
     }
-    
-    
+
+
+    /**
+     * <p>Title: sendPostUseBody</p>
+     * <p>author : zhangcan</p>
+     * <p>date : 2016年6月16日 下午3:07:09</p>
+     *
+     * @param url String 请求地址<br/>
+     * @param jsonBody Ojbect json格式的数据<br/>
+     * @return String 响应内容<br/>
+     */
+    public static String sendPostUseBody(String url, Object jsonBody) {
+
+        return sendPostUseBody(url, JSON.toJSONString(jsonBody), DEFAULT_CONNECT_TIME_OUT,
+                DEFAULT_READ_TIME_OUT, DEFAULT_ENCODING_UTF_8);
+    }
+
     /**
      * <p>Title: sendPostUseBody</p>
      * <p>author : zhangcan</p>
@@ -130,6 +146,11 @@ public class JoddHttpUtils {
             DEFAULT_READ_TIME_OUT, DEFAULT_ENCODING_UTF_8);
     }
 
+    public static String getData(String url) {
+        return getData(url, DEFAULT_CONNECT_TIME_OUT,
+                DEFAULT_READ_TIME_OUT, DEFAULT_ENCODING_UTF_8);
+    }
+
     /**
      * 
      * 使用Jodd发送Get请求<br/>
@@ -149,6 +170,27 @@ public class JoddHttpUtils {
         HttpResponse httpResponse =
             HttpRequest.get(url).connectionTimeout(connectTimeOut)
                 .timeout(readReadTimeOut).accept(DEFAULT_APPLICATION_JSON).query(params).send();
+        return httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();
+    }
+
+    /**
+     *
+     * 使用Jodd发送Get请求<br/>
+     * <p>Title: getData</p>
+     * <p>author : zhangcan</p>
+     * <p>date : 2016年6月15日 下午5:31:08</p>
+     *
+     * @param url String 请求地址<br/>
+     * @param connectTimeOut int 连接超时时间<br/>
+     * @param readReadTimeOut 读取超时时间<br/>
+     * @param encoding String 请求编码格式<br/>
+     * @return String 响应内容<br/>
+     */
+    public static String getData(String url,
+                                 int connectTimeOut, int readReadTimeOut, String encoding) {
+        HttpResponse httpResponse =
+                HttpRequest.get(url).connectionTimeout(connectTimeOut)
+                        .timeout(readReadTimeOut).accept(DEFAULT_APPLICATION_JSON).send();
         return httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();
     }
     

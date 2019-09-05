@@ -1,7 +1,9 @@
 spring:
   datasource:
-      #url: jdbc:mysql://rm-gs5234ag5cc6te81j.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
-      url: jdbc:mysql://rm-gs5234ag5cc6te81j1o.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+      #内网
+      url: jdbc:mysql://rm-gs5234ag5cc6te81j.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+      #外网
+      #url: jdbc:mysql://rm-gs5234ag5cc6te81j1o.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
       username: mee_store
       password: mvpWSjWQ2itv3KgYAZqSLV94WXe6l5sDoc5a5CTlTQBkRKSGf4yXy9ZuAohrzseVeGvZKpdB9VvdkojtAm0n1A==
       type: com.alibaba.druid.pool.DruidDataSource
@@ -48,6 +50,24 @@ mybatis-plus:
 mee:
   ocrApiKey: 2259c1572d88957
   ocrUrl: https://api.ocr.space/parse/image
+  weimob:
+    clientId: AFB8952DCB6366424D303438DEE49231
+    clientSecret: E19DA15BD88B2D8B93DE80617C64FAD1
+    weimobTokenUrl: https://dopen.weimob.com/fuwu/b/oauth2/token
+    weimobOrderListUrl: https://dopen.weimob.com/api/1_0/ec/order/queryOrderList
+    returnUri: http://data.middle-earth.tech/index.html?page=weimob
+    goodsClassifyUrl: https://dopen.weimob.com/api/1_0/ec/goodsClassify/queryClassifyInfoList
+    goodListUrl: https://dopen.weimob.com/api/1_0/ec/goods/queryGoodsList
+    orderDetail: https://dopen.weimob.com/api/1_0/ec/order/queryOrderDetail
+  bizId: 20
+  token: g4rhAz32KXx6FsSbI9IKIxsygqaAyDhl
+  allProductUrl: https://biz.yiyun.co.nz/api/getAllProducts
+  allSupplieUrl: https://biz.yiyun.co.nz/api/getAllSuppliers
+
+
+
+
+
 
 
 

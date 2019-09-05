@@ -7,9 +7,11 @@ import java.math.BigDecimal;
 @Data
 public class ProductsVo {
 
-    String name;
+    String content;
 
-    Integer num;
+    Double num;
 
     BigDecimal price;
+
+    String sku;
 }

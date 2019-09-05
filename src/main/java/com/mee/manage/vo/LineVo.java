@@ -5,11 +5,12 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class LineVo {
+public class LineVo{
 
     List<WordsVo> Words;
 
     int MaxHeight;
 
     int MinTop;
+
 }
