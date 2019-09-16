@@ -35,6 +35,7 @@ public class WeimobServiceImpl implements IWeimobService {
     @Autowired
     IProductsService productsService;
 
+
     @Override
     public boolean addCode(String code) {
         if(code == null)
@@ -246,7 +247,7 @@ public class WeimobServiceImpl implements IWeimobService {
         }while((pageNum-1) * pageSize < totalCount);
 
         if(statusCode == StatusCode.SUCCESS) {
-            meeResult.setData(getOrderListData(datas,request.getSendarea(),request.getOrderType(),token));
+            meeResult.setData(getOrderListData(datas,request.getSendarea(),request.getOrderType()));
         }
         meeResult.setStatusCode(statusCode.getCode());
         return meeResult;
@@ -316,6 +317,52 @@ public class WeimobServiceImpl implements IWeimobService {
         return orderDetail;
     }
 
+    @Override
+    public List<GoodPageList> getGoodList(GoodListRequest goodListRequest) {
+        String token = getToken();
+        if(StringUtils.isEmpty(token))
+            return null;
+
+
+        String url = weimobConfig.getGoodListUrl()+"?accesstoken="+token;
+        int pageNum = 1;
+        int pageSize = 20;
+        int totalCount = 0;
+        List<GoodPageList> pageList = new ArrayList<>();
+
+        do {
+            goodListRequest.setPageNum(pageNum);
+            goodListRequest.setPageSize(pageSize);
+
+            String result = JoddHttpUtils.sendPostUseBody(url,goodListRequest);
+            if (result == null || result.isEmpty())
+                break;
+
+            logger.info("QueryGoodList = {}",result);
+            GoodListResponse goodListResponse = JSON.parseObject(result,GoodListResponse.class);
+            if(goodListResponse == null)
+                break;
+
+            WeimobOrderCode code = goodListResponse.getCode();
+            if(code == null)
+                break;
+
+            if(code.getErrcode() == null || !code.getErrcode().equals("0"))
+                break;
+
+            GoodListData data = goodListResponse.getData();
+            totalCount = data.getTotalCount();
+
+            pageList.addAll(data.getPageList());
+
+            pageNum ++;
+
+        }while ((pageNum-1) * pageSize < totalCount);
+
+
+        return pageList;
+    }
+
     private List<WeimobGroupVo> getGroupList(List<GoodsClassify> goodsClassifies){
         if(goodsClassifies == null || goodsClassifies.isEmpty())
             return null;
@@ -356,7 +403,7 @@ public class WeimobServiceImpl implements IWeimobService {
         return setToken(token,DateUtil.getSuffixSecond(expireToken),reToken, DateUtil.getSuffixSecond(expireRefreshToken));
     }
 
-    private WeimobOrderListResponse getOrderListData(List<WeimobOrderData> datas,Integer sendArea,Integer orderType,String token){
+    private WeimobOrderListResponse getOrderListData(List<WeimobOrderData> datas,Integer sendArea,Integer orderType){
         if(datas == null || datas.isEmpty() || datas.size() <=0)
             return null;
 
@@ -371,7 +418,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
         List<Long> milkIds = null;
         if(orderType != null) {
-            milkIds = getMilkIds(token);
+            milkIds = getMilkIds();
         }
 
         Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct();
@@ -403,7 +450,8 @@ public class WeimobServiceImpl implements IWeimobService {
                                 continue;
                             }
 
-                            if(orderType != null) {
+                            if(orderType != null && milkIds != null) {
+                                logger.info("ProductId = {}",product.getGoodsId());
                                 if ((orderType == 0) != milkIds.contains(product.getGoodsId().longValue()))
                                     continue;
 
@@ -462,11 +510,7 @@ public class WeimobServiceImpl implements IWeimobService {
         return response;
     }
 
-    private List<Long> getMilkIds(String weimobToken){
-        if(weimobToken == null || weimobToken.isEmpty())
-            return null;
-
-        String url = weimobConfig.getGoodListUrl()+"?accesstoken="+weimobToken;
+    private List<Long> getMilkIds(){
 
         GoodListRequest goodListRequest = new GoodListRequest();
         GoodListQueryParameter queryParameter = new GoodListQueryParameter();
@@ -475,45 +519,18 @@ public class WeimobServiceImpl implements IWeimobService {
         queryParameter.setGoodsStatus(0);
         goodListRequest.setQueryParameter(queryParameter);
 
-        int pageNum = 1;
-        int pageSize = 20;
-        int totalCount = 0;
-        List<Long> milkIds = new ArrayList<>();
-        do {
-            goodListRequest.setPageNum(pageNum);
-            goodListRequest.setPageSize(pageSize);
-
-            String result = JoddHttpUtils.sendPostUseBody(url,goodListRequest);
-            if (result == null || result.isEmpty())
-                break;
-
-            logger.info(result);
-            GoodListResponse goodListResponse = JSON.parseObject(result,GoodListResponse.class);
-            if(goodListResponse == null)
-                break;
-
-            WeimobOrderCode code = goodListResponse.getCode();
-            if(code == null)
-                break;
-
-            if(code.getErrcode() == null || !code.getErrcode().equals("0"))
-                break;
-
-            GoodListData data = goodListResponse.getData();
-            totalCount = data.getTotalCount();
-            List<GoodPageList> pageList = data.getPageList();
-            if (pageList == null || pageList.isEmpty())
-                break;
-
-            for (GoodPageList good : pageList){
+        List<Long> milkIds = null;
+        List<GoodPageList> pageLists = getGoodList(goodListRequest);
+        if(pageLists != null && pageLists.size() > 0) {
+            milkIds = new ArrayList<>();
+            for (GoodPageList good : pageLists) {
                 milkIds.add(good.getGoodsId());
             }
-
-            pageNum ++;
-
-        }while ((pageNum-1) * pageSize < totalCount);
+        }
 
         return milkIds;
     }
+
+
 
 }

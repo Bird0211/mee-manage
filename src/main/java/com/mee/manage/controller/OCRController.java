@@ -16,6 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Controller
 @ResponseBody
 @RequestMapping("/api")
@@ -50,7 +52,7 @@ public class OCRController {
     }
 
     @RequestMapping(value = "/textocr", method = RequestMethod.POST)
-    public MeeResult ocr(@RequestParam(value = "file") MultipartFile file){
+    public MeeResult ocr(@RequestParam(value = "file") MultipartFile file) {
         MeeResult meeResult = new MeeResult();
         try {
             String result = iocrService.textOCR(file,"eng");
@@ -68,7 +70,7 @@ public class OCRController {
     public MeeResult matchingInvoice(@RequestBody MatchingRequest request) {
         MeeResult meeResult = new MeeResult();
         try {
-            String result = dataMiningService.classification(request);
+            List<String> result = dataMiningService.classification(request);
             meeResult.setData(result);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
 

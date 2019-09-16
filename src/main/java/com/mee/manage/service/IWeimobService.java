@@ -23,4 +23,6 @@ public interface IWeimobService {
 
     WeimobOrderDetailVo getWeimobOrder(String orderId);
 
+    List<GoodPageList> getGoodList(GoodListRequest request);
+
 }

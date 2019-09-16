@@ -20,4 +20,21 @@ public class MeeConfig {
         return sign;
     }
 
+    public static void main(String[] args) {
+        String bidId = "20";
+
+        Long time = DateUtil.getCurrentTime();
+
+        String token = "g4rhAz32KXx6FsSbI9IKIxsygqaAyDhl";
+
+        String nonce = "3Q4gD2kz";
+
+        String sign = getMeeSign(bidId,time,token,nonce);
+
+        String url = bidId+"/"+time+"/"+nonce+"/"+sign;
+        System.out.println(url);
+
+
+    }
+
 }

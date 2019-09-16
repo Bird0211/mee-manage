@@ -83,8 +83,8 @@ public class OCRSeviceImpl implements IOCRService {
     public String textOCR(MultipartFile file, String language) {
         String ocrSpaceResult = null;
 
-        //ocrSpaceResult = tassOcr(file,language);
-        ocrSpaceResult = ocrSpfiace(file, language);
+        ocrSpaceResult = tassOcr(file,language);
+//        ocrSpaceResult = ocrSpfiace(file, language);
 
         return ocrSpaceResult;
     }
@@ -126,7 +126,7 @@ public class OCRSeviceImpl implements IOCRService {
             parames.put("isSearchablePdfHideTextLayer", false);
             parames.put("scale", true);
             parames.put("isTable", true);
-            parames.put("OCREngine",2);
+//            parames.put("OCREngine",2);
 
             result = JoddHttpUtils.sendPost(url, parames);
 
@@ -399,11 +399,15 @@ public class OCRSeviceImpl implements IOCRService {
             instance.setLanguage(language);
             instance.setOcrEngineMode(engineMode);
             instance.setPageSegMode(pageSegMode);
-            logger.info("page mode = {}", 3);
+            logger.info("page mode = {}", pageSegMode);
 
             String result = null;
             textImage = Tools.convertImage(textImage);
-            result = instance.doOCR(textImage);
+
+            List<Rectangle> rectangles = getetSegmentedRegions(textImage);
+
+//            result = instance.doOCR(textImage);
+
             logger.info("Finish doOCR");
             double end = System.currentTimeMillis();
             logger.info("Time:" + (end - start) / 1000 + " s");

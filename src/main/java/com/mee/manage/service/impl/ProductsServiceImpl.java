@@ -4,31 +4,21 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.pagehelper.IPage;
 import com.mee.manage.mapper.IProductsMapper;
 import com.mee.manage.po.Products;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.util.*;
 import com.mee.manage.vo.*;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jdmp.core.dataset.DataSet;
-import org.jdmp.core.dataset.DataSetFactory;
 import org.jdmp.core.sample.DefaultSample;
-import org.jdmp.core.sample.DefaultSampleFactory;
 import org.jdmp.core.sample.Sample;
-import org.jdmp.core.sample.SampleFactory;
 import org.jdmp.core.variable.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.ujmp.core.DenseMatrix;
 import org.ujmp.core.Matrix;
-import org.ujmp.core.mapmatrix.DefaultMapMatrix;
-import org.ujmp.core.util.MathUtil;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.*;
 
 @Service
@@ -145,12 +135,11 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
     }
 
     @Override
-    public List<Sample> getSampleProducts() {
-        List<MeeProductVo> meeProductVos = getMeeProducts();
+    public List<Sample> getSampleProducts(List<MeeProductVo> meeProductVos) {
         if(meeProductVos == null || meeProductVos.isEmpty()) {
             return null;
         }
-
+        Set<String> setCode = getSetCode(meeProductVos);
         List<Sample> samples = new ArrayList<>();
 
         for(int i = 0; i < meeProductVos.size(); i++) {
@@ -159,13 +148,12 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
             Sample sample = Sample.Factory.emptySample();
 
             sample.put("name", meeProduct.getName());
-            Matrix input = Matrix.Factory.linkToArray(new String[] { meeProduct.getName() }).transpose();
+            Matrix input = Matrix.Factory.linkToArray(new String[] { meeProduct.getName()}).transpose();
             sample.put(Variable.INPUT, input);
 
-            Matrix output = Matrix.Factory.linkToArray(meeProduct.getCode()).transpose();
+            Matrix output = Matrix.Factory.linkToArray(getOutPut(setCode,meeProduct.getCode())).transpose();
             sample.put(Variable.TARGET, output);
-
-            sample.setLabel(meeProduct.getCode());
+            sample.setLabel(meeProduct.getName());
 
             sample.setId("mee-"+i);
 
@@ -173,6 +161,19 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         }
 
         return samples;
+    }
+
+    public Set<String> getSetCode(List<MeeProductVo> meeProductVos ) {
+        if(meeProductVos == null || meeProductVos.isEmpty()) {
+            return null;
+        }
+
+        Set<String> setCode = new HashSet<>();
+        for (MeeProductVo product : meeProductVos) {
+            setCode.add(product.getCode());
+        }
+
+        return setCode;
     }
 
     @Override
@@ -217,5 +218,18 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         products.setUpdateTime(new Date());
         products.setState(0);
         return products;
+    }
+
+    private Double[] getOutPut(Set<String> setCodes, String code){
+        List<Double> output = new ArrayList<>();
+        for(String setCode : setCodes) {
+            Double d = 0.0;
+            if(setCode.equals(code)) {
+                d = 1.0;
+            }
+            output.add(d);
+        }
+        Double[] out = new Double[output.size()];
+        return output.toArray(out);
     }
 }

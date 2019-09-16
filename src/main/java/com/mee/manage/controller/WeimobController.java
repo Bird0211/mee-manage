@@ -103,6 +103,12 @@ public class WeimobController {
             meeResult.setStatusCode(StatusCode.FAIL.getCode());
         }
         return meeResult;
+    }
+
+    @RequestMapping(value = "/goods/list", method = RequestMethod.POST)
+    public MeeResult getGoodList(@RequestBody GoodListQueryParameter goodlist) {
+
+        return null;
 
     }
 

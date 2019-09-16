@@ -11,6 +11,7 @@ import org.jdmp.core.sample.Sample;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface IProductsService extends IService<Products> {
 
@@ -30,7 +31,9 @@ public interface IProductsService extends IService<Products> {
 
     List<SuppliersVo> getSuppliers();
 
-    List<Sample> getSampleProducts();
+    List<Sample> getSampleProducts(List<MeeProductVo> meeProductVos);
 
     Map<String,MeeProductVo> getMapMeeProduct();
+
+    public Set<String> getSetCode(List<MeeProductVo> meeProductVos);
 }
