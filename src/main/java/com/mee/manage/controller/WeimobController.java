@@ -75,8 +75,9 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/classify/queryList", method = RequestMethod.POST)
+    @RequestMapping(value = "/classify/queryList", method = RequestMethod.GET)
     public MeeResult getClassifyInfo(){
+
         MeeResult meeResult = new MeeResult();
         try {
             List<WeimobGroupVo> classifyVos = weimobService.getClassifyInfo();
@@ -87,7 +88,6 @@ public class WeimobController {
             meeResult.setStatusCode(StatusCode.FAIL.getCode());
         }
         return meeResult;
-
     }
 
     @RequestMapping(value = "/order/detail", method = RequestMethod.POST)
@@ -108,8 +108,17 @@ public class WeimobController {
     @RequestMapping(value = "/goods/list", method = RequestMethod.POST)
     public MeeResult getGoodList(@RequestBody GoodListQueryParameter goodlist) {
 
-        return null;
-
+        MeeResult meeResult = new MeeResult();
+        try {
+            List<GoodInfoVo> goods = weimobService.getWeimobGoods(goodlist);
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+            meeResult.setData(goods);
+        } catch (Exception ex) {
+            logger.error("getClassifyInfo Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
     }
+
 
 }

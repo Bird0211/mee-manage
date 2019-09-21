@@ -25,4 +25,6 @@ public class WeimobConfig {
     String goodListUrl;
 
     String orderDetail;
+
+    String goodDetailUrl;
 }

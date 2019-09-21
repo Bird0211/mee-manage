@@ -23,6 +23,11 @@ public interface IWeimobService {
 
     WeimobOrderDetailVo getWeimobOrder(String orderId);
 
-    List<GoodPageList> getGoodList(GoodListRequest request);
+    List<GoodPageList> getGoodList(GoodListQueryParameter params);
+
+    List<GoodInfoVo> getWeimobGoods(GoodListQueryParameter params);
+
+    GoodDetailData getWeimobGoodDetail(Long goodId);
+
 
 }

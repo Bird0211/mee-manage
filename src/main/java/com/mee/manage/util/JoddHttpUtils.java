@@ -65,11 +65,17 @@ public class JoddHttpUtils {
      */
     public static String sendPost(String url, Map<String, Object> params,
         int connectTimeOut, int readTimeOut, String encoding) {
-        HttpResponse httpResponse = HttpRequest.post(url)
-            .connectionTimeout(connectTimeOut).timeout(readTimeOut)
-            .formEncoding(encoding).form(params).send();
+
+        HttpRequest httpRequest = HttpRequest.post(url)
+                .connectionTimeout(connectTimeOut).timeout(readTimeOut)
+                .formEncoding(encoding);
+        if(params != null)
+            httpRequest = httpRequest.form(params);
+
+        HttpResponse httpResponse = httpRequest.send();
         return httpResponse.accept(encoding).bodyText();
     }
+
 
     public static String sendPost(String url, Map<String, Object> params,
                                   int connectTimeOut, int readTimeOut, String encoding,String contentType) {

@@ -3,6 +3,8 @@ package com.mee.manage.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.*;
 import com.mee.manage.po.Configuration;
 import com.mee.manage.service.IConfigurationService;
 import com.mee.manage.service.IOCRService;
@@ -20,6 +22,9 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 @Service
 public class WeimobServiceImpl implements IWeimobService {
@@ -279,8 +284,7 @@ public class WeimobServiceImpl implements IWeimobService {
         if(data == null)
             return null;
 
-        WeimobGoodsClassifyList goodsClassifyList = data.getGoodsClassifyList();
-        List<GoodsClassify> goodsClassifies = goodsClassifyList.getGoodsClassifyList();
+        List<GoodsClassify> goodsClassifies = data.getGoodsClassifyList();
         if(goodsClassifies == null || goodsClassifies.isEmpty())
             return null;
 
@@ -318,12 +322,14 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public List<GoodPageList> getGoodList(GoodListRequest goodListRequest) {
+    public List<GoodPageList> getGoodList(GoodListQueryParameter params) {
+
         String token = getToken();
         if(StringUtils.isEmpty(token))
             return null;
 
-
+        GoodListRequest goodListRequest = new GoodListRequest();
+        goodListRequest.setQueryParameter(params);
         String url = weimobConfig.getGoodListUrl()+"?accesstoken="+token;
         int pageNum = 1;
         int pageSize = 20;
@@ -361,6 +367,149 @@ public class WeimobServiceImpl implements IWeimobService {
 
 
         return pageList;
+    }
+
+    @Override
+    public List<GoodInfoVo> getWeimobGoods(GoodListQueryParameter params) {
+
+        List<GoodPageList> goodList = getGoodList(params);
+        Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct();
+
+        List<GoodInfoVo>  goodInfos = new ArrayList<>();
+
+        if(goodList != null && !goodList.isEmpty()) {
+            List<ListenableFuture<GoodDetailData>> futures = Lists.newArrayList();
+            for (GoodPageList good : goodList) {
+                ListenableFuture<GoodDetailData> task = JayGuavaExecutors.getDefaultCompletedExecutorService()
+                        .submit(new Callable<GoodDetailData>() {
+
+                            @Override
+                            public GoodDetailData call() throws Exception {
+                                GoodDetailData goodData = getWeimobGoodDetail(good.getGoodsId());
+                                return goodData;
+                            }
+
+                        });
+
+                futures.add(task);
+            }
+
+            ListenableFuture<List<GoodDetailData>> resultsFuture = Futures.successfulAsList(futures);
+            try {
+                List<GoodDetailData> datas = resultsFuture.get();
+                if(datas != null && !datas.isEmpty()) {
+                    for (GoodDetailData goodDetailData : datas) {
+                        List<GoodInfoVo> finalGoodInfos = stGoodInfo(goodDetailData,allProducts);
+                        goodInfos.addAll(finalGoodInfos);
+                    }
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        return goodInfos;
+    }
+
+    private List<GoodInfoVo> stGoodInfo(GoodDetailData goodData,Map<String,MeeProductVo> allProducts ) {
+        List<GoodInfoVo> goodInfos = null;
+        if(goodData != null) {
+
+            GoodDetailVo goodDetail = goodData.getGoods();
+            if(goodDetail == null)
+                return null;
+
+            goodInfos = new ArrayList<>();
+            List<WeimobSkuVo> skuList = goodDetail.getSkuList();
+            if(skuList != null && !skuList.isEmpty()) {
+                for (WeimobSkuVo skuVo : skuList) {
+                    GoodInfoVo goodInfo = new GoodInfoVo();
+
+                    Map<String,SkuAttrMap> skuAttrMap = skuVo.getSkuAttrMap();
+                    StringBuffer sb = new StringBuffer(skuVo.getProductTitle());
+                    if(skuAttrMap != null){
+                        Set<String> keys = skuAttrMap.keySet();
+                        if(keys != null && !keys.isEmpty()) {
+                            for(String key : keys) {
+                                SkuAttrMap attrMap = skuAttrMap.get(key);
+                                sb.append("[").append(attrMap.getName()).append(":").append(attrMap.getValue()).append("]");
+                            }
+                        }
+                    }
+
+                    if(sb != null && sb.length() > 0) {
+                        goodInfo.setTitle(sb.toString());
+
+                    }
+
+                    if(!StringUtils.isEmpty(skuVo.getImageUrl())) {
+                        goodInfo.setDefaultImageUrl(skuVo.getImageUrl());
+
+                    }
+
+                    if(skuVo.getGoodsId() != null && skuVo.getGoodsId() != 0) {
+                        goodInfo.setGoodsId(skuVo.getGoodsId());
+
+                    }
+
+                    goodInfo.setSalesPrice(skuVo.getSalePrice());
+                    goodInfo.setCostPrice(skuVo.getCostPrice());
+
+                    String outerSky = skuVo.getOuterSkuCode();
+                    if(!StringUtils.isEmpty(outerSky))
+                        goodInfo.setSku(skuVo.getOuterSkuCode().split("_")[0]);
+
+                    if(StringUtils.isEmpty(goodInfo.getDefaultImageUrl())) {
+                        List<String> images = goodDetail.getGoodsImageUrl();
+                        if(images != null && images.size() > 0) {
+                            goodInfo.setDefaultImageUrl(images.get(0));
+                        }
+                    }
+
+                    MeeProductVo meeProduct = allProducts.get(goodInfo.getSku());
+                    if(meeProduct != null) {
+                        goodInfo.setYiyunCostPrice(meeProduct.getCostPrice());
+                        goodInfo.setYiyunSalesPrice(meeProduct.getRetailPrice());
+                        goodInfo.setWeight(meeProduct.getWeight());
+                    }
+                    goodInfos.add(goodInfo);
+                }
+            }
+
+        }
+
+        return goodInfos;
+    }
+
+    @Override
+    public GoodDetailData getWeimobGoodDetail(Long goodId) {
+        if(goodId == null)
+            return null;
+
+        String token = getToken();
+        String url = weimobConfig.getGoodDetailUrl()+"?accesstoken="+token;
+        Map<String,Object> params = new HashMap<>();
+        params.put("goodsId",goodId);
+        String result = JoddHttpUtils.sendPostUseBody(url,params);
+        if(result == null || result.isEmpty())
+            return null;
+
+        logger.info(result);
+        GoodDetailResponse detailResponse = JSON.parseObject(result,GoodDetailResponse.class);
+        if(detailResponse == null)
+            return null;
+
+        WeimobOrderCode code = detailResponse.getCode();
+        if(code == null)
+            return null;
+
+        if(code.getErrcode() == null || !code.getErrcode().equals("0"))
+            return null;
+
+        GoodDetailData goodDetail = detailResponse.getData();
+        return goodDetail;
     }
 
     private List<WeimobGroupVo> getGroupList(List<GoodsClassify> goodsClassifies){
@@ -512,15 +661,13 @@ public class WeimobServiceImpl implements IWeimobService {
 
     private List<Long> getMilkIds(){
 
-        GoodListRequest goodListRequest = new GoodListRequest();
         GoodListQueryParameter queryParameter = new GoodListQueryParameter();
         queryParameter.setSearch(null);
         queryParameter.setGoodsClassifyId(657235243L);
         queryParameter.setGoodsStatus(0);
-        goodListRequest.setQueryParameter(queryParameter);
 
         List<Long> milkIds = null;
-        List<GoodPageList> pageLists = getGoodList(goodListRequest);
+        List<GoodPageList> pageLists = getGoodList(queryParameter);
         if(pageLists != null && pageLists.size() > 0) {
             milkIds = new ArrayList<>();
             for (GoodPageList good : pageLists) {
