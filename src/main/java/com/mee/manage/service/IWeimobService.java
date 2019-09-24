@@ -29,5 +29,6 @@ public interface IWeimobService {
 
     GoodDetailData getWeimobGoodDetail(Long goodId);
 
+    List<PriceUpdateResult> updateWeimobPrice(List<GoodPriceDetail> goodsPrice);
 
 }

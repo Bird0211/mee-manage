@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -380,7 +381,7 @@ public class WeimobServiceImpl implements IWeimobService {
         if(goodList != null && !goodList.isEmpty()) {
             List<ListenableFuture<GoodDetailData>> futures = Lists.newArrayList();
             for (GoodPageList good : goodList) {
-                ListenableFuture<GoodDetailData> task = JayGuavaExecutors.getDefaultCompletedExecutorService()
+                ListenableFuture<GoodDetailData> task = GuavaExecutors.getDefaultCompletedExecutorService()
                         .submit(new Callable<GoodDetailData>() {
 
                             @Override
@@ -512,6 +513,62 @@ public class WeimobServiceImpl implements IWeimobService {
         return goodDetail;
     }
 
+    @Override
+    public List<PriceUpdateResult> updateWeimobPrice(List<GoodPriceDetail> goodsPrice) {
+        if(goodsPrice == null || goodsPrice.isEmpty())
+            return null;
+
+        Map<Long,List<GoodPriceDetail>> mergeGoods = new HashMap<>();
+        goodsPrice.forEach((item) -> {
+            List<GoodPriceDetail> goods = mergeGoods.get(item.getGoodId());
+            if (goods == null) {
+                goods = Lists.newArrayList();
+            }
+            goods.add(item);
+
+            mergeGoods.put(item.getGoodId(),goods);
+        });
+
+
+        List<ListenableFuture<List<PriceUpdateResult>>> futures = Lists.newArrayList();
+        Set<Long> keys = mergeGoods.keySet();
+        for (Long key : keys ) {
+            List<GoodPriceDetail> goodPrices = mergeGoods.get(key);
+            if(goodPrices == null || goodPrices.isEmpty())
+                continue;
+
+            ListenableFuture<List<PriceUpdateResult>> task = GuavaExecutors.getDefaultCompletedExecutorService()
+                    .submit(new Callable<List<PriceUpdateResult>>() {
+
+                        @Override
+                        public List<PriceUpdateResult> call() throws Exception {
+                            List<PriceUpdateResult> priceUpdate = updatePrice(key,goodPrices);
+
+                            return priceUpdate;
+                        }
+
+                    });
+            futures.add(task);
+        }
+
+        List<PriceUpdateResult> priceUpdateResults = new ArrayList<>();
+        ListenableFuture<List<List<PriceUpdateResult>>> resultsFuture = Futures.successfulAsList(futures);
+        try {
+            List<List<PriceUpdateResult>> updateResult = resultsFuture.get();
+            for (List<PriceUpdateResult> results : updateResult)
+                if(results != null && results.size() > 0)
+                    priceUpdateResults.addAll(results);
+
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return priceUpdateResults;
+    }
+
     private List<WeimobGroupVo> getGroupList(List<GoodsClassify> goodsClassifies){
         if(goodsClassifies == null || goodsClassifies.isEmpty())
             return null;
@@ -573,7 +630,10 @@ public class WeimobServiceImpl implements IWeimobService {
         Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct();
 
         WeimobOrderListResponse response = new WeimobOrderListResponse();
+        List<ListenableFuture<WeimobOrderDetailVo>> futures = Lists.newArrayList();
+
         List<WeimobItemsResponse> weimobItems = new ArrayList<>();
+
         for(int i = 0; i < datas.size();i++) {
             WeimobOrderData data = datas.get(i);
             if(i == 0) {
@@ -624,22 +684,19 @@ public class WeimobServiceImpl implements IWeimobService {
                     if(content == null || content.length() <= 0)
                         continue;
 
-                    String idCardNo = null;
-                    WeimobOrderDetailVo orderVo = getWeimobOrder(""+item.getOrderNo());
-                    if(orderVo != null ) {
-                        WeimobDeliveryDetailVo deliveryDetail = orderVo.getDeliveryDetail();
-                        if(deliveryDetail != null) {
-                            LogisticsDeliveryDetail logisticsDelivery = deliveryDetail.getLogisticsDeliveryDetail();
-                            if(logisticsDelivery != null) {
-                                idCardNo = logisticsDelivery.getIdCardNo();
-                                logger.info("{} IdcardNo = {}", item.getOrderNo(), idCardNo);
-                            }else
-                                logger.info("logisticsDelivery is null");
-                        }else {
-                            logger.info("deliveryDetail is null!");
-                        }
-                    } else
-                        logger.info("OrderDetailVo is NULL");
+
+                    ListenableFuture<WeimobOrderDetailVo> task = GuavaExecutors.getDefaultCompletedExecutorService()
+                            .submit(new Callable<WeimobOrderDetailVo>() {
+
+                                @Override
+                                public WeimobOrderDetailVo call() throws Exception {
+                                    WeimobOrderDetailVo orderVo = getWeimobOrder(""+item.getOrderNo());
+                                    return orderVo;
+                                }
+
+                            });
+
+                    futures.add(task);
 
                     WeimobItemsResponse weimobItem = new WeimobItemsResponse();
                     weimobItem.setAddress(address);
@@ -648,19 +705,56 @@ public class WeimobServiceImpl implements IWeimobService {
                     weimobItem.setNum(num);
                     weimobItem.setOrderNo(orderNo);
                     weimobItem.setPhone(mobile);
-                    weimobItem.setIdCardNo(idCardNo);
+                    weimobItem.setIdCardNo(null);
 
                     weimobItems.add(weimobItem);
                 }
             }
         }
+
+        ListenableFuture<List<WeimobOrderDetailVo>> resultsFuture = Futures.successfulAsList(futures);
+        try {
+            List<WeimobOrderDetailVo> orderDetails = resultsFuture.get();
+            Map<Long,String> map = new HashMap<>();
+            if(orderDetails != null && !orderDetails.isEmpty()) {
+                for (WeimobOrderDetailVo goodDetailData : orderDetails) {
+                    WeimobDeliveryDetailVo deliveryDetail = goodDetailData.getDeliveryDetail();
+                    if(deliveryDetail != null) {
+                        LogisticsDeliveryDetail logisticsDelivery = deliveryDetail.getLogisticsDeliveryDetail();
+                        if(logisticsDelivery != null) {
+                            String idCardNo = logisticsDelivery.getIdCardNo();
+                            map.put(goodDetailData.getOrderNo(),idCardNo);
+
+                            logger.info("{} IdcardNo = {}", goodDetailData.getOrderNo(), idCardNo);
+                        }else
+                            logger.info("logisticsDelivery is null");
+                    }else {
+                        logger.info("deliveryDetail is null!");
+                    }
+                }
+            }
+
+            if(map != null && !map.isEmpty()) {
+
+                weimobItems.forEach((item) -> {
+                    String idCardNo = map.get(item.getOrderNo());
+                    if(!StringUtils.isEmpty(idCardNo))
+                        item.setIdCardNo(idCardNo);
+                });
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
         response.setItems(weimobItems);
 
         return response;
     }
 
     private List<Long> getMilkIds(){
-
         GoodListQueryParameter queryParameter = new GoodListQueryParameter();
         queryParameter.setSearch(null);
         queryParameter.setGoodsClassifyId(657235243L);
@@ -678,6 +772,108 @@ public class WeimobServiceImpl implements IWeimobService {
         return milkIds;
     }
 
+
+    private List<PriceUpdateResult> updatePrice(Long goodId,List<GoodPriceDetail> goodPrices){
+        if(goodPrices == null || goodPrices.isEmpty()) {
+            return null;
+        }
+
+        //GetWeiGood
+        GoodDetailData goodDetail = getWeimobGoodDetail(goodId);
+        //CheckPrice
+        if(goodDetail == null) {
+            return null;
+        }
+
+        GoodDetailVo detail = goodDetail.getGoods();
+        if (detail == null)
+            return null;
+
+        List<WeimobSkuVo> skus = detail.getSkuList();
+        if (skus == null || skus.isEmpty()) {
+            return null;
+        }
+
+        logger.info("GoodDetail = {}",goodDetail);
+
+        Map<String,WeimobSkuVo> skuVoMap = new HashMap<>();
+        for (WeimobSkuVo sku : skus) {
+            skuVoMap.put(sku.getOuterSkuCode(),sku);
+        }
+
+        List<PriceUpdateResult> results = new ArrayList<>();
+        List<SkuList> skuList = new ArrayList<>();
+
+        for (GoodPriceDetail priceDetail : goodPrices) {
+
+            BigDecimal costPrice = priceDetail.getUpdateCostPrice() == null ? BigDecimal.ZERO : priceDetail.getUpdateCostPrice() ;
+            BigDecimal salePrice = priceDetail.getUpdateSalesPrice() == null ? BigDecimal.ZERO : priceDetail.getUpdateSalesPrice() ;
+
+            String sku = priceDetail.getSku();
+            WeimobSkuVo weimobSku = skuVoMap.get(sku);
+            BigDecimal weimobCostPrice = weimobSku.getCostPrice() == null ? BigDecimal.ZERO : weimobSku.getCostPrice();
+            BigDecimal weimobSalePrice = weimobSku.getSalePrice() == null ? BigDecimal.ZERO : weimobSku.getSalePrice();
+            BigDecimal oriPrice = weimobSku.getOriginalPrice();
+            Long skuId = weimobSku.getSkuId();
+
+            if (costPrice.compareTo(weimobCostPrice) < 0 ||
+                    salePrice.compareTo(weimobSalePrice) < 0) {
+                PriceUpdateResult result = new PriceUpdateResult();
+                result.setSuccess(false);
+                result.setSku(sku);
+                result.setStatusCode(StatusCode.WEIMOB_LOW_PRICE);
+                results.add(result);
+            } else {
+                SkuList skuVo = new SkuList();
+                skuVo.setSkuId(skuId);
+                skuVo.setCostPrice(costPrice);
+                skuVo.setOriginalPrice(oriPrice);
+                skuVo.setSalePrice(salePrice);
+                skuList.add(skuVo);
+            }
+        }
+
+        logger.info("skuList = {}",skuList);
+        //UpdatePrice
+        if(skuList != null && !skuList.isEmpty()) {
+            WeimobUpdateParams params = new WeimobUpdateParams();
+            params.setGoodsId(goodId);
+            params.setOperateType(2);
+            params.setSkuList(skuList);
+
+            logger.info("params = {}",params);
+            boolean isSucc = updateWeimobGood(params);
+            for (SkuList sku : skuList) {
+                PriceUpdateResult result = new PriceUpdateResult();
+                result.setSku(""+sku.getSkuId());
+                result.setSuccess(isSucc);
+                results.add(result);
+            }
+        }
+
+        return results;
+    }
+
+
+    private boolean updateWeimobGood(WeimobUpdateParams params){
+        if(params == null)
+            return false;
+
+        String token = getToken();
+        String url = weimobConfig.getUpdateGoodUrl()+"?accesstoken="+token;
+
+        String result = JoddHttpUtils.sendPostUseBody(url,params);
+        if(result == null || result.isEmpty())
+            return false;
+
+        logger.info(result);
+        UpdateGoodResponse response = JSON.parseObject(result,UpdateGoodResponse.class);
+        if(response == null || response.getCode() == null || !response.getCode().getErrcode().equals("0") )
+            return false;
+
+        return response.getData().isResult();
+
+    }
 
 
 }

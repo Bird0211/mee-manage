@@ -120,5 +120,19 @@ public class WeimobController {
         return meeResult;
     }
 
+    @RequestMapping(value = "/goods/update", method = RequestMethod.POST)
+    public MeeResult updatePrice(@RequestBody List<GoodPriceDetail> goods){
+        MeeResult meeResult = new MeeResult();
+        try {
+            List<PriceUpdateResult> result = weimobService.updateWeimobPrice(goods);
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+            meeResult.setData(result);
+        } catch (Exception ex) {
+            logger.error("getClassifyInfo Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
+    }
+
 
 }
