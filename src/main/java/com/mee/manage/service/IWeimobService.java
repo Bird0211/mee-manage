@@ -31,4 +31,8 @@ public interface IWeimobService {
 
     List<PriceUpdateResult> updateWeimobPrice(List<GoodPriceDetail> goodsPrice);
 
+    List<StoreVo> getStoreList();
+
+    WeimobSkuVo getSkuDetail(Long skuCode,Integer storeId);
+
 }

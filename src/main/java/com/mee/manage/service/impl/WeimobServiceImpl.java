@@ -569,6 +569,88 @@ public class WeimobServiceImpl implements IWeimobService {
         return priceUpdateResults;
     }
 
+    @Override
+    public List<StoreVo> getStoreList() {
+        int pageNum = 1;
+        int pageSize = 50;
+        int totalCount = 0;
+        List<StoreVo> stores = Lists.newArrayList();
+        do {
+            WeimobStoreData data = getStore(pageNum,pageSize);
+            if (data == null)
+                break;
+
+            totalCount = data.getTotalCount();
+
+            HeadStoreInfo headStore = data.getHeadStoreInfo();
+            StoreVo store = new StoreVo();
+            store.setStoreId(headStore.getId());
+            store.setStoreName(headStore.getStoreName());
+            stores.add(store);
+            pageNum ++;
+        } while ((pageNum - 1) * pageSize < totalCount);
+
+        return stores;
+    }
+
+    @Override
+    public WeimobSkuVo getSkuDetail(Long skuCode, Integer storeId) {
+        if(skuCode == null || storeId == null)
+            return null;
+
+        String token = getToken();
+        String url = weimobConfig.getSkuProductUrl() + "?accesstoken="+token;
+        Map<String,String> params = new HashMap<>();
+        params.put("skuCode",skuCode.toString());
+        params.put("storeId",storeId.toString());
+
+        String result = JoddHttpUtils.sendPostUseBody(url,params);
+        logger.info(result);
+
+        if(result.indexOf("80001001000119") >=0 ){
+            logger.info("Token Error!");
+            return null;
+        }
+
+
+
+        return null;
+    }
+
+    private WeimobStoreData getStore(int pageNum,int pageSize){
+        String token = getToken();
+
+        String url = weimobConfig.getStoreListUrl() + "?accesstoken="+token;
+        Map<String,Integer> params = new HashMap<>();
+        params.put("pageNum",pageNum);
+        params.put("pageSize",pageSize);
+
+        String result = JoddHttpUtils.sendPostUseBody(url,params);
+        logger.info(result);
+
+        if(result.indexOf("80001001000119") >=0 ){
+            logger.info("Token Error!");
+            return null;
+        }
+        WeimobStoreResponse response = JSON.parseObject(result,WeimobStoreResponse.class, Feature.IgnoreNotMatch);
+        if(response == null){
+            return null;
+        }
+
+        WeimobOrderCode code = response.getCode();
+        if(code == null || code.getErrcode().equals("80001001000119")){
+            return null;
+        }
+
+        if(!code.getErrcode().equals("0")) {
+            return null;
+        }
+
+        WeimobStoreData data = response.getData();
+
+        return data;
+    }
+
     private List<WeimobGroupVo> getGroupList(List<GoodsClassify> goodsClassifies){
         if(goodsClassifies == null || goodsClassifies.isEmpty())
             return null;

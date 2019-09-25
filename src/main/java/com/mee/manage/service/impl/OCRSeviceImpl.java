@@ -83,8 +83,8 @@ public class OCRSeviceImpl implements IOCRService {
     public String textOCR(MultipartFile file, String language) {
         String ocrSpaceResult = null;
 
-        ocrSpaceResult = tassOcr(file,language);
-//        ocrSpaceResult = ocrSpfiace(file, language);
+//        ocrSpaceResult = tassOcr(file,language);
+        ocrSpaceResult = ocrSpfiace(file, language);
 
         return ocrSpaceResult;
     }

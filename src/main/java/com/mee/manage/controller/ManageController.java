@@ -132,10 +132,7 @@ public class ManageController {
             meeResult.setStatusCode(StatusCode.FAIL.getCode());
         }
 
-
         return meeResult;
     }
-
-
 
 }

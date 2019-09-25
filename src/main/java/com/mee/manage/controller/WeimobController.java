@@ -134,5 +134,18 @@ public class WeimobController {
         return meeResult;
     }
 
+    @RequestMapping(value = "/store/list", method = RequestMethod.GET)
+    public MeeResult getStore(){
+        MeeResult meeResult = new MeeResult();
+        try {
+            List<StoreVo> result = weimobService.getStoreList();
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+            meeResult.setData(result);
+        } catch (Exception ex) {
+            logger.error("getClassifyInfo Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
+    }
 
 }

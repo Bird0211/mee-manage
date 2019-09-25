@@ -29,4 +29,8 @@ public class WeimobConfig {
     String goodDetailUrl;
 
     String updateGoodUrl;
+
+    String storeListUrl;
+
+    String skuProductUrl;
 }

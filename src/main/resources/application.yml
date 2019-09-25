@@ -64,6 +64,10 @@ mee:
     orderDetail: https://dopen.weimob.com/api/1_0/ec/order/queryOrderDetail
     updateGoodUrl: https://dopen.weimob.com/api/1_0/ec/goods/updateStockAndPrice
     goodDetailUrl: https://dopen.weimob.com/api/1_0/ec/goods/queryGoodsDetail
+    storeListUrl: https://dopen.weimob.com/api/1_0/ec/merchant/queryStoreList
+    skuProductUrl: https://dopen.weimob.com/api/1_0/ec/singleProduct/queryProductListBySkuCode
+
+
 
   bizId: 20
   token: g4rhAz32KXx6FsSbI9IKIxsygqaAyDhl
