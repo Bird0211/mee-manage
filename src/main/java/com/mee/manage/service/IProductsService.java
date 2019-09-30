@@ -27,13 +27,13 @@ public interface IProductsService extends IService<Products> {
 
     List<Sample> getAllProducts();
 
-    List<MeeProductVo> getMeeProducts();
+    List<MeeProductVo> getMeeProducts(String bizId);
 
-    List<SuppliersVo> getSuppliers();
+    List<SuppliersVo> getSuppliers(String bizId);
 
     List<Sample> getSampleProducts(List<MeeProductVo> meeProductVos);
 
-    Map<String,MeeProductVo> getMapMeeProduct();
+    Map<String,MeeProductVo> getMapMeeProduct(String bizId);
 
     public Set<String> getSetCode(List<MeeProductVo> meeProductVos);
 }

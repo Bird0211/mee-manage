@@ -42,7 +42,7 @@ public class DataMiningServiceImpl implements IDataMiningService {
 
     @Override
     public List<String> classification(MatchingRequest request) throws IOException {
-        List<MeeProductVo> meeProductVos = productsService.getMeeProducts();
+        List<MeeProductVo> meeProductVos = productsService.getMeeProducts("20");
 
 //        test();
 //        predicted(request,meeProductVos);

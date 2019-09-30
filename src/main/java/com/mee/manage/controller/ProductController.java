@@ -61,12 +61,11 @@ public class ProductController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/allProducts", method = RequestMethod.GET)
-    public MeeResult getAllProducts() {
+    @RequestMapping(value = "/allProducts", method = RequestMethod.POST)
+    public MeeResult getAllProducts(@RequestParam("bizId") String bizId) {
         MeeResult meeResult = new MeeResult();
         try {
-
-            List<MeeProductVo> result = productsService.getMeeProducts();
+            List<MeeProductVo> result = productsService.getMeeProducts(bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(result);
 
@@ -78,15 +77,13 @@ public class ProductController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/allSuppliers", method = RequestMethod.GET)
-    public MeeResult getAllSuppliers() {
+    @RequestMapping(value = "/allSuppliers", method = RequestMethod.POST)
+    public MeeResult getAllSuppliers(@RequestParam("bizId") String bizId) {
         MeeResult meeResult = new MeeResult();
         try {
-
-            List<SuppliersVo> result = productsService.getSuppliers();
+            List<SuppliersVo> result = productsService.getSuppliers(bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(result);
-
         } catch (Exception ex) {
             logger.info("addProduct error",ex);
             meeResult.setStatusCode(StatusCode.FAIL.getCode());

@@ -2,9 +2,9 @@ package com.mee.manage.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.github.houbb.word.checker.core.impl.EnWordChecker;
+import com.mee.manage.service.IAuthenticationService;
 import com.mee.manage.service.IOCRService;
-import com.mee.manage.util.Config;
-import com.mee.manage.util.JoddHttpUtils;
+import com.mee.manage.util.*;
 import com.mee.manage.vo.*;
 import com.recognition.software.jdeskew.ImageDeskew;
 import net.sourceforge.tess4j.ITessAPI;
@@ -13,6 +13,7 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
 import net.sourceforge.tess4j.util.ImageHelper;
 import net.sourceforge.tess4j.util.Utils;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +54,13 @@ public class OCRSeviceImpl implements IOCRService {
     static final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
     ///tessdata
     private final static String DATA_PATH = "/data/ocr/tessdata";
+
     @Autowired
     private Config config;
+
+    @Autowired
+    private IAuthenticationService authService;
+
 
     @Override
     public void loadTrainingData(String path) {
@@ -87,6 +93,45 @@ public class OCRSeviceImpl implements IOCRService {
         ocrSpaceResult = ocrSpfiace(file, language);
 
         return ocrSpaceResult;
+    }
+
+    @Override
+    public MeeResult updateInventory(InventoryRequest request,AuthenticationVo auth) {
+        MeeResult result = new MeeResult();
+
+        if(auth == null || auth.isEmpty()) {
+            result.setStatusCode(StatusCode.AUTH_FAIL.getCode());
+            return result;
+
+        }
+
+
+        Long time = DateUtil.getCurrentTime();
+        String token = authService.getMeeToken(auth.getBizId());
+
+        String url = config.getStockIntake();
+        Map<String,Object> params = new HashMap<>();
+        params.put("bizid",auth.getBizId());
+        params.put("time",time);
+        params.put("nonce",auth.getNonce());
+        params.put("intake",JSON.toJSONString(request));
+        params.put("sign",MeeConfig.getMeeSign(auth.getBizId(),time,token,auth.getNonce()));
+
+        String invoiceResult = JoddHttpUtils.sendPost(url,params);
+        logger.info(invoiceResult);
+        List<MeeInvoiceResponse> invoiceResponse = JSON.parseArray(invoiceResult,MeeInvoiceResponse.class);
+        if(invoiceResponse == null || invoiceResponse.isEmpty()) {
+            result.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+        MeeInvoiceResponse meeInvoice = invoiceResponse.get(0);
+        if (meeInvoice.getResult().equals("SUCCESS")) {
+            result.setStatusCode(StatusCode.SUCCESS.getCode());
+        } else {
+            result.setData(meeInvoice.getError());
+            result.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return result;
     }
 
     private String tassOcr(MultipartFile file, String language) {

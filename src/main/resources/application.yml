@@ -64,17 +64,12 @@ mee:
     orderDetail: https://dopen.weimob.com/api/1_0/ec/order/queryOrderDetail
     updateGoodUrl: https://dopen.weimob.com/api/1_0/ec/goods/updateStockAndPrice
     goodDetailUrl: https://dopen.weimob.com/api/1_0/ec/goods/queryGoodsDetail
-    storeListUrl: https://dopen.weimob.com/api/1_0/ec/merchant/queryStoreList
-    skuProductUrl: https://dopen.weimob.com/api/1_0/ec/singleProduct/queryProductListBySkuCode
-
-
-
-  bizId: 20
-  token: g4rhAz32KXx6FsSbI9IKIxsygqaAyDhl
   allProductUrl: https://biz.yiyun.co.nz/api/getAllProducts
   allSupplieUrl: https://biz.yiyun.co.nz/api/getAllSuppliers
   currencyUrl: https://free.currconv.com/api/v7/convert
   currencyKey: 38e1d5b13ec68a54defa
+  stockIntake: https://biz.yiyun.co.nz/api/stockIntake
+
 
 
 

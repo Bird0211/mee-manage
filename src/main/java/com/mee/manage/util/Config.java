@@ -19,10 +19,6 @@ public class Config {
 
     String ocrUrl;
 
-    String bizId;
-
-    String token;
-
     String allProductUrl;
 
     String allSupplieUrl;
@@ -30,5 +26,7 @@ public class Config {
     String currencyUrl;
 
     String currencyKey;
+
+    String stockIntake;
 
 }

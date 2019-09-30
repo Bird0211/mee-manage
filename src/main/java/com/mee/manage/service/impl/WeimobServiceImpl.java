@@ -6,10 +6,8 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.*;
 import com.mee.manage.po.Configuration;
-import com.mee.manage.service.IConfigurationService;
-import com.mee.manage.service.IOCRService;
-import com.mee.manage.service.IProductsService;
-import com.mee.manage.service.IWeimobService;
+import com.mee.manage.po.WeimobOrder;
+import com.mee.manage.service.*;
 import com.mee.manage.util.*;
 import com.mee.manage.vo.*;
 import org.apache.http.client.utils.DateUtils;
@@ -40,6 +38,11 @@ public class WeimobServiceImpl implements IWeimobService {
 
     @Autowired
     IProductsService productsService;
+
+    @Autowired
+    IWeimobOrderService weimobOrderService;
+
+
 
 
     @Override
@@ -374,7 +377,7 @@ public class WeimobServiceImpl implements IWeimobService {
     public List<GoodInfoVo> getWeimobGoods(GoodListQueryParameter params) {
 
         List<GoodPageList> goodList = getGoodList(params);
-        Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct();
+        Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct("20");
 
         List<GoodInfoVo>  goodInfos = new ArrayList<>();
 
@@ -426,62 +429,74 @@ public class WeimobServiceImpl implements IWeimobService {
             List<WeimobSkuVo> skuList = goodDetail.getSkuList();
             if(skuList != null && !skuList.isEmpty()) {
                 for (WeimobSkuVo skuVo : skuList) {
-                    GoodInfoVo goodInfo = new GoodInfoVo();
-
-                    Map<String,SkuAttrMap> skuAttrMap = skuVo.getSkuAttrMap();
-                    StringBuffer sb = new StringBuffer(skuVo.getProductTitle());
-                    if(skuAttrMap != null){
-                        Set<String> keys = skuAttrMap.keySet();
-                        if(keys != null && !keys.isEmpty()) {
-                            for(String key : keys) {
-                                SkuAttrMap attrMap = skuAttrMap.get(key);
-                                sb.append("[").append(attrMap.getName()).append(":").append(attrMap.getValue()).append("]");
-                            }
-                        }
-                    }
-
-                    if(sb != null && sb.length() > 0) {
-                        goodInfo.setTitle(sb.toString());
-
-                    }
-
-                    if(!StringUtils.isEmpty(skuVo.getImageUrl())) {
-                        goodInfo.setDefaultImageUrl(skuVo.getImageUrl());
-
-                    }
-
-                    if(skuVo.getGoodsId() != null && skuVo.getGoodsId() != 0) {
-                        goodInfo.setGoodsId(skuVo.getGoodsId());
-
-                    }
-
-                    goodInfo.setSalesPrice(skuVo.getSalePrice());
-                    goodInfo.setCostPrice(skuVo.getCostPrice());
-
-                    String outerSky = skuVo.getOuterSkuCode();
-                    if(!StringUtils.isEmpty(outerSky))
-                        goodInfo.setSku(skuVo.getOuterSkuCode().split("_")[0]);
-
-                    if(StringUtils.isEmpty(goodInfo.getDefaultImageUrl())) {
-                        List<String> images = goodDetail.getGoodsImageUrl();
-                        if(images != null && images.size() > 0) {
-                            goodInfo.setDefaultImageUrl(images.get(0));
-                        }
-                    }
-
-                    MeeProductVo meeProduct = allProducts.get(goodInfo.getSku());
-                    if(meeProduct != null) {
-                        goodInfo.setYiyunCostPrice(meeProduct.getCostPrice());
-                        goodInfo.setYiyunSalesPrice(meeProduct.getRetailPrice());
-                        goodInfo.setWeight(meeProduct.getWeight());
-                    }
-                    goodInfos.add(goodInfo);
+                    GoodInfoVo goodInfo = getGoodInfo(skuVo,allProducts);
+                    if (goodInfo != null)
+                        goodInfos.add(goodInfo);
                 }
             }
 
         }
 
         return goodInfos;
+    }
+
+    private GoodInfoVo getGoodInfo(WeimobSkuVo skuVo,Map<String,MeeProductVo> allProducts) {
+        if(skuVo == null || allProducts == null || allProducts.isEmpty())
+            return null;
+        GoodInfoVo goodInfo = new GoodInfoVo();
+
+        Map<String,SkuAttrMap> skuAttrMap = skuVo.getSkuAttrMap();
+        StringBuffer sb = new StringBuffer(skuVo.getProductTitle());
+        if(skuAttrMap != null){
+            Set<String> keys = skuAttrMap.keySet();
+            if(keys != null && !keys.isEmpty()) {
+                for(String key : keys) {
+                    SkuAttrMap attrMap = skuAttrMap.get(key);
+                    sb.append("[").append(attrMap.getName()).append(":").append(attrMap.getValue()).append("]");
+                }
+            }
+        }
+
+        if(sb != null && sb.length() > 0) {
+            goodInfo.setTitle(sb.toString());
+
+        }
+
+        if(!StringUtils.isEmpty(skuVo.getImageUrl())) {
+            goodInfo.setDefaultImageUrl(skuVo.getImageUrl());
+
+        }
+
+        if(skuVo.getGoodsId() != null && skuVo.getGoodsId() != 0) {
+            goodInfo.setGoodsId(skuVo.getGoodsId());
+
+        }
+
+        goodInfo.setSalesPrice(skuVo.getSalePrice());
+        goodInfo.setCostPrice(skuVo.getCostPrice());
+
+        String outerSky = skuVo.getOuterSkuCode();
+        if(!StringUtils.isEmpty(outerSky))
+            goodInfo.setSku(skuVo.getOuterSkuCode().split("_")[0]);
+
+       /*
+       if(StringUtils.isEmpty(goodInfo.getDefaultImageUrl())) {
+            List<String> images = goodDetail.getGoodsImageUrl();
+            if(images != null && images.size() > 0) {
+                goodInfo.setDefaultImageUrl(images.get(0));
+            }
+        }
+        */
+
+        MeeProductVo meeProduct = allProducts.get(goodInfo.getSku());
+        if(meeProduct != null) {
+            goodInfo.setYiyunCostPrice(meeProduct.getCostPrice());
+            goodInfo.setYiyunSalesPrice(meeProduct.getRetailPrice());
+            goodInfo.setWeight(meeProduct.getWeight());
+        }
+
+        return goodInfo;
+
     }
 
     @Override
@@ -570,85 +585,98 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public List<StoreVo> getStoreList() {
-        int pageNum = 1;
-        int pageSize = 50;
-        int totalCount = 0;
-        List<StoreVo> stores = Lists.newArrayList();
-        do {
-            WeimobStoreData data = getStore(pageNum,pageSize);
-            if (data == null)
-                break;
+    public GoodInfoVo getWeimobGoodBySku(Long sku) {
+        if(sku == null || sku <= 0)
+            return null;
 
-            totalCount = data.getTotalCount();
 
-            HeadStoreInfo headStore = data.getHeadStoreInfo();
-            StoreVo store = new StoreVo();
-            store.setStoreId(headStore.getId());
-            store.setStoreName(headStore.getStoreName());
-            stores.add(store);
-            pageNum ++;
-        } while ((pageNum - 1) * pageSize < totalCount);
+        WeimobOrder weimobOrder = weimobOrderService.getWeimboOrders(sku);
+        if(weimobOrder == null)
+            return null;
 
-        return stores;
+        GoodInfoVo infoVo = null;
+
+        Long goodId = weimobOrder.getGoodId();
+        List<WeimobSkuVo> skuVos = getSkuList(goodId);
+
+        if(skuVos != null && !skuVos.isEmpty()) {
+            for (WeimobSkuVo skuVo : skuVos) {
+                if (skuVo.getOuterSkuCode().equals(sku.toString())) {
+                    Map<String, MeeProductVo> allProducts = productsService.getMapMeeProduct("20");
+                    infoVo = getGoodInfo(skuVo, allProducts);
+                    break;
+                }
+            }
+        }
+
+        return infoVo;
     }
 
     @Override
-    public WeimobSkuVo getSkuDetail(Long skuCode, Integer storeId) {
-        if(skuCode == null || storeId == null)
-            return null;
+    public boolean refreshWeimob() {
 
-        String token = getToken();
-        String url = weimobConfig.getSkuProductUrl() + "?accesstoken="+token;
-        Map<String,String> params = new HashMap<>();
-        params.put("skuCode",skuCode.toString());
-        params.put("storeId",storeId.toString());
+        List<GoodInfoVo> goods = getWeimobGoods(null);
+        if(goods == null || goods.isEmpty())
+            return false;
 
-        String result = JoddHttpUtils.sendPostUseBody(url,params);
-        logger.info(result);
+        List<ListenableFuture<Boolean>> futures = Lists.newArrayList();
+        for (GoodInfoVo goodInfo : goods) {
+                ListenableFuture<Boolean> task = GuavaExecutors.getDefaultCompletedExecutorService()
+                        .submit(new Callable<Boolean>() {
 
-        if(result.indexOf("80001001000119") >=0 ){
-            logger.info("Token Error!");
-            return null;
+                            @Override
+                            public Boolean call() throws Exception {
+                                boolean flag = false;
+                                WeimobOrder order = weimobOrderService.getWeimobOrder(Long.parseLong(goodInfo.getSku()),goodInfo.getGoodsId());
+                                if(order == null){
+                                    WeimobOrder weimobOrder = new WeimobOrder();
+                                    weimobOrder.setGoodId(goodInfo.getGoodsId());
+                                    weimobOrder.setSku(Long.parseLong(goodInfo.getSku()));
+                                    flag = weimobOrderService.addWeimobOrder(order);
+                                }
+                                return flag;
+                            }
+
+                        });
+
+                futures.add(task);
+        }
+        ListenableFuture<List<Boolean>> resultsFuture = Futures.successfulAsList(futures);
+        try {
+            List<Boolean> datas = resultsFuture.get();
+            if(datas != null && !datas.isEmpty()) {
+                for (boolean flag : datas) {
+
+                }
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
 
-
-
-        return null;
+        return true;
     }
 
-    private WeimobStoreData getStore(int pageNum,int pageSize){
-        String token = getToken();
-
-        String url = weimobConfig.getStoreListUrl() + "?accesstoken="+token;
-        Map<String,Integer> params = new HashMap<>();
-        params.put("pageNum",pageNum);
-        params.put("pageSize",pageSize);
-
-        String result = JoddHttpUtils.sendPostUseBody(url,params);
-        logger.info(result);
-
-        if(result.indexOf("80001001000119") >=0 ){
-            logger.info("Token Error!");
+    private List<WeimobSkuVo> getSkuList(Long goodId){
+        if(goodId == null || goodId <= 0)
             return null;
-        }
-        WeimobStoreResponse response = JSON.parseObject(result,WeimobStoreResponse.class, Feature.IgnoreNotMatch);
-        if(response == null){
+
+        GoodDetailData goodDetail = getWeimobGoodDetail(goodId);
+        if(goodDetail == null)
             return null;
-        }
 
-        WeimobOrderCode code = response.getCode();
-        if(code == null || code.getErrcode().equals("80001001000119")){
+        logger.info("GoodDetail = {}",goodDetail);
+        GoodDetailVo detailVo = goodDetail.getGoods();
+        if(detailVo == null)
             return null;
-        }
 
-        if(!code.getErrcode().equals("0")) {
+        List<WeimobSkuVo> skuVos = detailVo.getSkuList();
+        if (skuVos == null || skuVos.isEmpty())
             return null;
-        }
 
-        WeimobStoreData data = response.getData();
-
-        return data;
+        return skuVos;
     }
 
     private List<WeimobGroupVo> getGroupList(List<GoodsClassify> goodsClassifies){
@@ -709,7 +737,7 @@ public class WeimobServiceImpl implements IWeimobService {
             milkIds = getMilkIds();
         }
 
-        Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct();
+        Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct("20");
 
         WeimobOrderListResponse response = new WeimobOrderListResponse();
         List<ListenableFuture<WeimobOrderDetailVo>> futures = Lists.newArrayList();
@@ -860,24 +888,7 @@ public class WeimobServiceImpl implements IWeimobService {
             return null;
         }
 
-        //GetWeiGood
-        GoodDetailData goodDetail = getWeimobGoodDetail(goodId);
-        //CheckPrice
-        if(goodDetail == null) {
-            return null;
-        }
-
-        GoodDetailVo detail = goodDetail.getGoods();
-        if (detail == null)
-            return null;
-
-        List<WeimobSkuVo> skus = detail.getSkuList();
-        if (skus == null || skus.isEmpty()) {
-            return null;
-        }
-
-        logger.info("GoodDetail = {}",goodDetail);
-
+        List<WeimobSkuVo> skus = getSkuList(goodId);
         Map<String,WeimobSkuVo> skuVoMap = new HashMap<>();
         for (WeimobSkuVo sku : skus) {
             skuVoMap.put(sku.getOuterSkuCode(),sku);

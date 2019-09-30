@@ -134,11 +134,25 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/store/list", method = RequestMethod.GET)
-    public MeeResult getStore(){
+    @RequestMapping(value = "/goods/sku", method = RequestMethod.POST)
+    public MeeResult getWeimobBySku(@RequestParam("sku") Long sku) {
         MeeResult meeResult = new MeeResult();
         try {
-            List<StoreVo> result = weimobService.getStoreList();
+            GoodInfoVo result = weimobService.getWeimobGoodBySku(sku);
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+            meeResult.setData(result);
+        } catch (Exception ex) {
+            logger.error("getClassifyInfo Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/goods/refresh", method = RequestMethod.GET)
+    public MeeResult refreshWeimobGood(){
+        MeeResult meeResult = new MeeResult();
+        try {
+            boolean result = weimobService.refreshWeimob();
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(result);
         } catch (Exception ex) {

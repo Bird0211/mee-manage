@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mee.manage.mapper.IProductsMapper;
 import com.mee.manage.po.Products;
+import com.mee.manage.service.IAuthenticationService;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.util.*;
 import com.mee.manage.vo.*;
@@ -30,6 +31,9 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 
     @Autowired
     Config config;
+
+    @Autowired
+    IAuthenticationService authService;
 
     @Override
     public boolean insertProduct(ProVo proVo) {
@@ -91,14 +95,13 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
                 sample.setLabel(product.getSku());
                 samples.add(sample);
             }
-
         }
         return samples;
     }
 
     @Override
-    public List<MeeProductVo> getMeeProducts() {
-        String url = getMeeUrl(config.getAllProductUrl());
+    public List<MeeProductVo> getMeeProducts(String bizId) {
+        String url = getMeeUrl(config.getAllProductUrl(),bizId);
         logger.info(url);
         String result = JoddHttpUtils.getData(url);
 
@@ -118,8 +121,8 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
     }
 
     @Override
-    public List<SuppliersVo> getSuppliers() {
-        String url = getMeeUrl(config.getAllSupplieUrl());
+    public List<SuppliersVo> getSuppliers(String bizId) {
+        String url = getMeeUrl(config.getAllSupplieUrl(),bizId);
         String result = JoddHttpUtils.getData(url);
         logger.info(result);
         List<SuppliersVo> suppliers = null;
@@ -177,8 +180,8 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
     }
 
     @Override
-    public Map<String, MeeProductVo> getMapMeeProduct() {
-        List<MeeProductVo> allProducts = getMeeProducts();
+    public Map<String, MeeProductVo> getMapMeeProduct(String bizId) {
+        List<MeeProductVo> allProducts = getMeeProducts(bizId);
         if(allProducts == null || allProducts.size() <= 0)
             return null;
 
@@ -190,10 +193,12 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         return mapProducts;
     }
 
-    private String getMeeUrl(String url){
-        String bizId = config.getBizId();
+    private String getMeeUrl(String url,String bizId){
         Long time = DateUtil.getCurrentTime();
-        String token = config.getToken();
+        String token = authService.getMeeToken(bizId);
+        if(token == null)
+            return null;
+
         String nonce = RandomStringUtils.random(6,true,false);
         String sign = MeeConfig.getMeeSign(bizId,time,token,nonce);
 

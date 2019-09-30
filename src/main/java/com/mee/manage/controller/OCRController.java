@@ -5,6 +5,8 @@ import com.mee.manage.po.User;
 import com.mee.manage.service.IDataMiningService;
 import com.mee.manage.service.IOCRService;
 import com.mee.manage.util.StatusCode;
+import com.mee.manage.vo.AuthenticationVo;
+import com.mee.manage.vo.InventoryRequest;
 import com.mee.manage.vo.MatchingRequest;
 import com.mee.manage.vo.MeeResult;
 
@@ -79,5 +81,24 @@ public class OCRController {
             meeResult.setStatusCode(StatusCode.FAIL.getCode());
         }
         return meeResult;
+    }
+
+    @RequestMapping(value = "/inventory/update", method = RequestMethod.POST)
+    public MeeResult updateInventory(@RequestBody InventoryRequest request,
+                                     @RequestHeader ("bizId") String bizId,
+                                     @RequestHeader ("time") String time,
+                                     @RequestHeader ("nonce") String nonce,
+                                     @RequestHeader ("sign") String sign) {
+        MeeResult meeResult = null;
+        try {
+            AuthenticationVo auth = new AuthenticationVo(bizId,time,nonce,sign);
+            meeResult = iocrService.updateInventory(request,auth);
+        } catch (Exception ex) {
+            logger.error("OCR error: {} ",ex);
+            meeResult = new MeeResult();
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
+
     }
 }

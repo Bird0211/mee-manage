@@ -43,13 +43,11 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             return false;
         }
         //getToken
-        Configuration tokenConfig = configService.getConfig(Config.PRE_BIZID + auth.getBizId());
-        if(tokenConfig == null) {
+        String token = getMeeToken(auth.getBizId());
+        if(token == null) {
             logger.info("Token is not exist",auth.getBizId());
             return false;
         }
-
-        String token = tokenConfig.getValue();
         String sign = MeeConfig.getMeeSign(auth.getBizId(),
                                             Long.parseLong(auth.getTime()),
                                             token,
@@ -58,6 +56,21 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         logger.info("Token = {},Sign = {}",token,sign);
         return sign.equals(auth.getSign());
     }
+
+    @Override
+    public String getMeeToken(String bizId) {
+        if(StringUtils.isEmpty(bizId))
+            return null;
+        //getToken
+        Configuration tokenConfig = configService.getConfig(Config.PRE_BIZID + bizId);
+        if(tokenConfig == null) {
+            logger.info("Token is not exist",bizId);
+            return null;
+        }
+
+        return tokenConfig.getValue();
+    }
+
 
     public static String addZeroForNum(String str, int strLength) {
         int strLen = str.length();

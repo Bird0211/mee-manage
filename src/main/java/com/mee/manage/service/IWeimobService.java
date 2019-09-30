@@ -31,8 +31,7 @@ public interface IWeimobService {
 
     List<PriceUpdateResult> updateWeimobPrice(List<GoodPriceDetail> goodsPrice);
 
-    List<StoreVo> getStoreList();
+    GoodInfoVo getWeimobGoodBySku(Long sku);
 
-    WeimobSkuVo getSkuDetail(Long skuCode,Integer storeId);
-
+    boolean refreshWeimob();
 }
