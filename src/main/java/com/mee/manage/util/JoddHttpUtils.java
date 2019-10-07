@@ -25,9 +25,9 @@ import java.util.Map;
  */
 public class JoddHttpUtils {
     /** 默认的连接时间*/
-    private static int DEFAULT_CONNECT_TIME_OUT = 10000;
+    private static int DEFAULT_CONNECT_TIME_OUT = 40000;
     /** 默认的读取时间*/
-    private static int DEFAULT_READ_TIME_OUT = 10000;
+    private static int DEFAULT_READ_TIME_OUT = 40000;
     /** 默认的请求编码格式*/
     private static String DEFAULT_ENCODING_UTF_8 = "utf-8";
 

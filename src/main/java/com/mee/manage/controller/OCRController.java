@@ -54,7 +54,7 @@ public class OCRController {
     }
 
     @RequestMapping(value = "/textocr", method = RequestMethod.POST)
-    public MeeResult ocr(@RequestParam(value = "file") MultipartFile file) {
+    public MeeResult ocr(@RequestParam(value = "file") MultipartFile[] file) {
         MeeResult meeResult = new MeeResult();
         try {
             String result = iocrService.textOCR(file,"eng");
@@ -99,6 +99,5 @@ public class OCRController {
             meeResult.setStatusCode(StatusCode.FAIL.getCode());
         }
         return meeResult;
-
     }
 }

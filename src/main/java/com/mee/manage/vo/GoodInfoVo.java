@@ -11,10 +11,11 @@ public class GoodInfoVo {
     String title;
     String defaultImageUrl;
     String sku;
+    Long skuId;
     BigDecimal costPrice;
     BigDecimal salesPrice;
-
     BigDecimal yiyunCostPrice;
     BigDecimal yiyunSalesPrice;
+    BigDecimal originalPrice;
     String weight;
 }

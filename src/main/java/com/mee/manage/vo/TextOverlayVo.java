@@ -17,7 +17,7 @@ import java.util.List;
 public class TextOverlayVo {
     private static final Logger logger = LoggerFactory.getLogger(TextOverlayVo.class);
 
-    List<LineVo> Lines;
+    List<LineVo> lines;
 
     boolean HasOverlay;
 
@@ -26,6 +26,18 @@ public class TextOverlayVo {
     List<WordsVo> allWords;
 
     InvoiceTypeVo invoiceType;
+
+    Integer maxTop;
+
+    public Integer getMaxTop(){
+        if(maxTop != null && maxTop > 0)
+            return maxTop;
+
+
+        LineVo lastLine = lines == null ? null : lines.get(lines.size()-1);
+        maxTop = lastLine.getMinTop() + lastLine.getMaxHeight();
+        return maxTop;
+    }
 
 
     public InvoiceVo getInVoice(){

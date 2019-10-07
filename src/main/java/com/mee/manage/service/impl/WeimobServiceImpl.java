@@ -2,15 +2,17 @@ package com.mee.manage.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.*;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.mee.manage.po.Configuration;
 import com.mee.manage.po.WeimobOrder;
-import com.mee.manage.service.*;
+import com.mee.manage.service.IConfigurationService;
+import com.mee.manage.service.IProductsService;
+import com.mee.manage.service.IWeimobOrderService;
+import com.mee.manage.service.IWeimobService;
 import com.mee.manage.util.*;
 import com.mee.manage.vo.*;
-import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 @Service
 public class WeimobServiceImpl implements IWeimobService {
@@ -427,11 +428,22 @@ public class WeimobServiceImpl implements IWeimobService {
 
             goodInfos = new ArrayList<>();
             List<WeimobSkuVo> skuList = goodDetail.getSkuList();
+            String defaultImg = goodDetail.getDefaultImageUrl();
             if(skuList != null && !skuList.isEmpty()) {
                 for (WeimobSkuVo skuVo : skuList) {
                     GoodInfoVo goodInfo = getGoodInfo(skuVo,allProducts);
-                    if (goodInfo != null)
+                    if (goodInfo != null) {
+                        if (StringUtils.isEmpty(goodInfo.getDefaultImageUrl()))
+                            goodInfo.setDefaultImageUrl(defaultImg);
+
+                        if (StringUtils.isEmpty(goodInfo.getDefaultImageUrl())) {
+                            List<String> images = goodDetail.getGoodsImageUrl();
+                            if (images != null && images.size() > 0) {
+                                goodInfo.setDefaultImageUrl(images.get(0));
+                            }
+                        }
                         goodInfos.add(goodInfo);
+                    }
                 }
             }
 
@@ -464,7 +476,6 @@ public class WeimobServiceImpl implements IWeimobService {
 
         if(!StringUtils.isEmpty(skuVo.getImageUrl())) {
             goodInfo.setDefaultImageUrl(skuVo.getImageUrl());
-
         }
 
         if(skuVo.getGoodsId() != null && skuVo.getGoodsId() != 0) {
@@ -474,19 +485,12 @@ public class WeimobServiceImpl implements IWeimobService {
 
         goodInfo.setSalesPrice(skuVo.getSalePrice());
         goodInfo.setCostPrice(skuVo.getCostPrice());
+        goodInfo.setSkuId(skuVo.getSkuId());
+        goodInfo.setOriginalPrice(skuVo.getOriginalPrice());
 
         String outerSky = skuVo.getOuterSkuCode();
-        if(!StringUtils.isEmpty(outerSky))
+        if(!StringUtils.isEmpty(outerSky) && !StringUtils.isEmpty(skuVo.getOuterSkuCode()))
             goodInfo.setSku(skuVo.getOuterSkuCode().split("_")[0]);
-
-       /*
-       if(StringUtils.isEmpty(goodInfo.getDefaultImageUrl())) {
-            List<String> images = goodDetail.getGoodsImageUrl();
-            if(images != null && images.size() > 0) {
-                goodInfo.setDefaultImageUrl(images.get(0));
-            }
-        }
-        */
 
         MeeProductVo meeProduct = allProducts.get(goodInfo.getSku());
         if(meeProduct != null) {
@@ -888,12 +892,6 @@ public class WeimobServiceImpl implements IWeimobService {
             return null;
         }
 
-        List<WeimobSkuVo> skus = getSkuList(goodId);
-        Map<String,WeimobSkuVo> skuVoMap = new HashMap<>();
-        for (WeimobSkuVo sku : skus) {
-            skuVoMap.put(sku.getOuterSkuCode(),sku);
-        }
-
         List<PriceUpdateResult> results = new ArrayList<>();
         List<SkuList> skuList = new ArrayList<>();
 
@@ -903,27 +901,17 @@ public class WeimobServiceImpl implements IWeimobService {
             BigDecimal salePrice = priceDetail.getUpdateSalesPrice() == null ? BigDecimal.ZERO : priceDetail.getUpdateSalesPrice() ;
 
             String sku = priceDetail.getSku();
-            WeimobSkuVo weimobSku = skuVoMap.get(sku);
-            BigDecimal weimobCostPrice = weimobSku.getCostPrice() == null ? BigDecimal.ZERO : weimobSku.getCostPrice();
-            BigDecimal weimobSalePrice = weimobSku.getSalePrice() == null ? BigDecimal.ZERO : weimobSku.getSalePrice();
-            BigDecimal oriPrice = weimobSku.getOriginalPrice();
-            Long skuId = weimobSku.getSkuId();
+//            WeimobSkuVo weimobSku = skuVoMap.get(sku);
+            BigDecimal oriPrice = priceDetail.getOriginalPrice();
+            Long skuId = priceDetail.getSkuId();
 
-            if (costPrice.compareTo(weimobCostPrice) < 0 ||
-                    salePrice.compareTo(weimobSalePrice) < 0) {
-                PriceUpdateResult result = new PriceUpdateResult();
-                result.setSuccess(false);
-                result.setSku(sku);
-                result.setStatusCode(StatusCode.WEIMOB_LOW_PRICE);
-                results.add(result);
-            } else {
-                SkuList skuVo = new SkuList();
-                skuVo.setSkuId(skuId);
-                skuVo.setCostPrice(costPrice);
-                skuVo.setOriginalPrice(oriPrice);
-                skuVo.setSalePrice(salePrice);
-                skuList.add(skuVo);
-            }
+            SkuList skuVo = new SkuList();
+            skuVo.setSkuId(skuId);
+            skuVo.setCostPrice(costPrice);
+            skuVo.setOriginalPrice(oriPrice);
+            skuVo.setSalePrice(salePrice);
+            skuList.add(skuVo);
+
         }
 
         logger.info("skuList = {}",skuList);

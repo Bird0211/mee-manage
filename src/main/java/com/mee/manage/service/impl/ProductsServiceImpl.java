@@ -120,6 +120,7 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 
     }
 
+
     @Override
     public List<SuppliersVo> getSuppliers(String bizId) {
         String url = getMeeUrl(config.getAllSupplieUrl(),bizId);

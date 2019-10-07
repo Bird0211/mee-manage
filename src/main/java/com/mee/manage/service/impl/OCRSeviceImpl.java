@@ -2,8 +2,10 @@ package com.mee.manage.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.github.houbb.word.checker.core.impl.EnWordChecker;
+import com.google.common.collect.Lists;
 import com.mee.manage.service.IAuthenticationService;
 import com.mee.manage.service.IOCRService;
+import com.mee.manage.service.IPDFService;
 import com.mee.manage.util.*;
 import com.mee.manage.vo.*;
 import com.recognition.software.jdeskew.ImageDeskew;
@@ -13,6 +15,7 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
 import net.sourceforge.tess4j.util.ImageHelper;
 import net.sourceforge.tess4j.util.Utils;
+import org.apache.http.entity.ContentType;
 import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +65,9 @@ public class OCRSeviceImpl implements IOCRService {
     @Autowired
     private IAuthenticationService authService;
 
+    @Autowired
+    IPDFService pdfService;
+
 
     @Override
     public void loadTrainingData(String path) {
@@ -86,7 +93,7 @@ public class OCRSeviceImpl implements IOCRService {
     }
 
     @Override
-    public String textOCR(MultipartFile file, String language) {
+    public String textOCR(MultipartFile[] file, String language) {
         String ocrSpaceResult = null;
 
 //        ocrSpaceResult = tassOcr(file,language);
@@ -153,57 +160,129 @@ public class OCRSeviceImpl implements IOCRService {
 
     }
 
-    private String ocrSpfiace(MultipartFile file, String language) {
+    private String ocrSpfiace(MultipartFile[] files, String language) {
+        if(files == null || files.length <= 0)
+            return null;
         String result = null;
         try {
-            String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
-            String encoded = "data:image/jpg;base64," + base64Image.replaceAll("[\\s*\t\n\r]", "");
-            String apiKey = config.getOcrApiKey();
-            String url = config.getOcrUrl();
-            Map<String, Object> parames = new HashMap<>();
-            parames.put("apikey", apiKey);
-            parames.put("base64Image", encoded);
-            parames.put("language", language);
-            parames.put("isOverlayRequired", true);
-            parames.put("filetype", "JPG");
-            parames.put("detectOrientation", true);
-            parames.put("isCreateSearchablePdf", false);
-            parames.put("isSearchablePdfHideTextLayer", false);
-            parames.put("scale", true);
-            parames.put("isTable", true);
-//            parames.put("OCREngine",2);
+            List<String> base64Imgs = files2Base64Imgs(files);
+            List<TextOverlayVo> textOverlayVos = getTextOvers(base64Imgs,language);
+            result = getInvoiceResult(textOverlayVos);
 
-            result = JoddHttpUtils.sendPost(url, parames);
-
-            OcrSpaceResponseVo vo = JSON.parseObject(result, OcrSpaceResponseVo.class);
-            if (vo.getOCRExitCode() == 1) {
-                List<ParsedResultsVo> parsedResultsVos = vo.getParsedResults();
-                if (parsedResultsVos != null && parsedResultsVos.size() > 0) {
-                    ParsedResultsVo parsedResultsVo = parsedResultsVos.get(0);
-                    result = parsedResultsVo.getParsedText();
-                    logger.info(result);
-//                    List<ProductsVo> productsVos = getProducts(result);
-//                    logger.info(JSON.toJSONString(productsVos));
-
-                    TextOverlayVo textVo = parsedResultsVo.getTextOverlay();
-                    if(textVo != null) {
-                        InvoiceVo invoiceVo = textVo.getInVoice();
-                        logger.info(JSON.toJSONString(invoiceVo));
-                        result = JSON.toJSONString(invoiceVo);
-                    }
-                }
-            } else {
-                logger.info("OCR error!", vo.getErrorMessage());
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return result;
     }
+
+    private List<String> files2Base64Imgs(MultipartFile[] files) throws IOException {
+        if(files == null || files.length <= 0){
+            return null;
+        }
+
+        List<String> base64Imgs = new ArrayList<>();
+        for (MultipartFile file : files){
+            if (file == null)
+                continue;
+
+            if (file.getContentType().equals("application/pdf")) {
+                List<String> base64Img = pdfService.pDF2base64Image(file.getInputStream());
+                base64Imgs.addAll(base64Img);
+            }else {
+                base64Imgs.add(Base64.getEncoder().encodeToString(file.getBytes()));
+            }
+        }
+        return base64Imgs;
+    }
+
+    private List<TextOverlayVo> getTextOvers(List<String> base64Imgs,String language) throws Exception{
+        List<TextOverlayVo> textOverlayVos = null;
+
+        if(base64Imgs != null && base64Imgs.size() > 0) {
+            textOverlayVos = Lists.newArrayList();
+            for (String base64Img: base64Imgs) {
+                TextOverlayVo textOver = this.getTextOver(base64Img,language);
+                if(textOver != null)
+                    textOverlayVos.add(textOver);
+            }
+        }
+        return textOverlayVos;
+    }
+
+    private TextOverlayVo getTextOver(String base64Image,String language) throws Exception {
+        TextOverlayVo textVo = null;
+        String encoded = "data:image/jpg;base64," + base64Image.replaceAll("[\\s*\t\n\r]", "");
+        String apiKey = config.getOcrApiKey();
+        String url = config.getOcrUrl();
+        Map<String, Object> parames = new HashMap<>();
+        parames.put("apikey", apiKey);
+        parames.put("base64Image", encoded);
+        parames.put("language", language);
+        parames.put("isOverlayRequired", true);
+        parames.put("filetype", "JPG");
+        parames.put("detectOrientation", true);
+        parames.put("isCreateSearchablePdf", false);
+        parames.put("isSearchablePdfHideTextLayer", false);
+        parames.put("scale", true);
+        parames.put("isTable", true);
+//            parames.put("OCREngine",2);
+
+        String result = JoddHttpUtils.sendPost(url, parames);
+
+        OcrSpaceResponseVo vo = JSON.parseObject(result, OcrSpaceResponseVo.class);
+        if (vo.getOCRExitCode() == 1) {
+            List<ParsedResultsVo> parsedResultsVos = vo.getParsedResults();
+            if (parsedResultsVos != null && parsedResultsVos.size() > 0) {
+                ParsedResultsVo parsedResultsVo = parsedResultsVos.get(0);
+//                    result = parsedResultsVo.getParsedText();
+//                    logger.info(result);
+//                    List<ProductsVo> productsVos = getProducts(result);
+//                    logger.info(JSON.toJSONString(productsVos));
+                textVo = parsedResultsVo.getTextOverlay();
+            }
+        } else {
+            logger.info("OCR error!", vo.getErrorMessage());
+        }
+
+        return textVo;
+    }
+
+
+    private TextOverlayVo getTextOver(MultipartFile file,String language) throws Exception {
+        if (file == null)
+            return null;
+
+        String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
+        return this.getTextOver(base64Image,language);
+    }
+
+    private String getInvoiceResult(List<TextOverlayVo> textVos) {
+        if(textVos == null || textVos.isEmpty())
+            return null;
+
+        TextOverlayVo mergeText = textVos.get(0);
+        if(textVos.size() > 1) {
+            for(int i = 1; i < textVos.size(); i++) {
+                TextOverlayVo textVo = textVos.get(i);
+                List<LineVo> lines = textVo.getLines();
+                for (LineVo line : lines){
+                    List<WordsVo> words = line.getWords();
+                    for (WordsVo word : words) {
+                        word.setTop(word.getTop() + mergeText.getMaxTop());
+                    }
+                    line.setMinTop(line.getMinTop() + mergeText.getMaxTop());
+                }
+                mergeText.getLines().addAll(lines);
+            }
+        }
+
+        InvoiceVo invoice = mergeText.getInVoice();
+
+        return JSON.toJSONString(invoice);
+    }
+
+
     private List<ProductsVo> getProducts(String invoiceStr){
         logger.info("Begin getProducts");
         if(StringUtils.isEmpty(invoiceStr))

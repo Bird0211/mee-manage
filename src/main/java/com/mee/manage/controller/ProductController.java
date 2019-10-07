@@ -1,5 +1,6 @@
 package com.mee.manage.controller;
 
+import com.google.common.collect.Lists;
 import com.mee.manage.po.User;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.util.StatusCode;
@@ -84,6 +85,30 @@ public class ProductController {
             List<SuppliersVo> result = productsService.getSuppliers(bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(result);
+        } catch (Exception ex) {
+            logger.info("addProduct error",ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/getEmptyWeight", method = RequestMethod.GET)
+    public MeeResult getEmptyWeight(){
+        MeeResult meeResult = new MeeResult();
+        try {
+            List<MeeProductVo> result = productsService.getMeeProducts("20");
+            List<MeeProductVo> emptyWeight = Lists.newArrayList();
+            for(MeeProductVo product : result){
+                if (product.getWeight() == null ||
+                product.getWeight().equals("") ||
+                product.getWeight().equals("0"))
+                    emptyWeight.add(product);
+            }
+
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+            meeResult.setData(emptyWeight);
+
         } catch (Exception ex) {
             logger.info("addProduct error",ex);
             meeResult.setStatusCode(StatusCode.FAIL.getCode());

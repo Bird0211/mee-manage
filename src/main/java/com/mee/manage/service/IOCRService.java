@@ -17,7 +17,7 @@ public interface IOCRService {
     //识别图片
     String imageRecognition(byte[] imageBytes);
 
-    String textOCR(MultipartFile inputStream, String language);
+    String textOCR(MultipartFile[] inputStream, String language);
 
     MeeResult updateInventory(InventoryRequest request, AuthenticationVo auth);
 

@@ -9,7 +9,11 @@ public class GoodPriceDetail {
 
     private Long goodId;
 
+    private Long skuId;
+
     private String sku;
+
+    private BigDecimal originalPrice;
 
     private BigDecimal updateCostPrice;
 
