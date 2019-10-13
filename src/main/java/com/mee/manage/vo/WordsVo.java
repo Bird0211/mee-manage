@@ -7,13 +7,13 @@ public class WordsVo implements Comparable<WordsVo>,Cloneable {
 
     String WordText;
 
-    int Left;
+    double Left;
 
-    int Top;
+    double Top;
 
-    int Height;
+    double Height;
 
-    int Width;
+    double Width;
 
 
     @Override
@@ -24,7 +24,7 @@ public class WordsVo implements Comparable<WordsVo>,Cloneable {
         int result = -1;
         if(getTop() < o.getTop()) {
             if(getLeft() > o.getLeft()) {
-                int height = Math.abs(getTop() - o.getTop());
+                double height = Math.abs(getTop() - o.getTop());
                 if (height < getHeight()){
                     result =  1;
                 }
@@ -33,7 +33,7 @@ public class WordsVo implements Comparable<WordsVo>,Cloneable {
             if (getLeft() > o.getLeft()) {
                 result = 1;
             }else {
-                int height = Math.abs(getTop() - o.getTop());
+                double height = Math.abs(getTop() - o.getTop());
                 if (height > getHeight())
                     result = 1;
             }

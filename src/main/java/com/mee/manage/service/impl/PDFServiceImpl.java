@@ -1,6 +1,7 @@
 package com.mee.manage.service.impl;
 
 import com.mee.manage.service.IPDFService;
+import com.mee.manage.util.PDFUtil;
 import org.apache.pdfbox.io.RandomAccessRead;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -31,27 +32,8 @@ public class PDFServiceImpl implements IPDFService {
 
 
     @Override
-    public List<BufferedImage> readPDF(InputStream pdfInputStream) throws IOException {
-        if(pdfInputStream == null)
-            return null;
-
-        PDDocument document = PDDocument.load(pdfInputStream);
-        List<BufferedImage> bufferedImageList = new ArrayList<>();
-
-        PDFRenderer pdfRenderer = new PDFRenderer(document);
-        for (int page = 0; page < document.getNumberOfPages(); page++){
-            BufferedImage image = pdfRenderer.renderImageWithDPI(page,350, ImageType.RGB);
-
-            bufferedImageList.add(image);
-        }
-
-        document.close();
-        return bufferedImageList;
-    }
-
-    @Override
     public List<String> pDF2base64Image(InputStream pdfInputStream) throws IOException {
-        List<BufferedImage> images = readPDF(pdfInputStream);
+        List<BufferedImage> images = PDFUtil.readPDF(pdfInputStream);
         List<String> base64Imgs = null;
         if (images != null) {
             base64Imgs = new ArrayList<>();
@@ -80,7 +62,7 @@ public class PDFServiceImpl implements IPDFService {
 
     public void pdfPage2Img(InputStream pdfInputStream){
         try {
-            List<BufferedImage> readPDF = readPDF(pdfInputStream);
+            List<BufferedImage> readPDF = PDFUtil.readPDF(pdfInputStream);
             int i = 0;
             for (BufferedImage pdf : readPDF) {
                 pdfPage2Img(pdf,"/Users/bb_bird/Downloads/"+(i++)+".jpeg","JPEG");

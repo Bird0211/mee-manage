@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import com.mee.manage.mapper.IProductsMapper;
 import com.mee.manage.po.Products;
 import com.mee.manage.service.IAuthenticationService;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ujmp.core.Matrix;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -80,6 +82,24 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.in("sku",skus);
         return list(queryWrapper);
+    }
+
+    @Override
+    public List<MeeProductVo> getProductsBySkus(List<MeeProductVo> products, List<String> skus) {
+        if (products == null || skus == null)
+            return null;
+
+        Map<String,MeeProductVo> mapProducts = new HashMap<>();
+        for (MeeProductVo product : products) {
+            mapProducts.put(product.getCode(),product);
+        }
+
+        List<MeeProductVo> skuProducts = new ArrayList<>();
+        for (String sku : skus) {
+            skuProducts.add(mapProducts.get(sku));
+        }
+
+        return skuProducts;
     }
 
     @Override
@@ -178,6 +198,33 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         }
 
         return setCode;
+    }
+
+    @Override
+    public List<ComparePricesVo> getComparePrice(List<InvoiceProduct> invoiceProducts,String bizId) {
+        if (invoiceProducts == null || invoiceProducts.size() <= 0)
+            return null;
+
+        Map<String,MeeProductVo> mapProduct = getMapMeeProduct(bizId);
+        if(mapProduct == null || mapProduct.isEmpty())
+            return null;
+
+        List<ComparePricesVo> result = Lists.newArrayList();
+        for (InvoiceProduct invoiceProduct : invoiceProducts){
+            String sku = invoiceProduct.getSku();
+            BigDecimal newPrice = invoiceProduct.getPrice();
+            MeeProductVo meeProduct = mapProduct.get(sku);
+            if (mapProduct == null)
+                continue;
+
+            ComparePricesVo compare = new ComparePricesVo();
+            compare.setCostPrice(meeProduct.getCostPrice());
+            compare.setNewPrice(newPrice);
+            compare.setName(meeProduct.getName());
+            compare.setSku(sku);
+            result.add(compare);
+        }
+        return result;
     }
 
     @Override

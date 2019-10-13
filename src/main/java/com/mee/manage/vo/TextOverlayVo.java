@@ -2,7 +2,6 @@ package com.mee.manage.vo;
 
 import com.alibaba.fastjson.JSON;
 import com.mee.manage.enums.InvoiceEnum;
-import com.mee.manage.service.IOCRService;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +26,25 @@ public class TextOverlayVo {
 
     InvoiceTypeVo invoiceType;
 
-    Integer maxTop;
+    double maxTop;
 
-    public Integer getMaxTop(){
-        if(maxTop != null && maxTop > 0)
+
+    public double getMaxTop() {
+        if (maxTop > 0)
             return maxTop;
 
-
         LineVo lastLine = lines == null ? null : lines.get(lines.size()-1);
-        maxTop = lastLine.getMinTop() + lastLine.getMaxHeight();
+        if (lastLine != null) {
+            maxTop = lastLine.getMinTop() + lastLine.getMaxHeight();
+        } else {
+            if (allWords != null && allWords.size() > 0) {
+                for (WordsVo word : allWords) {
+                    if (word != null && word.getTop() > maxTop)
+                        maxTop = word.getTop();
+                }
+            }
+        }
+
         return maxTop;
     }
 
@@ -43,9 +52,10 @@ public class TextOverlayVo {
     public InvoiceVo getInVoice(){
         InvoiceVo invoice = new InvoiceVo();
         InvoiceTypeVo invoiceType = getInvoiceType(getAllWords());
-
-        invoice.setInvoiceDate(getInvoceValue(invoiceType.getInvoiceDateName(),invoiceType.getDateLocation()));
-        invoice.setInvoiceNo(getInvoceValue(invoiceType.getInvoiceNoName(),invoiceType.getNoLocation()));
+        if (invoiceType != null) {
+            invoice.setInvoiceDate(getInvoceValue(invoiceType.getInvoiceDateName(), invoiceType.getDateLocation()));
+            invoice.setInvoiceNo(getInvoceValue(invoiceType.getInvoiceNoName(), invoiceType.getNoLocation()));
+        }
         invoice.setProducts(getProducts());
         return invoice;
     }
@@ -89,7 +99,7 @@ public class TextOverlayVo {
         return invoiceType;
     }
 
-    public List<ProductsVo> getProducts(){
+    public List<ProductsVo> getProducts() {
         WordsVo desWord = null;
         WordsVo qtyWord = null;
         WordsVo priceWord = null;
@@ -197,9 +207,9 @@ public class TextOverlayVo {
 
     }
 
-    private List<WordsVo> getAllWords() {
-        if(allWords != null && !allWords.isEmpty())
-            return allWords;
+    public List<WordsVo> getAllWords() {
+        if (this.allWords != null && !this.allWords.isEmpty())
+            return this.allWords;
 
         List<LineVo> lines = getLines();
         if(lines == null || lines.isEmpty())
@@ -247,8 +257,11 @@ public class TextOverlayVo {
             }
         }
 
+        if(!isCorr)
+            isCorr = Tools.isCorrect(allWords.get(i).getWordText(), key.trim());
+
         if (isCorr) {
-            int[] leftNum = getWordLeft(i,k.length);
+            double[] leftNum = getWordLeft(i, k.length);
 
             keyWord = word.clone();
 
@@ -285,7 +298,7 @@ public class TextOverlayVo {
         return flag;
     }
 
-    private boolean isAreaWord(int wordLeft,int wordWidth,int keyWordLeft,int keyWordWidth){
+    private boolean isAreaWord(double wordLeft, double wordWidth, double keyWordLeft, double keyWordWidth) {
         boolean isArea = false;
         if(wordLeft >= keyWordLeft){
             if (keyWordWidth == -1)
@@ -456,7 +469,7 @@ public class TextOverlayVo {
 
         String num = null;
         WordsVo minWord = null;
-        int minTop = 0;
+        double minTop = 0;
         if(lastWord != null)
             minTop = lastWord.getTop() + lastWord.getHeight();
 
@@ -469,8 +482,8 @@ public class TextOverlayVo {
                 if(minWord == null) {
                     minWord = qty;
                 }else {
-                    int minDis = Math.abs(minWord.getTop() - word.getTop());
-                    int dis = Math.abs(qty.getTop() - word.getTop());
+                    double minDis = Math.abs(minWord.getTop() - word.getTop());
+                    double dis = Math.abs(qty.getTop() - word.getTop());
                     if(minDis > dis) {
                         minWord = qty;
                     }
@@ -484,29 +497,29 @@ public class TextOverlayVo {
         return num;
     }
 
-    private int[] getWordLeft(int i,int skip) {
+    private double[] getWordLeft(int i, int skip) {
         List<WordsVo> allWords = getAllWords();
         WordsVo word = allWords.get(i);
-        int minLeft = 0;
-        int maxLeft = -1;
+        double minLeft = 0;
+        double maxLeft = -1;
         if (i > 0) {
             WordsVo beforeWord = allWords.get(i - 1);
-            int lastLeft = beforeWord.getLeft() + beforeWord.getWidth();
-            int left = word.getLeft();
+            double lastLeft = beforeWord.getLeft() + beforeWord.getWidth();
+            double left = word.getLeft();
             if (lastLeft < left)
                 minLeft = lastLeft;
         }
 
         if (i < allWords.size() - skip) {
             WordsVo nextWord = allWords.get(i + skip);
-            int nextLeft = nextWord.getLeft();
-            int workLeft =  word.getLeft() + word.getWidth();
+            double nextLeft = nextWord.getLeft();
+            double workLeft = word.getLeft() + word.getWidth();
             if (workLeft <= nextLeft) {
                 maxLeft = nextLeft;
             }
         }
 
-        int[] leftNum = {minLeft,maxLeft};
+        double[] leftNum = {minLeft, maxLeft};
 
         return leftNum;
     }

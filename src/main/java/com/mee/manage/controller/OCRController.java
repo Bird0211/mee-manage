@@ -5,10 +5,7 @@ import com.mee.manage.po.User;
 import com.mee.manage.service.IDataMiningService;
 import com.mee.manage.service.IOCRService;
 import com.mee.manage.util.StatusCode;
-import com.mee.manage.vo.AuthenticationVo;
-import com.mee.manage.vo.InventoryRequest;
-import com.mee.manage.vo.MatchingRequest;
-import com.mee.manage.vo.MeeResult;
+import com.mee.manage.vo.*;
 
 import net.sourceforge.tess4j.ITessAPI;
 import org.slf4j.Logger;
@@ -54,7 +51,7 @@ public class OCRController {
     }
 
     @RequestMapping(value = "/textocr", method = RequestMethod.POST)
-    public MeeResult ocr(@RequestParam(value = "file") MultipartFile[] file) {
+    public MeeResult ocr(@RequestParam MultipartFile[] file) {
         MeeResult meeResult = new MeeResult();
         try {
             String result = iocrService.textOCR(file,"eng");
@@ -69,10 +66,11 @@ public class OCRController {
     }
 
     @RequestMapping(value = "/matching", method = RequestMethod.POST)
-    public MeeResult matchingInvoice(@RequestBody MatchingRequest request) {
+    public MeeResult matchingInvoice(@RequestBody MatchingRequest request,
+                                     @RequestHeader ("bizId") String bizId) {
         MeeResult meeResult = new MeeResult();
         try {
-            List<String> result = dataMiningService.classification(request);
+            List<MeeProductVo> result = dataMiningService.classification(request,bizId);
             meeResult.setData(result);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
 

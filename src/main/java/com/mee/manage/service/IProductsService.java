@@ -3,10 +3,7 @@ package com.mee.manage.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mee.manage.po.Products;
 import com.mee.manage.util.StatusCode;
-import com.mee.manage.vo.BathProVos;
-import com.mee.manage.vo.MeeProductVo;
-import com.mee.manage.vo.ProVo;
-import com.mee.manage.vo.SuppliersVo;
+import com.mee.manage.vo.*;
 import org.jdmp.core.sample.Sample;
 
 import java.util.List;
@@ -25,6 +22,8 @@ public interface IProductsService extends IService<Products> {
 
     List<Products> getProductsBySkus(List<Long> skus);
 
+    List<MeeProductVo> getProductsBySkus(List<MeeProductVo> products, List<String> skus);
+
     List<Sample> getAllProducts();
 
     List<MeeProductVo> getMeeProducts(String bizId);
@@ -35,5 +34,9 @@ public interface IProductsService extends IService<Products> {
 
     Map<String,MeeProductVo> getMapMeeProduct(String bizId);
 
-    public Set<String> getSetCode(List<MeeProductVo> meeProductVos);
+    Set<String> getSetCode(List<MeeProductVo> meeProductVos);
+
+    List<ComparePricesVo> getComparePrice(List<InvoiceProduct> invoiceProducts,String bizId);
+
+
 }

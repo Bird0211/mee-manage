@@ -9,8 +9,8 @@ public class LineVo{
 
     List<WordsVo> Words;
 
-    int MaxHeight;
+    double MaxHeight;
 
-    int MinTop;
+    double MinTop;
 
 }

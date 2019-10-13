@@ -1,5 +1,6 @@
 package com.mee.manage.vo;
 
+import com.alibaba.fastjson.JSON;
 import lombok.Data;
 
 import java.util.List;
@@ -13,4 +14,8 @@ public class InvoiceVo {
 
     private List<ProductsVo> products;
 
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
+    }
 }

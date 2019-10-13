@@ -1,16 +1,18 @@
 package com.mee.manage.vo;
 
-import com.alibaba.druid.filter.config.ConfigTools;
-import com.github.houbb.word.checker.core.impl.EnWordChecker;
+import com.recognition.software.jdeskew.ImageDeskew;
+import net.sourceforge.tess4j.util.ImageHelper;
 import org.springframework.util.StringUtils;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
-import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Tools {
+
+    private final static double MINIMUM_DESKEW_THRESHOLD = 0.05d;
+
 
     public static void main(String[] args) {
 /*
@@ -73,13 +75,13 @@ public class Tools {
     //对图片进行处理 - 提高识别度
     public static BufferedImage convertImage(BufferedImage image) throws Exception {
         //按指定宽高创建一个图像副本
-        //image = ImageHelper.getSubImage(image, 0, 0, image.getWidth(), image.getHeight());
+//        image = ImageHelper.getSubImage(image, 0, 0, image.getWidth(), image.getHeight());
         //图像转换成灰度的简单方法 - 黑白处理
 //        image = ImageHelper.convertImageToGrayscale(image);
         //锐化
-//        image = ImageHelper.convertImageToBinary(image);
+        image = ImageHelper.convertImageToBinary(image);
         //图像缩放 - 放大n倍图像
-//        image = ImageHelper.getScaledInstance(image, image.getWidth() * 3, image.getHeight() * 3);
+        image = ImageHelper.getScaledInstance(image, image.getWidth() * 2, image.getHeight() * 2);
 
         //去除歪斜
 //        image = rotateImage(image);
@@ -88,9 +90,19 @@ public class Tools {
         image = ssn(image);
 
         //二值化
-//        image = ImageHelper.convertImageToBinary(image);
+        image = ImageHelper.convertImageToBinary(image);
 
         return image;
+    }
+
+    private static BufferedImage rotateImage(BufferedImage textImg) {
+        ImageDeskew id = new ImageDeskew(textImg);
+        double imageSkewAngle = id.getSkewAngle(); // determine skew angle
+        if ((imageSkewAngle > MINIMUM_DESKEW_THRESHOLD || imageSkewAngle < -(MINIMUM_DESKEW_THRESHOLD))) {
+            textImg = ImageHelper.rotateImage(textImg, -imageSkewAngle); // deskew image
+        }
+        return textImg;
+
     }
 
     private static BufferedImage ssn(BufferedImage image) {

@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface IPDFService {
 
-    List<BufferedImage> readPDF(InputStream pdfInputStream) throws IOException;
-
     List<String> pDF2base64Image(InputStream pdfInputStream) throws IOException;
 
     String readPDFText(InputStream pdfInputStream) throws IOException;

@@ -1,6 +1,7 @@
 package com.mee.manage.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.mee.manage.controller.OCRController;
 import com.mee.manage.po.Products;
 import com.mee.manage.service.IDataMiningService;
@@ -9,6 +10,7 @@ import com.mee.manage.service.NaiveBayesTextClassifier;
 import com.mee.manage.util.NaiveBayes;
 import com.mee.manage.util.NaiveBayesKnowledgeBase;
 import com.mee.manage.util.StrUtil;
+import com.mee.manage.vo.MatchResult;
 import com.mee.manage.vo.MatchingRequest;
 import com.mee.manage.vo.MeeProductVo;
 import org.jdmp.core.algorithm.classification.KNNClassifier;
@@ -30,6 +32,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.jdmp.core.sample.Sample.PREDICTED;
+import static org.ujmp.core.Matrix.minusMatrix;
 
 @Service
 public class DataMiningServiceImpl implements IDataMiningService {
@@ -41,13 +44,15 @@ public class DataMiningServiceImpl implements IDataMiningService {
     IProductsService productsService;
 
     @Override
-    public List<String> classification(MatchingRequest request) throws IOException {
-        List<MeeProductVo> meeProductVos = productsService.getMeeProducts("20");
+    public List<MeeProductVo> classification(MatchingRequest request,String bizId) throws IOException {
+        List<MeeProductVo> meeProductVos = productsService.getMeeProducts(bizId);
 
-//        test();
-//        predicted(request,meeProductVos);
         List<String> result = naiveBayes(meeProductVos,request.getName());
-        return result;
+        List<MeeProductVo> products = null;
+        if(result != null && result.size() > 0) {
+            products = productsService.getProductsBySkus(meeProductVos,result);
+        }
+        return products;
     }
 
     private String predicted(MatchingRequest request,List<MeeProductVo> meeProductVos) {
@@ -212,7 +217,6 @@ public class DataMiningServiceImpl implements IDataMiningService {
             String output = nb.predict(name);
             logger.info("The sentense {} was classified as {}", name, output);
             result.add(output);
-
         }
         return result;
 
