@@ -2,10 +2,11 @@ package com.mee.manage.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.mee.manage.config.Config;
+import com.mee.manage.config.MeeConfig;
 import com.mee.manage.service.*;
 import com.mee.manage.util.*;
 import com.mee.manage.vo.*;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +107,7 @@ public class OCRSeviceImpl implements IOCRService {
         params.put("time",time);
         params.put("nonce",auth.getNonce());
         params.put("intake",JSON.toJSONString(request));
-        params.put("sign",MeeConfig.getMeeSign(auth.getBizId(),time,token,auth.getNonce()));
+        params.put("sign", MeeConfig.getMeeSign(auth.getBizId(),time,token,auth.getNonce()));
 
         String invoiceResult = JoddHttpUtils.sendPost(url,params);
         logger.info(invoiceResult);
@@ -135,7 +136,7 @@ public class OCRSeviceImpl implements IOCRService {
         String result = null;
         try {
             List<String> base64Imgs = FileUtil.files2Base64PdfImgs(files);
-            List<BufferedImage> textImages = FileUtil.files2BufferedImg(files);
+//            List<BufferedImage> textImages = FileUtil.files2BufferedImg(files);
 
             List<TextOverlayVo> textOverlayVos = getTextOvers(base64Imgs,language);
             InvoiceVo invoice = getInvoiceResult(textOverlayVos);

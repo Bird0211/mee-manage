@@ -72,4 +72,6 @@ public class WeimobOrderDetailVo {
     Integer transferType;
 
     Integer transferTypeReality;
+
+    List<OrderItemFullInfoVo> itemList;
 }

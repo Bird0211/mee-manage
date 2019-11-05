@@ -3,10 +3,9 @@ package com.mee.manage.service.impl;
 import com.mee.manage.po.Configuration;
 import com.mee.manage.service.IAuthenticationService;
 import com.mee.manage.service.IConfigurationService;
-import com.mee.manage.service.IDataMiningService;
-import com.mee.manage.util.Config;
+import com.mee.manage.config.Config;
 import com.mee.manage.util.DateUtil;
-import com.mee.manage.util.MeeConfig;
+import com.mee.manage.config.MeeConfig;
 import com.mee.manage.vo.AuthenticationVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.text.DecimalFormat;
 import java.util.Date;
 
 @Service

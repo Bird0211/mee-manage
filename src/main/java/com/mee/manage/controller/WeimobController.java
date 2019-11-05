@@ -162,6 +162,22 @@ public class WeimobController {
         return meeResult;
     }
 
+    @RequestMapping(value = "/order/delivery", method = RequestMethod.POST)
+    public MeeResult orderDelivery(@RequestBody List<DeliveryOrderVo> deliverys) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            OrderDeliveryResult result = weimobService.orderDelivery(deliverys);
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+            meeResult.setData(result);
+        } catch (Exception ex) {
+            logger.error("getClassifyInfo Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
+
+
+    }
+
 
 
 }

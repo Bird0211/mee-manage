@@ -1,11 +1,10 @@
 package com.mee.manage.aop;
 
+import com.alibaba.fastjson.JSON;
 import com.mee.manage.controller.ManageController;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -29,22 +28,56 @@ public class LogAspect {
     @Before("log()")
     public void doBefore(JoinPoint joinPoint) throws Throwable{
         startTime.set(System.currentTimeMillis());
-        //接收到请求，记录请求内容
+        // 开始打印请求日志
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
-        //记录请求的内容
-        logger.info("URL: = {}",request.getRequestURL().toString());
-        logger.info("Method: = {}",request.getMethod());
-        logger.info("IP: = {}",request.getRemoteAddr());
-        logger.info("Class_Method = {}",joinPoint.getSignature().getDeclaringTypeName()+"."+joinPoint.getSignature().getName());
+
+        // 打印请求相关参数
+        logger.info("========================================== Start ==========================================");
+        // 打印请求 url
+        logger.info("URL            : {}", request.getRequestURL().toString());
+        // 打印 Http method
+        logger.info("HTTP Method    : {}", request.getMethod());
+        // 打印调用 controller 的全路径以及执行方法
+        logger.info("Class Method   : {}.{}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+        // 打印请求的 IP
+        logger.info("IP             : {}", request.getRemoteAddr());
+        // 打印请求入参
+        try {
+            logger.info("Request Args   : {}", JSON.toJSON(joinPoint.getArgs()));
+        }catch (Exception e) {
+            logger.info("Request Args Error");
+        }
+
 
     }
 
-    @AfterReturning(returning = "ret" , pointcut = "log()")
-    public void doAfterReturning(Object ret){
-        //处理完请求后，返回内容
-        logger.info("Result: = {}",ret);
-        logger.info("Time: = {} ms", (System.currentTimeMillis() - startTime.get()));
+    /**
+     * 环绕
+     * @param proceedingJoinPoint
+     * @return
+     * @throws Throwable
+     */
+    @Around("log()")
+    public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Object result = proceedingJoinPoint.proceed();
+        // 打印出参
+        logger.info("Response Args  : {}", JSON.toJSON(result));
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result;
+    }
+
+    /**
+     * 在切点之后织入
+     * @throws Throwable
+     */
+    @After("log()")
+    public void doAfter() throws Throwable {
+        logger.info("=========================================== End ===========================================");
+        // 每个请求之间空一行
+        logger.info("");
     }
 
 }

@@ -16,6 +16,7 @@ public class TradeMeController {
     @RequestMapping(value = "/requestToken", method = RequestMethod.POST)
     public MeeResult requestToken(String token,String verifier){
 
+
         return null;
     }
 

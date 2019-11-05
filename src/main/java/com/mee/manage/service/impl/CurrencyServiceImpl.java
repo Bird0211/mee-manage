@@ -3,7 +3,7 @@ package com.mee.manage.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mee.manage.service.ICurrencyService;
-import com.mee.manage.util.Config;
+import com.mee.manage.config.Config;
 import com.mee.manage.util.JoddHttpUtils;
 import com.mee.manage.vo.ExchangeRate;
 import org.springframework.beans.factory.annotation.Autowired;

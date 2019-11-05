@@ -34,4 +34,11 @@ public interface IWeimobService {
     GoodInfoVo getWeimobGoodBySku(Long sku);
 
     boolean refreshWeimob();
+
+    OrderDeliveryResult orderDelivery(List<DeliveryOrderVo> deleverOrders);
+
+    boolean sendBathOrder(List<DeliveryOrderVo> deleverOrders);
+
+    List<DeliveryOrderVo> sendSigleOrder(List<DeliveryOrderVo> deleverOrders);
+
 }

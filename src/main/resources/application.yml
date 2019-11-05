@@ -1,58 +1,65 @@
 spring:
   datasource:
-      #内网
-      url: jdbc:mysql://rm-gs5234ag5cc6te81j.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
-      #外网
-      #url: jdbc:mysql://rm-gs5234ag5cc6te81j1o.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
-      username: mee_store
-      password: mvpWSjWQ2itv3KgYAZqSLV94WXe6l5sDoc5a5CTlTQBkRKSGf4yXy9ZuAohrzseVeGvZKpdB9VvdkojtAm0n1A==
-      type: com.alibaba.druid.pool.DruidDataSource
-      driver-class-name: com.mysql.jdbc.Driver
-
-      druid:
-            connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000;config.decrypt=true;
-            initial-size: 5
-            min-idle: 5
-            max-active: 20
-            test-on-borrow: true
-            max-wait: 60000
-            time-between-eviction-runs-millis: 60000
-            min-evictable-idle-time-millis: 300000
-            validation-query: SELECT 1 FROM DUAL
-            test-While-Idle: true
-            test-on-return: false
-            pool-prepared-statements: false
-            max-pool-prepared-statement-per-connection-size: 20
-            filters: config,stat,wall,log4j
-
-      monitor:
-            enabled: false
-            druid-stat-view: /druid/*
-            druid-web-stat-filter: /*
-            allow: 172.21.130.230,127.0.0.1
-            deny: 192.168.1.73
-            login-username: admin
-            login-password: 123456
-            exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
-            reset-enable: false
+    #内网
+    url: jdbc:mysql://rm-gs5234ag5cc6te81j.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+    #外网
+    #url: jdbc:mysql://rm-gs5234ag5cc6te81j1o.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+    username: mee_store
+    password: mvpWSjWQ2itv3KgYAZqSLV94WXe6l5sDoc5a5CTlTQBkRKSGf4yXy9ZuAohrzseVeGvZKpdB9VvdkojtAm0n1A==
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    druid:
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000;config.decrypt=true;
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      test-on-borrow: true
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL
+      test-While-Idle: true
+      test-on-return: false
+      pool-prepared-statements: false
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: config,stat,wall,log4j
+      # 配置DruidStatFilter
+      web-stat-filter:
+        enabled: true
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+      # 配置DruidStatViewServlet
+      stat-view-servlet:
+        url-pattern: "/druid/*"
+        # IP白名单(没有配置或者为空，则允许所有访问)
+        #allow:
+        # IP黑名单 (存在共同时，deny优先于allow)
+        #deny:
+        #  禁用HTML页面上的“Reset All”功能
+        reset-enable: false
+        # 登录名
+        login-username: admin
+        # 登录密码
+        login-password: 123456
   servlet:
     multipart:
       # 上传一个文件最大值,默认1Mb
       max-file-size: 2MB
       # 上传多个文件最大值,50Mb,默认10Mb
       max-request-size: 2MB
-
 server:
   port: 8801
-
-
 mybatis-plus:
   configuration:
     mapUnderscoreToCamelCase: true
-
 mee:
   ocrApiKey: 2259c1572d88957
   ocrUrl: https://api.ocr.space/parse/image
+  allProductUrl: https://biz.yiyun.co.nz/api/getAllProducts
+  allSupplieUrl: https://biz.yiyun.co.nz/api/getAllSuppliers
+  currencyUrl: https://free.currconv.com/api/v7/convert
+  currencyKey: 38e1d5b13ec68a54defa
+  stockIntake: https://biz.yiyun.co.nz/api/stockIntake
   weimob:
     clientId: AFB8952DCB6366424D303438DEE49231
     clientSecret: E19DA15BD88B2D8B93DE80617C64FAD1
@@ -64,11 +71,14 @@ mee:
     orderDetail: https://dopen.weimob.com/api/1_0/ec/order/queryOrderDetail
     updateGoodUrl: https://dopen.weimob.com/api/1_0/ec/goods/updateStockAndPrice
     goodDetailUrl: https://dopen.weimob.com/api/1_0/ec/goods/queryGoodsDetail
-  allProductUrl: https://biz.yiyun.co.nz/api/getAllProducts
-  allSupplieUrl: https://biz.yiyun.co.nz/api/getAllSuppliers
-  currencyUrl: https://free.currconv.com/api/v7/convert
-  currencyKey: 38e1d5b13ec68a54defa
-  stockIntake: https://biz.yiyun.co.nz/api/stockIntake
+    batchDeliveryUrl: https://dopen.weimob.com/api/1_0/ec/order/batchDeliveryOrder
+    orderDeliveryUrl: https://dopen.weimob.com/api/1_0/ec/order/deliveryOrder
+
+  ymtou:
+    appId: IkCIPGv4SCYNhVQ0z9
+    appSecret: Ot03NvC9g8tFu8NiDgc0OXixhhBQj5Zy
+    authCode: 03X7LWDxM6A568ratg8phvheQ6Wgm5GK
+    url: https://open.ymatou.com/apigateway/v1
 
 
 

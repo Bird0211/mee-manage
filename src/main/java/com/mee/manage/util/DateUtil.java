@@ -1,9 +1,12 @@
 package com.mee.manage.util;
 
+import org.springframework.util.StringUtils;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by bshn on 2016/9/25.
@@ -14,6 +17,8 @@ public class DateUtil {
     public static final String formatPattern_Short = "yyyyMMdd";
 
     public static final String formatPattern_Full = "yyyy-MM-dd hh:mm:ss";
+
+    public static final String formatPattern_24Full = "yyyy-MM-dd HH:mm:ss";
 
     public static final String formatPattern_UserAuth = "yyyy-MM-dd'T'hh:mm:ss";
 
@@ -172,13 +177,18 @@ public class DateUtil {
      * @param date
      * @return
      */
-    public static String dateToString(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat(formatPattern);
-        return format.format(date);
+    public static String dateToStringFormat(Date date) {
+        return dateToStringFormat(date,formatPattern);
     }
 
     public static String dateToStringFormat(Date date,String formatPattern){
+        return dateToStringFormat(date,formatPattern,null);
+    }
+
+    public static String dateToStringFormat(Date date, String formatPattern,String timeZone) {
         SimpleDateFormat format = new SimpleDateFormat(formatPattern);
+        if(!StringUtils.isEmpty(timeZone))
+            format.setTimeZone(TimeZone.getTimeZone(timeZone));  // 设置北京时区
         return format.format(date);
     }
 

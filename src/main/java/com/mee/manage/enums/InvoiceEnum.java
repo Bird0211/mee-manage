@@ -2,6 +2,9 @@ package com.mee.manage.enums;
 
 public enum InvoiceEnum {
 
+    BETA("beta", "invoice date", 2, "invoice number", 2, "description",
+            "quantity", "unit price", "total", null),
+
     MITOQ("mitoq", "document date", 1, "order no", 1, "description",
             "quantity", "unit price", "total", null),
 
@@ -30,7 +33,7 @@ public enum InvoiceEnum {
 
     String dateName;
 
-    int dateLocation;
+    int dateLocation;  // 1:right; 2:down
 
     String noName;
 

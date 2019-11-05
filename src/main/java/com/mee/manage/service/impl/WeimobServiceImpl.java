@@ -5,6 +5,9 @@ import com.alibaba.fastjson.parser.Feature;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.mee.manage.config.Config;
+import com.mee.manage.config.WeimobConfig;
+import com.mee.manage.enums.WeimobDeliveryCompany;
 import com.mee.manage.po.Configuration;
 import com.mee.manage.po.WeimobOrder;
 import com.mee.manage.service.IConfigurationService;
@@ -42,8 +45,6 @@ public class WeimobServiceImpl implements IWeimobService {
 
     @Autowired
     IWeimobOrderService weimobOrderService;
-
-
 
 
     @Override
@@ -316,7 +317,7 @@ public class WeimobServiceImpl implements IWeimobService {
         if(result == null || result.isEmpty())
             return null;
 
-        logger.info(result);
+        logger.info("WeimobOrder = {}", result);
 
         WeimobOrderDetailVo orderDetail = null;
         WeimobOrderVo weimobOrder = JSON.parseObject(result,WeimobOrderVo.class,Feature.IgnoreNotMatch);
@@ -663,6 +664,196 @@ public class WeimobServiceImpl implements IWeimobService {
         return true;
     }
 
+    @Override
+    public OrderDeliveryResult orderDelivery(List<DeliveryOrderVo> deleverOrders) {
+        OrderDeliveryResult result = new OrderDeliveryResult();
+        if(deleverOrders == null || deleverOrders.isEmpty()) {
+            result.setSuccess(false);
+            return result;
+        }
+
+        DeliveryOrderSplit splitOrder = splitDelivery(deleverOrders);
+        if(splitOrder == null) {
+            result.setSuccess(false);
+            return result;
+        }
+        List<String> error = new ArrayList<>();
+        if(splitOrder.getDeleverBatchOrders() != null &&
+                splitOrder.getDeleverBatchOrders().size() >= 0) {
+            boolean bathResult = sendBathOrder(splitOrder.getDeleverBatchOrders());
+            if(!bathResult) {
+                error.addAll(getErrorOrderId(splitOrder.getDeleverBatchOrders()));
+            }
+        }
+
+        if(splitOrder.getDeleverSingleOrders() != null &&
+                splitOrder.getDeleverSingleOrders().size() >= 0) {
+            List<DeliveryOrderVo> signleResult = sendSigleOrder(splitOrder.getDeleverSingleOrders());
+            if(signleResult != null && !signleResult.isEmpty()) {
+                error.addAll(getErrorOrderId(signleResult));
+            }
+        }
+
+        if(error == null || error.isEmpty())
+            result.setSuccess(true);
+
+        else {
+            result.setSuccess(false);
+            result.setErrorOrderIds(error);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean sendBathOrder(List<DeliveryOrderVo> deleverOrders) {
+        if (deleverOrders == null || deleverOrders.size() <= 0) {
+            logger.info("Batch Order deleverOrders is null!");
+            return false;
+        }
+
+        String token = getToken();
+        String url = weimobConfig.getBatchDeliveryUrl() + "?accesstoken="+token;
+
+        WeimobBatchDeliveryRequest params = new WeimobBatchDeliveryRequest();
+        List<WeimobBatchDelivery> deliveryOrderList = new ArrayList<>();
+        for (DeliveryOrderVo deliveryOrder : deleverOrders) {
+            WeimobBatchDelivery batchDelivery = new WeimobBatchDelivery();
+            batchDelivery.setOrderNo(Long.parseLong(deliveryOrder.getOrderId()));
+            batchDelivery.setDeliveryNo(deliveryOrder.getDeliveryId());
+            batchDelivery.setDeliveryCompanyCode(WeimobDeliveryCompany.ftd.getCode());
+            batchDelivery.setDeliveryCompanyName(WeimobDeliveryCompany.ftd.getName());
+            batchDelivery.setNeedLogistics(true);
+
+            deliveryOrderList.add(batchDelivery);
+        }
+
+        params.setDeliveryOrderList(deliveryOrderList);
+
+        String result = JoddHttpUtils.sendPostUseBody(url,params);
+        logger.info("sendBathOrder result = {}", result);
+        if(result == null || result.isEmpty())
+            return false;
+
+        WeimobDeliveryOrderResp resp = JSON.parseObject(result,WeimobDeliveryOrderResp.class);
+
+        return resp.getData().getSuccess();
+    }
+
+    @Override
+    public List<DeliveryOrderVo> sendSigleOrder(List<DeliveryOrderVo> deleverOrders) {
+        if(deleverOrders == null || deleverOrders.isEmpty()) {
+            logger.info("Sigle Order deleverOrders is null!");
+            return null;
+        }
+
+        String token = getToken();
+        String url = weimobConfig.getOrderDeliveryUrl()+ "?accesstoken="+token;
+
+        List<DeliveryOrderVo> errorResult = new ArrayList<>();
+
+        for (DeliveryOrderVo order : deleverOrders) {
+            String orderId = order.getOrderId().split("-")[0];
+            WeimobOrderDetailVo goodDetail = getWeimobOrder(orderId);
+            if(goodDetail == null)
+                continue;
+
+            logger.info("Order Detail = {}",goodDetail);
+            WeimobSingleRequest request = new WeimobSingleRequest();
+            request.setOrderNo(Long.parseLong(orderId));
+            request.setDeliveryNo(order.getDeliveryId());
+            request.setDeliveryOrderId(null);
+            request.setDeliveryCompanyCode(WeimobDeliveryCompany.ftd.getCode());
+            request.setDeliveryCompanyName(WeimobDeliveryCompany.ftd.getName());
+            request.setDeliveryRemark(null);
+            request.setIsNeedLogistics(true);
+            request.setIsSplitPackage(true);
+
+            List<WeimobSingleSku> skus = null;
+            List<DeliverySkuInfo> skuInfos = order.getSkuInfo();
+            for (DeliverySkuInfo skuInfo : skuInfos) {
+                WeimobSingleSku singleSku = new WeimobSingleSku();
+                Long skuId = null;
+                Long itemId = null;
+                List<OrderItemFullInfoVo> weimobSkuVos = goodDetail.getItemList();
+                if (weimobSkuVos == null || weimobSkuVos.isEmpty())
+                    continue;
+
+                for (OrderItemFullInfoVo weimobSku : weimobSkuVos) {
+                    if(weimobSku.getSkuCode().equals(skuInfo.getSku())) {
+                        skuId = weimobSku.getSkuId();
+                        itemId = weimobSku.getId();
+                    }
+                }
+
+                singleSku.setSkuId(skuId);
+                singleSku.setItemId(itemId);
+                singleSku.setSkuNum(skuInfo.getSkuNum());
+                if (skus == null)
+                    skus = new ArrayList<>();
+                skus.add(singleSku);
+            }
+
+            if(skus == null || skus.size() <= 0)
+                continue;
+
+            request.setDeliveryOrderItemList(skus);
+
+            String result = JoddHttpUtils.sendPostUseBody(url,request);
+            logger.info("sendSigleOrder result = {}", result);
+            if(result == null || result.isEmpty()) {
+                errorResult.add(order);
+                continue;
+            }
+
+            WeimobDeliveryOrderResp resp = JSON.parseObject(result,WeimobDeliveryOrderResp.class);
+            if (resp == null ||
+                    resp.getCode() == null ||
+                    resp.getData() == null ||
+                    !resp.getData().getSuccess()) {
+                errorResult.add(order);
+            }
+        }
+
+        return errorResult;
+    }
+
+
+    private DeliveryOrderSplit splitDelivery(List<DeliveryOrderVo> deleverOrders) {
+        List<DeliveryOrderVo> deleverBatchOrders = new ArrayList<>();
+        List<DeliveryOrderVo> deleverSingleOrders = new ArrayList<>();
+
+        List<String> batchIds = new ArrayList<>();
+
+        for (DeliveryOrderVo deleverOrder : deleverOrders) {
+            if(deleverOrder.getOrderId().indexOf('-') > 0) {    //Batch Order
+                deleverSingleOrders.add(deleverOrder);
+                String orderId = deleverOrder.getOrderId().split("-")[0];
+                batchIds.add(orderId);
+            } else {
+                deleverBatchOrders.add(deleverOrder);
+            }
+        }
+
+        if (batchIds != null && batchIds.size() > 0) {
+            Iterator<DeliveryOrderVo> iterator = deleverBatchOrders.iterator();
+            while (iterator.hasNext()){
+                DeliveryOrderVo next = iterator.next();
+                if (batchIds.contains(next.getOrderId())) {
+                    deleverSingleOrders.add(next);
+                    iterator.remove();
+                }
+            }
+        }
+
+        DeliveryOrderSplit splitOrder = new DeliveryOrderSplit();
+        splitOrder.setDeleverBatchOrders(deleverBatchOrders);
+        splitOrder.setDeleverSingleOrders(deleverSingleOrders);
+
+        return splitOrder;
+    }
+
+
+
     private List<WeimobSkuVo> getSkuList(Long goodId){
         if(goodId == null || goodId <= 0)
             return null;
@@ -953,7 +1144,18 @@ public class WeimobServiceImpl implements IWeimobService {
             return false;
 
         return response.getData().isResult();
+    }
 
+    private List<String> getErrorOrderId(List<DeliveryOrderVo> deleverOrders) {
+        if(deleverOrders == null || deleverOrders.isEmpty())
+            return null;
+
+        List<String> orderIds = new ArrayList<>();
+        for (DeliveryOrderVo deliveryOrder : deleverOrders) {
+            orderIds.add(deliveryOrder.getOrderId());
+        }
+
+        return orderIds;
     }
 
 
