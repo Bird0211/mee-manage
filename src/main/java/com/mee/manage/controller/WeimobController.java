@@ -149,7 +149,7 @@ public class WeimobController {
     }
 
     @RequestMapping(value = "/goods/refresh", method = RequestMethod.GET)
-    public MeeResult refreshWeimobGood(){
+    public MeeResult refreshWeimobGood() {
         MeeResult meeResult = new MeeResult();
         try {
             boolean result = weimobService.refreshWeimob();

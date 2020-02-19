@@ -1,7 +1,9 @@
 package com.mee.manage.vo;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.mee.manage.enums.InvoiceEnum;
+import com.mee.manage.util.StrUtil;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +11,11 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Data
 public class TextOverlayVo {
@@ -28,11 +33,31 @@ public class TextOverlayVo {
 
     double maxTop;
 
+    public TextOverlayVo(){
+
+    }
+
+    public TextOverlayVo(List<WordsVo> allWords) {
+        if(allWords != null && allWords.size() > 0) {
+            this.allWords = allWords;
+            sort();
+        }
+    }
+
+    public void sort(){
+        Collections.sort(this.allWords);
+    }
 
     public double getMaxTop() {
         if (maxTop > 0)
             return maxTop;
 
+
+        refreshMasTop();
+        return maxTop;
+    }
+
+    public void refreshMasTop() {
         LineVo lastLine = lines == null ? null : lines.get(lines.size()-1);
         if (lastLine != null) {
             maxTop = lastLine.getMinTop() + lastLine.getMaxHeight();
@@ -44,8 +69,6 @@ public class TextOverlayVo {
                 }
             }
         }
-
-        return maxTop;
     }
 
 
@@ -53,11 +76,16 @@ public class TextOverlayVo {
         InvoiceVo invoice = new InvoiceVo();
         InvoiceTypeVo invoiceType = getInvoiceType(getAllWords());
         if (invoiceType != null) {
+            logger.info("Invoice TypeName = {}",invoiceType.getTypeName());
             invoice.setInvoiceDate(getInvoceValue(invoiceType.getInvoiceDateName(), invoiceType.getDateLocation()));
             invoice.setInvoiceNo(getInvoceValue(invoiceType.getInvoiceNoName(), invoiceType.getNoLocation()));
         }
         invoice.setProducts(getProducts());
         return invoice;
+    }
+
+    public InvoiceTypeVo getInvoiceType() {
+        return getInvoiceType(allWords);
     }
 
     private InvoiceTypeVo getInvoiceType(List<WordsVo> words){
@@ -123,7 +151,8 @@ public class TextOverlayVo {
                 continue;
 
             if(desWord != null || qtyWord != null || priceWord != null) {
-                if(word.getWordText().toLowerCase().indexOf(invoiceType.getEndLineName()) > -1) {
+                if(invoiceType.getEndLineName() != null &&
+                        word.getWordText().toLowerCase().indexOf(invoiceType.getEndLineName()) > -1) {
                     break;
                 }
             }
@@ -132,7 +161,6 @@ public class TextOverlayVo {
                 if (desWord == null) {
                     desWord = getKeyWord(i, invoiceType.getDescriptionName());
                     if (desWord != null) {
-
                         i = i + invoiceType.getDescriptionName().split(" ").length - 1;
                         continue;
                     }
@@ -147,6 +175,7 @@ public class TextOverlayVo {
                 if (qtyWord == null) {
                     qtyWord = getKeyWord(i, invoiceType.getQuantityName());
                     if (qtyWord != null) {
+                        logger.info("QtyWord = {}", qtyWord);
                         i = i + invoiceType.getQuantityName().split(" ").length - 1;
                         continue;
                     }
@@ -208,17 +237,15 @@ public class TextOverlayVo {
     }
 
     public List<WordsVo> getAllWords() {
-        if (this.allWords != null && !this.allWords.isEmpty())
+        if (this.allWords != null && this.allWords.size() > 0) {
             return this.allWords;
+        }
 
         List<LineVo> lines = getLines();
         if(lines == null || lines.isEmpty())
             return null;
 
-        if(lines == null || lines.isEmpty())
-            return null;
-
-        allWords = new ArrayList<>();
+        this.allWords = new ArrayList<>();
         for (LineVo line : lines){
             if(line == null)
                 continue;
@@ -239,7 +266,18 @@ public class TextOverlayVo {
 
         WordsVo keyWord = null;
         WordsVo word = allWords.get(i);
-        String[] k = key.split(" ");
+        String[] k = null;
+
+        int location = 1;
+        if(key.indexOf(" ") > 0) {
+            k = key.split(" ");
+        } else if(key.indexOf("\n") > 0) {
+            k = key.split("\n");
+            location = 2;
+        } else {
+            k = new String[1];
+            k[0] = key;
+        }
         if(k == null || k.length <= 0) {
             return null;
         }
@@ -249,19 +287,28 @@ public class TextOverlayVo {
         }
 
         boolean isCorr = true;
-        for (int j = 0; j < k.length; j++){
-            boolean flag = Tools.isCorrect(allWords.get(i + j).getWordText(), k[j]);
+        for (int j = 0; j < k.length; j++) {
+            WordsVo nextValue = getNextValue(i,j,location);
+            if(nextValue == null) {
+                isCorr = false;
+                break;
+            }
+
+            if(location == 2)
+                logger.info("Next Key : {} | Next Word : {}" ,k[j],nextValue.WordText);
+            boolean flag = Tools.isCorrect(nextValue.getWordText(), k[j]);
             if(!flag) {
                 isCorr = false;
                 break;
             }
         }
 
-        if(!isCorr)
-            isCorr = Tools.isCorrect(allWords.get(i).getWordText(), key.trim());
+        if(!isCorr) {
+            isCorr = Tools.isCorrect(word.getWordText(), key.trim());
+        }
 
         if (isCorr) {
-            double[] leftNum = getWordLeft(i, k.length);
+            double[] leftNum = getWordLeft(i, location == 2 ? 1: k.length);
 
             keyWord = word.clone();
 
@@ -492,7 +539,7 @@ public class TextOverlayVo {
         }
 
         if(minWord != null)
-            num = minWord.getWordText();
+            num = StrUtil.getNumber(minWord.getWordText());
 
         return num;
     }
@@ -500,6 +547,7 @@ public class TextOverlayVo {
     private double[] getWordLeft(int i, int skip) {
         List<WordsVo> allWords = getAllWords();
         WordsVo word = allWords.get(i);
+        logger.info("getWordLeft = {}",word);
         double minLeft = 0;
         double maxLeft = -1;
         if (i > 0) {
@@ -558,6 +606,68 @@ public class TextOverlayVo {
 
         logger.info("KeyName:{}; Value = {}" ,keyName,value);
         return value;
+    }
+
+    private WordsVo getNextValue(int i,int skip,int location){
+        List<WordsVo> words = getAllWords();
+        if(words == null || words.size() <= 0) {
+            return null;
+        }
+
+        if(skip == 0) {
+            return words.get(i);
+        }
+
+        WordsVo word = null;
+
+        if(location == 1 && i < words.size() - skip -1) {
+            word = words.get(i + skip);
+        }else if(location == 2){
+            double minLeft = 0;
+            double maxRight = words.get(i).getLeft()+words.get(i).getWidth();
+            double minTop = words.get(i).getTop() + words.get(i).getTop();
+
+            if(i > 0) {
+                minLeft = words.get(i-1).getLeft() + words.get(i-1).getWidth();
+                if (minLeft > words.get(i).getLeft()) {
+                    minLeft = words.get(i).getLeft();
+                }
+            }
+
+            if(i < words.size()-1) {
+                maxRight = words.get(i+1).getLeft();
+                if(maxRight < words.get(i).getLeft() + words.get(i).getWidth()) {
+                    maxRight = words.get(i).getLeft() + words.get(i).getWidth();
+                }
+            }
+
+            List<WordsVo> areaWords = getAreaWord(minLeft,minTop,maxRight,0,skip);
+            if(areaWords != null && areaWords.size() > 0) {
+                logger.info("Next Words = {}",areaWords);
+                word = areaWords.get(skip - 1);
+            }
+        }
+
+        return word;
+    }
+
+    private List<WordsVo> getAreaWord(double minLeft,double minTop,double maxRight,double maxTop,int number){
+        List<WordsVo> words = getAllWords();
+        if(words == null || words.size() <= 0) {
+            return null;
+        }
+
+        Stream<WordsVo> streamWords = words.stream();
+        streamWords = streamWords.filter(x-> x.getLeft() >= minLeft && x.getTop() >= minTop && x.getLeft()+x.getWidth() <= maxRight);
+        if(maxTop > 0) {
+            streamWords = streamWords.filter(x -> x.getTop() < maxTop);
+        }
+
+        if(number > 0){
+            streamWords = streamWords.sorted().limit(number);
+        }
+        return streamWords.collect(Collectors.toList());
+
     }
 
 

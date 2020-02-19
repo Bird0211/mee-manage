@@ -1,1 +1,24 @@
-2019-08-30 07:51:15,363 INFO [com.alibaba.druid.pool.DruidDataSource] - {dataSource-1} closed
+2020-01-19 00:02:35,789 WARN [io.github.biezhi.wechat.utils.OkHttpUtils] - Ignore Ssl Certificate
+2020-01-19 00:02:36,234 INFO [io.github.biezhi.wechat.WeChatBot] - 绑定消息监听函数 [handleText] => [TEXT]
+2020-01-19 00:02:36,235 INFO [io.github.biezhi.wechat.WeChatBot] - 绑定消息监听函数 [friendMessage] => [TEXT]
+2020-01-19 00:02:36,246 INFO [io.github.biezhi.wechat.WeChatBot] - wechat-bot: 1.0.5
+2020-01-19 00:02:36,247 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 获取二维码UUID
+2020-01-19 00:02:38,487 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 开始下载二维码
+2020-01-19 00:02:40,295 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 请使用手机扫描屏幕二维码
+2020-01-19 00:02:56,849 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 请在手机上确认登录
+2020-01-19 00:03:02,561 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 微信初始化...
+2020-01-19 00:03:02,818 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 开启状态通知
+2020-01-19 00:03:03,094 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 开始获取联系人信息
+2020-01-19 00:03:03,328 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 应有 0 个联系人，读取到联系人 0 个
+2020-01-19 00:03:03,329 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 共有 0 个群 | 0 个直接联系人 | 0 个特殊账号 ｜ 0 公众号或服务号
+2020-01-19 00:03:03,329 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 加载群聊信息
+2020-01-19 00:03:03,539 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - [] 登录成功.
+2020-01-19 00:03:03,541 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 微信初始化...
+2020-01-19 00:03:03,760 INFO [io.github.biezhi.wechat.api.ChatLoop] - 你在其他地方登录了 WEB 版微信，再见
+2020-01-19 00:03:04,566 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 开启状态通知
+2020-01-19 00:03:04,776 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 开始获取联系人信息
+2020-01-19 00:03:04,983 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 应有 0 个联系人，读取到联系人 0 个
+2020-01-19 00:03:04,983 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 共有 0 个群 | 0 个直接联系人 | 0 个特殊账号 ｜ 0 公众号或服务号
+2020-01-19 00:03:04,983 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - 加载群聊信息
+2020-01-19 00:03:05,188 INFO [io.github.biezhi.wechat.api.WeChatApiImpl] - [] 登录成功.
+2020-01-19 00:03:05,390 INFO [io.github.biezhi.wechat.api.ChatLoop] - 你在其他地方登录了 WEB 版微信，再见

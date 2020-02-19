@@ -1,20 +1,29 @@
 package com.mee.manage.vo;
 
+
+import com.alibaba.druid.util.StringUtils;
 import com.recognition.software.jdeskew.ImageDeskew;
 import net.sourceforge.tess4j.util.ImageHelper;
-import org.springframework.util.StringUtils;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Tools {
+public class Tools  {
 
     private final static double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
+    static int index = 0;
+
+    void display() {
+       System.out.println("data = " + data);
+       }
+    int data;
 
     public static void main(String[] args) {
+
 /*
 //        String publicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIS39+jnjLSkSL0ig/IJsjwHnZ9gagoWxDzaoTOhds01oymDQsBP+0hlGs6QKDFWk4BSWp0xpvt30weZhuz04TUCAwEAAQ==";
 
@@ -30,15 +39,15 @@ public class Tools {
         }
 
         */
-        String word = "Descrip@on";
+        /*String word = "Descrip@on";
         String target = "description";
-/*
+*//*
         String correct = EnWordChecker.getInstance().correct(word.toLowerCase());
 
-        System.out.println("word = "+word + ",correct = "+correct);*/
+        System.out.println("word = "+word + ",correct = "+correct);*//*
 
         float similarity = SimilarityStrUtil.getSimilarityRatio(target.toLowerCase().trim(),word.toLowerCase().trim());
-        System.out.println(similarity);
+        System.out.println(similarity);*/
 
     }
 
@@ -77,11 +86,11 @@ public class Tools {
         //按指定宽高创建一个图像副本
 //        image = ImageHelper.getSubImage(image, 0, 0, image.getWidth(), image.getHeight());
         //图像转换成灰度的简单方法 - 黑白处理
-//        image = ImageHelper.convertImageToGrayscale(image);
+        image = ImageHelper.convertImageToGrayscale(image);
         //锐化
         image = ImageHelper.convertImageToBinary(image);
         //图像缩放 - 放大n倍图像
-        image = ImageHelper.getScaledInstance(image, image.getWidth() * 2, image.getHeight() * 2);
+//        image = ImageHelper.getScaledInstance(image, image.getWidth() * 2, image.getHeight() * 2);
 
         //去除歪斜
 //        image = rotateImage(image);

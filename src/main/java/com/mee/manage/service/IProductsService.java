@@ -9,6 +9,7 @@ import org.jdmp.core.sample.Sample;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public interface IProductsService extends IService<Products> {
 
@@ -27,6 +28,8 @@ public interface IProductsService extends IService<Products> {
     List<Sample> getAllProducts();
 
     List<MeeProductVo> getMeeProducts(String bizId);
+
+    List<MeeProductVo> getMeeProductsByUrl(String bizId);
 
     List<SuppliersVo> getSuppliers(String bizId);
 

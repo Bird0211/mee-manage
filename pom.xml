@@ -60,7 +60,7 @@
 		<fast.version>1.24</fast.version>
 		<lombok.version>1.16.16</lombok.version>
 		<pdfbox.version>2.0.17</pdfbox.version>
-		<tess4j.version>4.4.0</tess4j.version>
+		<tess4j.version>4.4.1</tess4j.version>
 
 	</properties>
 
@@ -255,7 +255,6 @@
 				<artifactId>jna</artifactId>
 				<version>5.4.0</version>
 			</dependency>
-
 
 		</dependencies>
 

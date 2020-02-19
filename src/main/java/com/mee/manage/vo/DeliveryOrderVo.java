@@ -11,6 +11,8 @@ public class DeliveryOrderVo {
 
     String deliveryId;
 
+    String expressComCode;
+
     String name;
 
     String address;

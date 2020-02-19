@@ -54,6 +54,30 @@ public class ConfigurationServiceImpl extends ServiceImpl<IConfigurationMapper, 
     }
 
     @Override
+    public String getValue(String key) {
+        Configuration config = getConfig(key);
+        if(config == null)
+            return null;
+
+        return config.getValue();
+    }
+
+    @Override
+    public Integer getIntValue(String key) {
+        String value = getValue(key);
+        if(value == null)
+            return null;
+
+        Integer integerValue = null;
+        try {
+            integerValue = Integer.parseInt(value);
+        }catch (Exception e) {
+
+        }
+        return integerValue;
+    }
+
+    @Override
     public boolean removeConfig(String key) {
         if(key == null )
             return false;

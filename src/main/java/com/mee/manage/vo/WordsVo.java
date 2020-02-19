@@ -22,7 +22,7 @@ public class WordsVo implements Comparable<WordsVo>,Cloneable {
             return 0;
 
         int result = -1;
-        if(getTop() < o.getTop()) {
+        if(getTop() <= o.getTop()) {
             if(getLeft() > o.getLeft()) {
                 double height = Math.abs(getTop() - o.getTop());
                 if (height < getHeight()){

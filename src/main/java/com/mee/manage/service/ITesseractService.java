@@ -1,9 +1,10 @@
 package com.mee.manage.service;
 
+import com.mee.manage.vo.InvoiceVo;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ITesseractService {
 
-    String tassOcr(MultipartFile[] file, String language);
+    InvoiceVo tassOcr(MultipartFile[] file, String language);
 
 }

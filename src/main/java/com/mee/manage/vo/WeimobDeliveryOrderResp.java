@@ -9,4 +9,6 @@ public class WeimobDeliveryOrderResp {
 
     WeimobDeliveryOrderData data;
 
+    DeliveryOrderVo deliveryOrder;
+
 }

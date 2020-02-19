@@ -48,7 +48,6 @@ public class ManageController {
         try {
             User user = userService.getUserByName(name);
             if (user != null) {
-
                 meeResult.setData(user);
                 meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             } else

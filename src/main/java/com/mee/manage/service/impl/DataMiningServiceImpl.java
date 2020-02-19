@@ -199,7 +199,7 @@ public class DataMiningServiceImpl implements IDataMiningService {
     private List<String> naiveBayes(List<MeeProductVo> meeProductVos,String[] names) {
         Map<String, String[]> trainingExamples = new HashMap<>();
         for (MeeProductVo product : meeProductVos) {
-            trainingExamples.put(product.getCode(),new String[]{product.getName()});
+            trainingExamples.put(product.getCode(),new String[]{product.getName(),product.getChName()});
         }
 
         NaiveBayes nb = new NaiveBayes();//训练分类器

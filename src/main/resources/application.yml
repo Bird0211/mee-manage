@@ -1,9 +1,9 @@
 spring:
   datasource:
     #内网
-    url: jdbc:mysql://rm-gs5234ag5cc6te81j.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+    #url: jdbc:mysql://rm-gs5234ag5cc6te81j.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
     #外网
-    #url: jdbc:mysql://rm-gs5234ag5cc6te81j1o.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+    url: jdbc:mysql://rm-gs5234ag5cc6te81j1o.mysql.singapore.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
     username: mee_store
     password: mvpWSjWQ2itv3KgYAZqSLV94WXe6l5sDoc5a5CTlTQBkRKSGf4yXy9ZuAohrzseVeGvZKpdB9VvdkojtAm0n1A==
     type: com.alibaba.druid.pool.DruidDataSource
@@ -60,6 +60,11 @@ mee:
   currencyUrl: https://free.currconv.com/api/v7/convert
   currencyKey: 38e1d5b13ec68a54defa
   stockIntake: https://biz.yiyun.co.nz/api/stockIntake
+  expressUrl: http://www.kuaidi100.com/autonumber/auto
+  expreeKey: KgeLmhNI9486
+  kdnUserId: 1614896
+  kdnKey: 314f2549-7760-4c5d-9f28-3940b25d3dea
+  kdnNumberIdentifyUrl: http://api.kdniao.com/Ebusiness/EbusinessOrderHandle.aspx
   weimob:
     clientId: AFB8952DCB6366424D303438DEE49231
     clientSecret: E19DA15BD88B2D8B93DE80617C64FAD1

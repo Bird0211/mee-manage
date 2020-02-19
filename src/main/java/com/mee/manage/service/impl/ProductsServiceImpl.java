@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.mee.manage.config.Config;
 import com.mee.manage.config.MeeConfig;
+import com.mee.manage.service.GuavaCache;
 import com.mee.manage.mapper.IProductsMapper;
 import com.mee.manage.po.Products;
 import com.mee.manage.service.IAuthenticationService;
@@ -25,6 +26,7 @@ import org.ujmp.core.Matrix;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
@@ -38,6 +40,9 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 
     @Autowired
     IAuthenticationService authService;
+
+    @Autowired
+    GuavaCache guavaCache;
 
     @Override
     public boolean insertProduct(ProVo proVo) {
@@ -123,12 +128,22 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 
     @Override
     public List<MeeProductVo> getMeeProducts(String bizId) {
+
+        List<MeeProductVo> products = null;
+        try {
+            products = guavaCache.getValue(bizId);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return products;
+    }
+
+    public List<MeeProductVo> getMeeProductsByUrl(String bizId) {
         String url = getMeeUrl(config.getAllProductUrl(),bizId);
         logger.info(url);
         String result = JoddHttpUtils.getData(url);
-
         logger.info(result);
-
         List<MeeProductVo> productVos = null;
         List<MeeProductResponse> allProduct = JSON.parseArray(result,MeeProductResponse.class);
         if(allProduct != null && allProduct.size() > 0) {
@@ -139,7 +154,6 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         }
 
         return productVos;
-
     }
 
 
@@ -219,8 +233,10 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
             if (mapProduct == null)
                 continue;
 
+            BigDecimal costPrice = meeProduct.getCostPrice();
+
             ComparePricesVo compare = new ComparePricesVo();
-            compare.setCostPrice(meeProduct.getCostPrice());
+            compare.setCostPrice(costPrice == null ? BigDecimal.ZERO : costPrice);
             compare.setNewPrice(newPrice);
             compare.setName(meeProduct.getName());
             compare.setSku(sku);

@@ -1,6 +1,9 @@
 package com.mee.manage.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.mee.manage.config.Config;
+import com.mee.manage.po.Configuration;
+import com.mee.manage.service.IConfigurationService;
 import com.mee.manage.service.ITesseractService;
 import com.mee.manage.util.FileUtil;
 import com.mee.manage.vo.InvoiceVo;
@@ -14,6 +17,7 @@ import net.sourceforge.tess4j.Word;
 import net.sourceforge.tess4j.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,18 +36,23 @@ public class TesseractServiceImpl implements ITesseractService {
 
     private final static String DATA_PATH = "/data/ocr/tessdata";
 
+    @Autowired
+    IConfigurationService configurationService;
 
-    public String tassOcr(MultipartFile[] files, String language) {
-        String ocrSpaceResult = null;
+    public InvoiceVo tassOcr(MultipartFile[] files, String language) {
+        InvoiceVo ocrSpaceResult = null;
         try {
-
             int engineMode = ITessAPI.TessOcrEngineMode.OEM_LSTM_ONLY;
-            int pageSegMode = ITessAPI.TessPageSegMode.PSM_AUTO;//PSM_SINGLE_BLOCK
+
+
+            int pageSegMode = configurationService.getIntValue(Config.PAGE_SEG_MODE);
+//                    ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK;
 
             logger.info(" engineMode = {} , pageSegMode = {} ", engineMode, pageSegMode);
             List<BufferedImage> textImages = FileUtil.files2BufferedImg(files);
+//            BufferedImage image = FileUtil.mergeBufferedImage(textImages);
             ocrSpaceResult = findOCR(textImages, language, engineMode, pageSegMode);
-            logger.info(ocrSpaceResult);
+//            logger.info(ocrSpaceResult);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,21 +62,21 @@ public class TesseractServiceImpl implements ITesseractService {
     }
 
     /**
-     * @param textImages
+     * @param textImage
      * @param language
      * @param engineMode
      * @param pageSegMode
      * @return
      */
-    private String findOCR(List<BufferedImage> textImages, String language,
+    private InvoiceVo findOCR(List<BufferedImage> textImage, String language,
                            int engineMode, int pageSegMode) {
 
-        String result = null;
+        InvoiceVo result = null;
 
         try {
             logger.info("OCR-start");
             double start = System.currentTimeMillis();
-            if (textImages == null || textImages.size() <= 0) {
+            if (textImage == null) {
                 logger.info("textImage = null");
                 return null;
             }
@@ -82,21 +91,19 @@ public class TesseractServiceImpl implements ITesseractService {
             instance.setPageSegMode(pageSegMode);
             logger.info("page mode = {}", pageSegMode);
 
-//            instance.setTessVariable("tessedit_char_whitelist","0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-
-
-            List<TextOverlayVo> textOverlayVos = getTextOverlaies(instance, textImages);
-            TextOverlayVo textOverlayVo = FileUtil.mergeTextOver(textOverlayVos);
-            if (textOverlayVo == null) {
+//            TextOverlayVo textOverlayVo = getTextOverLay(instance, textImage);
+            List<TextOverlayVo> textOverlayVoes = getTextOverlaies(instance, textImage);
+            if (textOverlayVoes == null) {
                 result = null;
             } else {
-                InvoiceVo invoice = textOverlayVo.getInVoice();
-                result = invoice.toString();
+                TextOverlayVo textOverlayvo = FileUtil.mergeTextOver(textOverlayVoes);
+                result = textOverlayvo.getInVoice();
+//                result = invoice.toString();
             }
             logger.info("Finish doOCR");
             double end = System.currentTimeMillis();
             logger.info("Time:" + (end - start) / 1000 + " s");
-            logger.info("Result:{}", result);
+            logger.info("Result: {}", result);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Tesseract error", e);
@@ -131,18 +138,16 @@ public class TesseractServiceImpl implements ITesseractService {
         textImage = Tools.convertImage(textImage);
         int level = ITessAPI.TessPageIteratorLevel.RIL_WORD;
         List<Word> words = instance.getWords(textImage, level);
-        logger.info("word = {}", JSON.toJSONString(words));
 
         List<WordsVo> wordsVos = transferWords(words);
         if (wordsVos == null || wordsVos.size() <= 0)
             return null;
 
-        logger.info("word = {}", JSON.toJSONString(wordsVos));
-
         logger.info("GetWords End");
         Collections.sort(wordsVos);
-        TextOverlayVo textOverlayVo = new TextOverlayVo();
-        textOverlayVo.setAllWords(wordsVos);
+        TextOverlayVo textOverlayVo = new TextOverlayVo(wordsVos);
+        logger.info("wordsVos = {}", JSON.toJSONString(wordsVos));
+
         return textOverlayVo;
     }
 

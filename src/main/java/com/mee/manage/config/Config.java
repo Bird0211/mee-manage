@@ -15,6 +15,10 @@ public class Config {
 
     public static String PRE_BIZID = "BIZ";
 
+    public static String OCR_MODE = "OCRMODE";
+
+    public static String PAGE_SEG_MODE = "PAGE_SEG_MODE";
+
     String ocrApiKey;
 
     String ocrUrl;
@@ -28,5 +32,15 @@ public class Config {
     String currencyKey;
 
     String stockIntake;
+
+    String expressUrl;
+
+    String expreeKey;
+
+    String kdnUserId;
+
+    String kdnKey;
+
+    String kdnNumberIdentifyUrl;
 
 }

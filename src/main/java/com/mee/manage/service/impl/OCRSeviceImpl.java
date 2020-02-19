@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.mee.manage.config.Config;
 import com.mee.manage.config.MeeConfig;
+import com.mee.manage.po.Configuration;
 import com.mee.manage.service.*;
 import com.mee.manage.util.*;
 import com.mee.manage.vo.*;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,9 @@ public class OCRSeviceImpl implements IOCRService {
     @Autowired
     IProductsService productsService;
 
+    @Autowired
+    IConfigurationService configurationService;
+
 
     @Override
     public void loadTrainingData(String path) {
@@ -79,12 +84,14 @@ public class OCRSeviceImpl implements IOCRService {
     }
 
     @Override
-    public String textOCR(MultipartFile[] file, String language) {
-        String ocrSpaceResult = null;
-
-//        ocrSpaceResult = tesseractService.tassOcr(file,language);
-        ocrSpaceResult = ocrSpfiace(file, language);
-
+    public InvoiceVo textOCR(MultipartFile[] file, String language) {
+        Integer ocrMode = configurationService.getIntValue(Config.OCR_MODE);
+        InvoiceVo ocrSpaceResult = null;
+        if(ocrMode == null || ocrMode == 1) {
+            ocrSpaceResult = tesseractService.tassOcr(file,language);
+        }else if(ocrMode == null || ocrMode == 2) {
+            ocrSpaceResult = ocrSpfiace(file, language);
+        }
         return ocrSpaceResult;
     }
 
@@ -130,23 +137,23 @@ public class OCRSeviceImpl implements IOCRService {
 
 
 
-    private String ocrSpfiace(MultipartFile[] files, String language) {
+    private InvoiceVo ocrSpfiace(MultipartFile[] files, String language) {
         if(files == null || files.length <= 0)
             return null;
-        String result = null;
+        InvoiceVo invoice = null;
         try {
             List<String> base64Imgs = FileUtil.files2Base64PdfImgs(files);
 //            List<BufferedImage> textImages = FileUtil.files2BufferedImg(files);
 
             List<TextOverlayVo> textOverlayVos = getTextOvers(base64Imgs,language);
-            InvoiceVo invoice = getInvoiceResult(textOverlayVos);
-            if (invoice != null)
-                result = invoice.toString();
+            invoice = getInvoiceResult(textOverlayVos);
+            /*if (invoice != null)
+                result = invoice.toString();*/
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("ocrSpfiace error", e);
         }
-        return result;
+        return invoice;
     }
 
     private List<TextOverlayVo> getTextOvers(MultipartFile[] files,String language) throws Exception{

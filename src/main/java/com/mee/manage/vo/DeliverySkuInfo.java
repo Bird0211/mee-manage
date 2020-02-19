@@ -11,5 +11,9 @@ public class DeliverySkuInfo {
 
     Integer skuNum; //发货数量（目前不支持单sku拆分数量）
 
+    Long skuId;
+
+    Long itemId;
+
 
 }
