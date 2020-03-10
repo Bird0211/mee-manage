@@ -27,6 +27,8 @@ public class Config {
 
     String allSupplieUrl;
 
+    String bizUsersUrl;
+
     String currencyUrl;
 
     String currencyKey;

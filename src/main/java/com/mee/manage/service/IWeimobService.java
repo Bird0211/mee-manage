@@ -1,6 +1,9 @@
 package com.mee.manage.service;
 
 import com.mee.manage.vo.*;
+import com.mee.manage.vo.weimob.WeimobGroupVo;
+import com.mee.manage.vo.weimob.WeimobOrderDetailVo;
+import com.mee.manage.vo.weimob.WeimobOrderListRequest;
 
 import java.util.Date;
 import java.util.List;

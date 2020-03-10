@@ -10,6 +10,7 @@ import com.mee.manage.vo.AuthenticationVo;
 import com.mee.manage.vo.MeeResult;
 import com.mee.manage.vo.SettleFeeVo;
 import com.mee.manage.vo.SettleVo;
+import com.mee.manage.vo.Yiyun.YiyunUserData;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,6 +127,44 @@ public class ManageController {
             else
                 meeResult.setStatusCode(StatusCode.FAIL.getCode());
 
+        } catch (Exception ex) {
+            logger.error("authentication error",ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/user/{bizId}/{userId}",method = RequestMethod.GET)
+    public MeeResult queryUserById(@PathVariable String bizId,@PathVariable String userId){
+        MeeResult meeResult = new MeeResult();
+        try {
+            YiyunUserData userData = userService.getYiyunUser(bizId,userId);
+            if(userData != null) {
+                meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+                meeResult.setData(userData);
+            } else {
+                meeResult.setStatusCode(StatusCode.USER_NOT_EXIST.getCode());
+            }
+        } catch (Exception ex) {
+            logger.error("authentication error",ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/alluser/{bizId}",method = RequestMethod.GET)
+    public MeeResult queryAllUser(@PathVariable String bizId) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            List<YiyunUserData> userData = userService.getAllYiYunUser(bizId);
+            if(userData != null) {
+                meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+                meeResult.setData(userData);
+            } else {
+                meeResult.setStatusCode(StatusCode.USER_NOT_EXIST.getCode());
+            }
         } catch (Exception ex) {
             logger.error("authentication error",ex);
             meeResult.setStatusCode(StatusCode.FAIL.getCode());

@@ -142,6 +142,13 @@ public class DateUtil {
         return cal.getTime();
     }
 
+    public static Date getPrefixHour(int hour) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.HOUR, -hour);   // int
+        return cal.getTime();
+    }
+
     public static Date getPrefixMinute(int minute) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());

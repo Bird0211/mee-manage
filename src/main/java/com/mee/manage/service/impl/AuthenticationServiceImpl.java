@@ -4,9 +4,11 @@ import com.mee.manage.po.Configuration;
 import com.mee.manage.service.IAuthenticationService;
 import com.mee.manage.service.IConfigurationService;
 import com.mee.manage.config.Config;
+import com.mee.manage.service.IUserService;
 import com.mee.manage.util.DateUtil;
 import com.mee.manage.config.MeeConfig;
 import com.mee.manage.vo.AuthenticationVo;
+import com.mee.manage.vo.Yiyun.YiyunUserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,11 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     @Autowired
     IConfigurationService configService;
 
+    @Autowired
+    IUserService userService;
+
+    private final int DEFAULT_TIME_LENG = 13;
+
     @Override
     public boolean checkAuth(AuthenticationVo auth) {
         if(auth == null || auth.isEmpty()) {
@@ -32,12 +39,12 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         }
 
         //time
-        if (DateUtil.getPrefixMinute(5).after(new Date(Long.parseLong(addZeroForNum(auth.getTime(),13))))) {
+        if (DateUtil.getPrefixHour(1).after(new Date(Long.parseLong(addZeroForNum(auth.getTime(),DEFAULT_TIME_LENG))))) {
             logger.info("Time error Date = {}, {}",
-                    new Date(Long.parseLong(addZeroForNum(auth.getTime(),13))),
-                    DateUtil.getPrefixMinute(5));
-            logger.info("Time error Time = {}, {}",addZeroForNum(auth.getTime(),13),
-                    DateUtil.getPrefixMinute(5).getTime());
+                    new Date(Long.parseLong(addZeroForNum(auth.getTime(),DEFAULT_TIME_LENG))),
+                    DateUtil.getPrefixHour(1));
+            logger.info("Time error Time = {}, {}",addZeroForNum(auth.getTime(),DEFAULT_TIME_LENG),
+                    DateUtil.getPrefixHour(1).getTime());
             return false;
         }
         //getToken
@@ -46,13 +53,18 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             logger.info("Token is not exist",auth.getBizId());
             return false;
         }
-        String sign = MeeConfig.getMeeSign(auth.getBizId(),
+        String sign = MeeConfig.getMeeSign(auth.getBizId(),auth.getUserId(),
                                             Long.parseLong(auth.getTime()),
                                             token,
                                             auth.getNonce());
 
         logger.info("Token = {},Sign = {}",token,sign);
-        return sign.equals(auth.getSign());
+        boolean isSign = sign.equals(auth.getSign());
+        if(isSign) {
+            YiyunUserData userData = userService.getYiyunUser(auth.getBizId(),auth.getUserId());
+            isSign = userData != null;
+        }
+        return isSign;
     }
 
     @Override

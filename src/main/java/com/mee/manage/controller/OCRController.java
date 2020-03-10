@@ -89,7 +89,7 @@ public class OCRController {
                                      @RequestHeader ("sign") String sign) {
         MeeResult meeResult = null;
         try {
-            AuthenticationVo auth = new AuthenticationVo(bizId,time,nonce,sign);
+            AuthenticationVo auth = new AuthenticationVo(bizId,null,time,nonce,sign);
             meeResult = iocrService.updateInventory(request,auth);
         } catch (Exception ex) {
             logger.error("OCR error: {} ",ex);

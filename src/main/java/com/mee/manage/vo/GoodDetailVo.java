@@ -1,9 +1,9 @@
 package com.mee.manage.vo;
 
+import com.mee.manage.vo.weimob.WeimobSkuVo;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 public class GoodDetailVo {

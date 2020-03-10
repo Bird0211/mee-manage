@@ -16,6 +16,7 @@ import com.mee.manage.util.GuavaExecutors;
 import com.mee.manage.util.JoddHttpUtils;
 import com.mee.manage.util.StatusCode;
 import com.mee.manage.vo.*;
+import com.mee.manage.vo.weimob.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

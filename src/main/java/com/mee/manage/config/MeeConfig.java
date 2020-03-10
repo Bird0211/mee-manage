@@ -12,8 +12,10 @@ import java.util.Map;
 
 public class MeeConfig {
 
-    public static String getMeeSign(String bizId,Long time,String token,String nonce){
-        String md5ign = MD5Util.MD5Encode(bizId+time+nonce+token,MD5Util.UTF8,false);
+    public static String getMeeSign(String bizId,String userId,Long time,String token,String nonce){
+        StringBuilder md5Str = new StringBuilder();
+        md5Str.append(bizId).append(userId == null ? "":userId).append(time).append(nonce).append(token);
+        String md5ign = MD5Util.MD5Encode(md5Str.toString(),MD5Util.UTF8,false);
         String sign = null;
         try {
             sign = URLEncoder.encode(md5ign,"UTF-8");
@@ -73,20 +75,24 @@ public class MeeConfig {
 
     }
 
-
         public static void main(String[] args) {
+
+            //052f2d062c69d1c973337a027e8af968
         String bidId = "20";
 
         Long time = DateUtil.getCurrentTime();
+        time = 1583115983404L;
 
         String token = "g4rhAz32KXx6FsSbI9IKIxsygqaAyDhl";
 
         String nonce = "3Q4gD2kz";
 
-        String sign = getMeeSign(bidId,time,token,nonce);
+        String userId = "12";
 
-        String url = bidId+"/"+time+"/"+nonce+"/"+sign;
-        System.out.println(url);
+        String sign = getMeeSign(bidId,userId,time,token,nonce);
+        System.out.println(sign);
+//        String url = bidId+"/"+userId+"/"+time+"/"+nonce+"/"+sign;
+//        System.out.println(url);
 
 
     }

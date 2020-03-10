@@ -230,7 +230,7 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
             String sku = invoiceProduct.getSku();
             BigDecimal newPrice = invoiceProduct.getPrice();
             MeeProductVo meeProduct = mapProduct.get(sku);
-            if (mapProduct == null)
+            if (meeProduct == null)
                 continue;
 
             BigDecimal costPrice = meeProduct.getCostPrice();
@@ -266,7 +266,7 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
             return null;
 
         String nonce = RandomStringUtils.random(6,true,false);
-        String sign = MeeConfig.getMeeSign(bizId,time,token,nonce);
+        String sign = MeeConfig.getMeeSign(bizId,null,time,token,nonce);
 
         url = url + "/" + bizId + "/" + time + "/" + nonce + "/" + sign;
         logger.info(url);
