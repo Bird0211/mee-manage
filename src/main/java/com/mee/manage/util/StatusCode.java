@@ -28,16 +28,8 @@ public enum StatusCode {
         return code;
     }
 
-    private void setCode(int code) {
-        this.code = code;
-    }
-
     public String getCodeMsg() {
         return codeMsg;
-    }
-
-    private void setCodeMsg(String codeMsg) {
-        this.codeMsg = codeMsg;
     }
 
 }

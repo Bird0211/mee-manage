@@ -1,5 +1,15 @@
 package com.mee.manage.service.impl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -7,13 +17,22 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.mee.manage.config.Config;
 import com.mee.manage.config.MeeConfig;
-import com.mee.manage.service.GuavaCache;
 import com.mee.manage.mapper.IProductsMapper;
 import com.mee.manage.po.Products;
+import com.mee.manage.service.GuavaCache;
 import com.mee.manage.service.IAuthenticationService;
 import com.mee.manage.service.IProductsService;
-import com.mee.manage.util.*;
-import com.mee.manage.vo.*;
+import com.mee.manage.util.DateUtil;
+import com.mee.manage.util.JoddHttpUtils;
+import com.mee.manage.vo.BathProVos;
+import com.mee.manage.vo.ComparePricesVo;
+import com.mee.manage.vo.InvoiceProduct;
+import com.mee.manage.vo.MeeProductResponse;
+import com.mee.manage.vo.MeeProductVo;
+import com.mee.manage.vo.MeeSuppliersResponse;
+import com.mee.manage.vo.ProVo;
+import com.mee.manage.vo.SuppliersVo;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jdmp.core.sample.DefaultSample;
 import org.jdmp.core.sample.Sample;
@@ -23,10 +42,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ujmp.core.Matrix;
-
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
@@ -72,21 +87,21 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 
     @Override
     public boolean updateProductBySku(Products product) {
-        UpdateWrapper updateWrapper = new UpdateWrapper();
+        UpdateWrapper<Products> updateWrapper = new UpdateWrapper<Products>();
         updateWrapper.set("sku",product.getSku());
         return update(product,updateWrapper);
     }
 
     @Override
     public Products getProductBySku(Long sku) {
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<Products> queryWrapper = new QueryWrapper<Products>();
         queryWrapper.eq("sku",sku);
         return getOne(queryWrapper);
     }
 
     @Override
     public List<Products> getProductsBySkus(List<Long> skus) {
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<Products> queryWrapper = new QueryWrapper<Products>();
         queryWrapper.in("sku",skus);
         return list(queryWrapper);
     }
@@ -191,7 +206,7 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
             Matrix input = Matrix.Factory.linkToArray(new String[] { meeProduct.getName()}).transpose();
             sample.put(Variable.INPUT, input);
 
-            Matrix output = Matrix.Factory.linkToArray(getOutPut(setCode,meeProduct.getCode())).transpose();
+            Matrix output = Matrix.Factory.linkToArray(getOutPut(setCode, meeProduct.getCode())).transpose();
             sample.put(Variable.TARGET, output);
             sample.setLabel(meeProduct.getName());
 
@@ -291,7 +306,7 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         return products;
     }
 
-    private Double[] getOutPut(Set<String> setCodes, String code){
+    private Object[] getOutPut(Set<String> setCodes, String code) {
         List<Double> output = new ArrayList<>();
         for(String setCode : setCodes) {
             Double d = 0.0;

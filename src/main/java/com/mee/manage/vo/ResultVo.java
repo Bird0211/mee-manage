@@ -15,6 +15,6 @@ public class ResultVo {
 
     private int total_pages;
 
-    private List data;
+    private List<Object> data;
 
 }

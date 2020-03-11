@@ -1,24 +1,34 @@
 package com.mee.manage.controller;
 
 
+import java.util.List;
+
 import com.alibaba.fastjson.JSON;
 import com.mee.manage.po.Fee;
 import com.mee.manage.po.User;
-import com.mee.manage.service.*;
+import com.mee.manage.service.IAuthenticationService;
+import com.mee.manage.service.IFeeService;
+import com.mee.manage.service.ISettleService;
+import com.mee.manage.service.ISpecialSkuService;
+import com.mee.manage.service.IUserService;
 import com.mee.manage.util.StatusCode;
 import com.mee.manage.vo.AuthenticationVo;
 import com.mee.manage.vo.MeeResult;
 import com.mee.manage.vo.SettleFeeVo;
 import com.mee.manage.vo.SettleVo;
 import com.mee.manage.vo.Yiyun.YiyunUserData;
-import org.apache.commons.lang3.time.DurationFormatUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @ResponseBody

@@ -1,15 +1,15 @@
 package com.mee.manage.service.impl;
 
+import java.math.BigDecimal;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mee.manage.mapper.IWeimobOrderMapper;
 import com.mee.manage.po.WeimobOrder;
 import com.mee.manage.service.IWeimobOrderService;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class WeimobOrderServiceImpl extends ServiceImpl<IWeimobOrderMapper, WeimobOrder> implements IWeimobOrderService {
@@ -20,7 +20,7 @@ public class WeimobOrderServiceImpl extends ServiceImpl<IWeimobOrderMapper, Weim
         if(sku == null || sku <= 0)
             return null;
 
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<WeimobOrder> queryWrapper = new QueryWrapper<WeimobOrder>();
         queryWrapper.eq("sku",sku);
         return getOne(queryWrapper);
     }
@@ -30,7 +30,7 @@ public class WeimobOrderServiceImpl extends ServiceImpl<IWeimobOrderMapper, Weim
         if(sku == null || sku <= 0)
             return null;
 
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<WeimobOrder> queryWrapper = new QueryWrapper<WeimobOrder>();
         queryWrapper.eq("sku",sku);
         queryWrapper.eq("good_id",goodId);
         return getOne(queryWrapper);
@@ -56,7 +56,7 @@ public class WeimobOrderServiceImpl extends ServiceImpl<IWeimobOrderMapper, Weim
             return false;
 
 
-        UpdateWrapper updateWrapper = new UpdateWrapper();
+        UpdateWrapper<WeimobOrder> updateWrapper = new UpdateWrapper<WeimobOrder>();
         updateWrapper.eq("sku",weimobOrder.getSku());
         if(weimobOrder.getLastCostPrice() != null && weimobOrder.getLastCostPrice().compareTo(BigDecimal.ZERO) > 0)
             updateWrapper.set("last_cost_price",weimobOrder.getLastCostPrice());

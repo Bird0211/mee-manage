@@ -659,7 +659,9 @@ public class WeimobServiceImpl implements IWeimobService {
             List<Boolean> datas = resultsFuture.get();
             if(datas != null && !datas.isEmpty()) {
                 for (boolean flag : datas) {
-
+                    if(!flag) {
+                        logger.info("Refresh fail");
+                    }
                 }
             }
 
@@ -925,8 +927,7 @@ public class WeimobServiceImpl implements IWeimobService {
         }
 
 
-/*
-
+    /*
         Set<String> orderIds = new HashSet();
         for (DeliveryOrderVo deliveryOrder : deleverOrders) {
             String[] ids = deliveryOrder.getOrderId().split("-");
@@ -975,7 +976,7 @@ public class WeimobServiceImpl implements IWeimobService {
             }
         }
 
-*/
+    */
 
         DeliveryOrderSplit splitOrder = new DeliveryOrderSplit();
         splitOrder.setDeleverBatchOrders(deleverBatchOrders);
@@ -984,7 +985,7 @@ public class WeimobServiceImpl implements IWeimobService {
         return splitOrder;
     }
 
-
+    /*
     private List<WeimobOrderDetailVo> getWeimobOrders(Set<String> orderIds) {
         if (orderIds == null || orderIds.isEmpty())
             return null;
@@ -1016,7 +1017,7 @@ public class WeimobServiceImpl implements IWeimobService {
         }
         return orderDetails;
     }
-
+    */
 
 
     private List<WeimobSkuVo> getSkuList(Long goodId){
@@ -1259,7 +1260,7 @@ public class WeimobServiceImpl implements IWeimobService {
             BigDecimal costPrice = priceDetail.getUpdateCostPrice() == null ? BigDecimal.ZERO : priceDetail.getUpdateCostPrice() ;
             BigDecimal salePrice = priceDetail.getUpdateSalesPrice() == null ? BigDecimal.ZERO : priceDetail.getUpdateSalesPrice() ;
 
-            String sku = priceDetail.getSku();
+            // String sku = priceDetail.getSku();
 //            WeimobSkuVo weimobSku = skuVoMap.get(sku);
             BigDecimal oriPrice = priceDetail.getOriginalPrice();
             Long skuId = priceDetail.getSkuId();

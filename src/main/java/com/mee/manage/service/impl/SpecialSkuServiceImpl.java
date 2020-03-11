@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mee.manage.mapper.ISpecialSkuMapper;
 import com.mee.manage.po.SpecialSku;
-import com.mee.manage.po.User;
 import com.mee.manage.service.ISpecialSkuService;
 import org.springframework.stereotype.Service;
 

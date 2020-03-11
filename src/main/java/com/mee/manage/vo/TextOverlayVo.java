@@ -1,21 +1,21 @@
 package com.mee.manage.vo;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
-import com.mee.manage.enums.InvoiceEnum;
-import com.mee.manage.util.StrUtil;
-import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.alibaba.fastjson.JSON;
+import com.mee.manage.enums.InvoiceEnum;
+import com.mee.manage.util.StrUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
+import lombok.Data;
 
 @Data
 public class TextOverlayVo {

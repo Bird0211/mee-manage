@@ -1,6 +1,5 @@
 package com.mee.manage.enums;
 
-import lombok.Data;
 import org.springframework.util.StringUtils;
 
 public enum WeimobDeliveryCompany {

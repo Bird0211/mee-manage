@@ -4,11 +4,9 @@ import com.mee.manage.vo.AuthenticationVo;
 import com.mee.manage.vo.InventoryRequest;
 import com.mee.manage.vo.InvoiceVo;
 import com.mee.manage.vo.MeeResult;
+
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 public interface IOCRService {
 

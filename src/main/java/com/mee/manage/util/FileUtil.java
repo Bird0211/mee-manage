@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 
 public class FileUtil {
@@ -175,7 +174,7 @@ public class FileUtil {
     public static File multipartFileToFile(MultipartFile file) throws Exception {
 
         File toFile = null;
-        if (file.equals("") || file.getSize() <= 0) {
+        if (file == null || file.getSize() <= 0) {
             file = null;
         } else {
             InputStream ins = null;

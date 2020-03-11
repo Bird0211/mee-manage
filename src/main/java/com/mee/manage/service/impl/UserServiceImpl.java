@@ -1,5 +1,7 @@
 package com.mee.manage.service.impl;
 
+import java.util.List;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -15,15 +17,13 @@ import com.mee.manage.util.JoddHttpUtils;
 import com.mee.manage.vo.Yiyun.YiYunResponse;
 import com.mee.manage.vo.Yiyun.YiyunUserData;
 import com.mee.manage.vo.Yiyun.YiyunUserVo;
+
 import org.apache.commons.lang3.RandomStringUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {

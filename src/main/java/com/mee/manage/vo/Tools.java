@@ -1,19 +1,16 @@
 package com.mee.manage.vo;
 
 
-import com.alibaba.druid.filter.config.ConfigTools;
-import com.alibaba.druid.util.StringUtils;
-import com.mee.manage.config.MeeConfig;
-import com.mee.manage.util.DateUtil;
-import com.recognition.software.jdeskew.ImageDeskew;
-import net.sourceforge.tess4j.util.ImageHelper;
-import org.apache.commons.lang3.RandomStringUtils;
-
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.alibaba.druid.filter.config.ConfigTools;
+import com.alibaba.druid.util.StringUtils;
+import com.recognition.software.jdeskew.ImageDeskew;
+
+import net.sourceforge.tess4j.util.ImageHelper;
 
 public class Tools  {
 
@@ -143,7 +140,7 @@ public class Tools  {
     private static int[] snnFiltering(int[] pix, int w, int h) {
         int[] newpix = new int[w * h];
         int n = 9;
-        int temp, i1, i2, sum;
+        int i1, i2, sum;
         int[] temp1 = new int[n];
         int[] temp2 = new int[n / 2];
         ColorModel cm = ColorModel.getRGBdefault();

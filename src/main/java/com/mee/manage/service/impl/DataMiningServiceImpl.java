@@ -1,23 +1,24 @@
 package com.mee.manage.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
-import com.mee.manage.controller.OCRController;
-import com.mee.manage.po.Products;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+
 import com.mee.manage.service.IDataMiningService;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.service.NaiveBayesTextClassifier;
 import com.mee.manage.util.NaiveBayes;
 import com.mee.manage.util.NaiveBayesKnowledgeBase;
-import com.mee.manage.util.StrUtil;
-import com.mee.manage.vo.MatchResult;
 import com.mee.manage.vo.MatchingRequest;
 import com.mee.manage.vo.MeeProductVo;
-import org.jdmp.core.algorithm.classification.KNNClassifier;
+
 import org.jdmp.core.algorithm.classification.bayes.NaiveBayesClassifier;
 import org.jdmp.core.dataset.DataSet;
 import org.jdmp.core.dataset.ListDataSet;
-import org.jdmp.core.sample.DefaultSample;
 import org.jdmp.core.sample.Sample;
 import org.jdmp.core.variable.Variable;
 import org.slf4j.Logger;
@@ -25,14 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ujmp.core.Matrix;
-import org.ujmp.core.enums.ValueType;
-import org.ujmp.core.mapmatrix.MapMatrix;
-
-import java.io.IOException;
-import java.util.*;
-
-import static org.jdmp.core.sample.Sample.PREDICTED;
-import static org.ujmp.core.Matrix.minusMatrix;
 
 @Service
 public class DataMiningServiceImpl implements IDataMiningService {

@@ -2,7 +2,6 @@ package com.mee.manage.po;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.mee.manage.vo.WordsVo;
 import lombok.Data;
 
 @Data

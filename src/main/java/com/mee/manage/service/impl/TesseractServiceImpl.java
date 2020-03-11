@@ -1,8 +1,14 @@
 package com.mee.manage.service.impl;
 
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.alibaba.fastjson.JSON;
 import com.mee.manage.config.Config;
-import com.mee.manage.po.Configuration;
 import com.mee.manage.service.IConfigurationService;
 import com.mee.manage.service.ITesseractService;
 import com.mee.manage.util.FileUtil;
@@ -10,23 +16,18 @@ import com.mee.manage.vo.InvoiceVo;
 import com.mee.manage.vo.TextOverlayVo;
 import com.mee.manage.vo.Tools;
 import com.mee.manage.vo.WordsVo;
-import net.sourceforge.tess4j.ITessAPI;
-import net.sourceforge.tess4j.ITesseract;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.Word;
-import net.sourceforge.tess4j.util.Utils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import net.sourceforge.tess4j.ITessAPI;
+import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.Word;
+import net.sourceforge.tess4j.util.Utils;
 
 
 @Service

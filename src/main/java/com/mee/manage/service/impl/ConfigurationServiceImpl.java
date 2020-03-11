@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mee.manage.mapper.IConfigurationMapper;
-import com.mee.manage.mapper.IFeeMapper;
 import com.mee.manage.po.Configuration;
-import com.mee.manage.po.Fee;
 import com.mee.manage.service.IConfigurationService;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +44,7 @@ public class ConfigurationServiceImpl extends ServiceImpl<IConfigurationMapper, 
     public Configuration getConfig(String key) {
         if(key == null )
             return null;
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<Configuration> queryWrapper = new QueryWrapper<Configuration>();
         queryWrapper.eq("`key`",key);
 
         Configuration config = getOne(queryWrapper);
@@ -82,7 +80,7 @@ public class ConfigurationServiceImpl extends ServiceImpl<IConfigurationMapper, 
         if(key == null )
             return false;
 
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<Configuration> queryWrapper = new QueryWrapper<Configuration>();
         queryWrapper.eq("`key`",key);
 
         return  remove(queryWrapper);

@@ -3,7 +3,6 @@ package com.mee.manage.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mee.manage.po.WeimobOrder;
 
-import java.util.List;
 
 public interface IWeimobOrderService extends IService<WeimobOrder> {
 

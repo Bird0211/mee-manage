@@ -1,20 +1,28 @@
 package com.mee.manage.service.impl;
 
-import com.mee.manage.aop.LogAspect;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mee.manage.po.Fee;
 import com.mee.manage.po.Products;
 import com.mee.manage.po.User;
-import com.mee.manage.service.*;
-import com.mee.manage.vo.*;
-import lombok.Data;
+import com.mee.manage.service.IFeeService;
+import com.mee.manage.service.IProductsService;
+import com.mee.manage.service.ISettleService;
+import com.mee.manage.service.ISpecialSkuService;
+import com.mee.manage.service.IUserService;
+import com.mee.manage.vo.ExpDetailVo;
+import com.mee.manage.vo.FeeDetailVo;
+import com.mee.manage.vo.OrderVo;
+import com.mee.manage.vo.ProductVo;
+import com.mee.manage.vo.SettleFeeVo;
+import com.mee.manage.vo.SettleVo;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class SettleServiceImpl implements ISettleService {
@@ -41,13 +49,15 @@ public class SettleServiceImpl implements ISettleService {
         if(settleVo == null)
             return false;
 
-        if(settleVo.getUserId() == null && settleVo.getUserName() == null)
-            return false;
+        boolean result = true; 
+        if(settleVo.getUserId() == null && settleVo.getUserName() == null || settleVo.getOrder() == null) {
+            result = false;
+            logger.info("params is null userId = {}; UserName = {}; Order = {}",
+                settleVo.getUserId(),settleVo.getUserName(),
+                settleVo.getOrder());
+        }
 
-        if(settleVo.getOrder() == null)
-            return false;
-
-        return true;
+        return result;
     }
 
     @Override
@@ -218,7 +228,7 @@ public class SettleServiceImpl implements ISettleService {
             if(skus != null && skus.size() > 0) {
                 if(condition.equals("in")){
                     List<Long> inSkus = isInSku(skus,order.getProduct());
-                    if(inSkus != inSkus && inSkus.size() > 0){
+                    if(inSkus != null && inSkus.size() > 0){
                         BigDecimal skufee = BigDecimal.ZERO;
 
                         StringBuffer remark = new StringBuffer();

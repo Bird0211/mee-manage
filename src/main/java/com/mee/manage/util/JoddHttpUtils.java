@@ -2,7 +2,7 @@
 /**
  * @Title: JoddHttpUtils.java
  * @Package: com.hynet.ssn.server.util
- * @Description: TODO
+ * @Description: 
  * @author: zhangcan
  * @date: 2016年6月15日 下午5:15:37
  * @version: V1.0
@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * @moudle: JoddHttpUtils
  * @version:v1.0
- * @Description: TODO
+ * @Description: 
  * @author: zhangcan
  * @date: 2016年6月15日 下午5:15:37
  *

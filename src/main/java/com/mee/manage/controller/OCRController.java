@@ -1,21 +1,29 @@
 package com.mee.manage.controller;
 
+import java.util.List;
 
-import com.mee.manage.po.User;
 import com.mee.manage.service.IDataMiningService;
 import com.mee.manage.service.IOCRService;
 import com.mee.manage.util.StatusCode;
-import com.mee.manage.vo.*;
+import com.mee.manage.vo.AuthenticationVo;
+import com.mee.manage.vo.InventoryRequest;
+import com.mee.manage.vo.InvoiceVo;
+import com.mee.manage.vo.MatchingRequest;
+import com.mee.manage.vo.MeeProductVo;
+import com.mee.manage.vo.MeeResult;
 
-import net.sourceforge.tess4j.ITessAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Controller
 @ResponseBody

@@ -1,7 +1,6 @@
 package com.mee.manage.controller;
 
 import com.google.common.collect.Lists;
-import com.mee.manage.po.User;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.util.StatusCode;
 import com.mee.manage.vo.*;

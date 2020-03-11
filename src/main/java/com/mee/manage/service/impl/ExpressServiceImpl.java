@@ -1,22 +1,21 @@
 package com.mee.manage.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
 import com.mee.manage.config.Config;
 import com.mee.manage.enums.WeimobDeliveryCompany;
 import com.mee.manage.service.IExpressService;
 import com.mee.manage.util.JoddHttpUtils;
 import com.mee.manage.vo.ExpComCodeAutoVo;
-import com.mee.manage.vo.ExpComCodeVo;
-import org.checkerframework.checker.units.qual.A;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 @Service

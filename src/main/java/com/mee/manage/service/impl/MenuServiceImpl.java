@@ -1,5 +1,8 @@
 package com.mee.manage.service.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
@@ -7,10 +10,8 @@ import com.mee.manage.mapper.IMenuMapper;
 import com.mee.manage.po.Menu;
 import com.mee.manage.service.IMenuService;
 import com.mee.manage.vo.MenuVo;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MenuServiceImpl extends ServiceImpl<IMenuMapper, Menu> implements IMenuService {
@@ -36,7 +37,7 @@ public class MenuServiceImpl extends ServiceImpl<IMenuMapper, Menu> implements I
         if(menuIds == null || menuIds.isEmpty())
             return null;
 
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<Menu> queryWrapper = new QueryWrapper<Menu>();
         queryWrapper.in("id", menuIds);
 
         List<Menu> menus = list(queryWrapper);

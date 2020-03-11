@@ -1,27 +1,25 @@
 package com.mee.manage.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
 import com.mee.manage.config.Config;
 import com.mee.manage.enums.WeimobDeliveryCompany;
-import com.mee.manage.service.IExpressService;
 import com.mee.manage.service.IkdnService;
 import com.mee.manage.util.JoddHttpUtils;
 import com.mee.manage.util.MD5Util;
 import com.mee.manage.vo.KdnShipperCodeVo;
 import com.mee.manage.vo.KdnVo;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Base64;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class KdnServiceImpl implements IkdnService {

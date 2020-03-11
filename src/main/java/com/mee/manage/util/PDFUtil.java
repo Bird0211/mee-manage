@@ -1,25 +1,19 @@
 package com.mee.manage.util;
 
-import com.mee.manage.service.ITesseractService;
-import jodd.util.RandomString;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+
 public class PDFUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(PDFUtil.class);
+    // private static final Logger logger = LoggerFactory.getLogger(PDFUtil.class);
 
 
     public static int DEFAULT_DPI = 700;

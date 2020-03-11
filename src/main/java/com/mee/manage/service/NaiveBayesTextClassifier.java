@@ -3,9 +3,6 @@ package com.mee.manage.service;
 import org.jdmp.core.algorithm.classification.AbstractClassifier;
 import org.jdmp.core.algorithm.classification.Classifier;
 import org.jdmp.core.algorithm.classification.bayes.NaiveBayesClassifier;
-import org.jdmp.core.algorithm.estimator.DensityEstimator;
-import org.jdmp.core.algorithm.estimator.GaussianDensityEstimator;
-import org.jdmp.core.algorithm.estimator.GeneralDensityEstimator;
 import org.jdmp.core.dataset.ListDataSet;
 import org.jdmp.core.sample.Sample;
 import org.slf4j.Logger;
@@ -16,6 +13,11 @@ import org.ujmp.core.enums.ValueType;
 import org.ujmp.core.util.MathUtil;
 
 public class NaiveBayesTextClassifier extends AbstractClassifier {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
     private static final Logger logger = LoggerFactory.getLogger(NaiveBayesTextClassifier.class);
 

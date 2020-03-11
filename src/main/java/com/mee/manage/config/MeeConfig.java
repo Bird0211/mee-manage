@@ -2,7 +2,6 @@ package com.mee.manage.config;
 
 import com.mee.manage.util.DateUtil;
 import com.mee.manage.util.MD5Util;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
