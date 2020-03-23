@@ -7,18 +7,30 @@ import com.mee.JsonLongSerializer;
 
 import lombok.Data;
 
+/**
+ * RoleMenu
+ */
 @Data
-@TableName("t_mee_user_menu")
-public class UserMenu {
+@TableName("t_mee_role_menu")
+public class RoleMenu {
+    
+    RoleMenu() {
+
+    }
+
+    public RoleMenu(Long roleId, Long menuId) {
+        setRoleId(roleId);
+        setMenuId(menuId);
+    }
 
     @TableId
     @JsonSerialize(using = JsonLongSerializer.class )
-    private Long id;
+    Long id;
 
     @JsonSerialize(using = JsonLongSerializer.class )
-    private Long userId;
+    Long roleId;
 
     @JsonSerialize(using = JsonLongSerializer.class )
-    private Long menuId;
-
+    Long menuId;
+    
 }

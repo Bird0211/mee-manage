@@ -197,7 +197,7 @@
                                     </p>
                                     <ul style="padding: 0; margin: 0 0 10px 0; list-style-type: disc;">
                                         <li style="margin:0 0 10px 30px;" class="list-item-first">客户姓名: ${name}</li>
-                                        <li style="margin:0 0 10px 30px;">主题: ${subject}</li>
+                                        <li style="margin:0 0 10px 30px;">手机号: ${phone}</li>
                                         <li style="margin: 0 0 10px 30px;" class="list-item-last">电子邮箱: ${email}</li>
                                         <li style="margin: 0 0 10px 30px;" class="list-item-last">客户留言: ${message}</li>
                                     </ul>

@@ -1,7 +1,9 @@
 package com.mee.manage.service.impl;
 
+import com.mee.manage.po.Biz;
 import com.mee.manage.po.Configuration;
 import com.mee.manage.service.IAuthenticationService;
+import com.mee.manage.service.IBizService;
 import com.mee.manage.service.IConfigurationService;
 import com.mee.manage.config.Config;
 import com.mee.manage.service.IUserService;
@@ -9,6 +11,7 @@ import com.mee.manage.util.DateUtil;
 import com.mee.manage.config.MeeConfig;
 import com.mee.manage.vo.AuthenticationVo;
 import com.mee.manage.vo.Yiyun.YiyunUserData;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,9 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
     @Autowired
     IUserService userService;
+
+    @Autowired
+    IBizService bizService;
 
     private final int DEFAULT_TIME_LENG = 13;
 
@@ -53,17 +59,19 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             logger.info("Token is not exist",auth.getBizId());
             return false;
         }
-        String sign = MeeConfig.getMeeSign(auth.getBizId(),auth.getUserId(),
+        String sign = MeeConfig.getMeeUserSign(auth.getBizId(),auth.getUserId(),
                                             Long.parseLong(auth.getTime()),
                                             token,
                                             auth.getNonce());
 
         logger.info("Token = {},Sign = {}",token,sign);
         boolean isSign = sign.equals(auth.getSign());
+        
         if(isSign) {
             YiyunUserData userData = userService.getYiyunUser(auth.getBizId(),auth.getUserId());
             isSign = userData != null;
         }
+        
         return isSign;
     }
 
@@ -72,13 +80,12 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         if(StringUtils.isEmpty(bizId))
             return null;
         //getToken
-        Configuration tokenConfig = configService.getConfig(Config.PRE_BIZID + bizId);
-        if(tokenConfig == null) {
-            logger.info("Token is not exist",bizId);
+        Biz biz = bizService.getBiz(Integer.parseInt(bizId));
+        if (biz == null) {
             return null;
         }
 
-        return tokenConfig.getValue();
+        return biz.getToken();
     }
 
 

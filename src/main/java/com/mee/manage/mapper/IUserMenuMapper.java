@@ -1,7 +1,11 @@
 package com.mee.manage.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.mee.manage.po.UserMenu;
+import java.util.List;
 
-public interface IUserMenuMapper extends BaseMapper<UserMenu> {
+import com.mee.manage.vo.MenuVo;
+
+public interface IUserMenuMapper {
+
+    List<MenuVo> getMenuByUser(Long bizId,Long userId);
+
 }

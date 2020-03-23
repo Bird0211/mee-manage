@@ -13,8 +13,6 @@ public class Config {
 
     public static String WEIMOBREREFRESHTOKEN = "weimobrefreshtoken";
 
-    public static String PRE_BIZID = "BIZ";
-
     public static String OCR_MODE = "OCRMODE";
 
     public static String PAGE_SEG_MODE = "PAGE_SEG_MODE";

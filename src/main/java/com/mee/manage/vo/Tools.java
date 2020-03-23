@@ -1,10 +1,13 @@
 package com.mee.manage.vo;
 
-
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.alibaba.druid.filter.config.ConfigTools;
 import com.alibaba.druid.util.StringUtils;
@@ -16,12 +19,9 @@ public class Tools  {
 
     private final static double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
+
     static int index = 0;
 
-    void display() {
-       System.out.println("data = " + data);
-       }
-    int data;
 
     public static void main(String[] args) {
 
@@ -109,6 +109,7 @@ public class Tools  {
         return image;
     }
 
+    
     private static BufferedImage rotateImage(BufferedImage textImg) {
         ImageDeskew id = new ImageDeskew(textImg);
         double imageSkewAngle = id.getSkewAngle(); // determine skew angle

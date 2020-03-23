@@ -111,7 +111,7 @@ public class OCRSeviceImpl implements IOCRService {
         params.put("time",time);
         params.put("nonce",auth.getNonce());
         params.put("intake",JSON.toJSONString(request));
-        params.put("sign", MeeConfig.getMeeSign(auth.getBizId(),null,time,token,auth.getNonce()));
+        params.put("sign", MeeConfig.getMeeSign(auth.getBizId(),time,token,auth.getNonce()));
 
         String invoiceResult = JoddHttpUtils.sendPost(url,params);
         logger.info(invoiceResult);
@@ -304,7 +304,8 @@ public class OCRSeviceImpl implements IOCRService {
                                     Arrays.toString(rshape)));
                 }
                 int nlabels = (int) rshape[1];
-                float[][] floats = (float[][]) result.copyTo(new float[1][nlabels]);
+                float[][] floats = (float[][]) 
+                result.copyTo(new float[1][nlabels]);
                 return floats[0];
             }
         }

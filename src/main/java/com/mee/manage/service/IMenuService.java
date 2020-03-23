@@ -8,13 +8,17 @@ import java.util.List;
 
 public interface IMenuService extends IService<Menu> {
 
-    List<MenuVo> getAllMenu();
+    List<MenuVo> getAllMenu(String bizId);
 
     List<MenuVo> getSubMenu(Long pid);
 
-    List<MenuVo> getMenuByIds(List<Long> menuIds);
+    List<MenuVo> getMenuVoByIds(List<Long> menuIds);
+
+    List<Menu> getMenuByIds(List<Long> menuIds);
 
     boolean updateMenu(Menu menu);
 
     boolean delMenu(Long id);
+
+    Menu insertMenu(Menu menu);
 }

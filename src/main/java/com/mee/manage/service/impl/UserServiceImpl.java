@@ -107,7 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return null;
 
         String nonce = RandomStringUtils.random(6,true,false);
-        String sign = MeeConfig.getMeeSign(bizId,userId,time,token,nonce);
+        String sign = MeeConfig.getMeeSign(bizId,time,token,nonce);
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("/").append(bizId);
@@ -117,7 +117,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         stringBuilder.append("/").append(time);
         stringBuilder.append("/" + nonce + "/" + sign);
         url = url + stringBuilder.toString();
-//        logger.info(url);
         return url;
     }
 

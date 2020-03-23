@@ -1,0 +1,58 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Friend",
+            "request": "launch",
+            "mainClass": "com.mee.manage.vo.Friend",
+            "projectName": "mee-manage"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - MeeConfig",
+            "request": "launch",
+            "mainClass": "com.mee.manage.config.MeeConfig",
+            "projectName": "mee-manage"
+        },
+        {
+            "type": "java",
+            "name": "Tools",
+            "request": "launch",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "com.mee.manage.vo.Tools"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-mee-manage",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "com.mee.MeeManageApplication",
+            "projectName": "spring-boot-mee-manage",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Debug (Attach)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 80
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MeeManageApplication<mee-manage>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.mee.MeeManageApplication",
+            "projectName": "mee-manage",
+            "args": ""
+        }
+    ]
+}

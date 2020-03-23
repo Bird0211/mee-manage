@@ -2,6 +2,9 @@ package com.mee.manage.po;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mee.JsonLongSerializer;
+
 import lombok.Data;
 
 @Data
@@ -9,6 +12,7 @@ import lombok.Data;
 public class Menu implements Comparable<Menu> {
 
     @TableId
+    @JsonSerialize(using = JsonLongSerializer.class )
     private Long id;
 
     private String title;
@@ -21,6 +25,7 @@ public class Menu implements Comparable<Menu> {
 
     private String level;
 
+    @JsonSerialize(using = JsonLongSerializer.class )
     private Long parentId;
 
     private Integer sort;

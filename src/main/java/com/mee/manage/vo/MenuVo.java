@@ -8,6 +8,8 @@ import java.util.List;
 @Data
 public class MenuVo extends Menu {
 
+    private List<MenuVo> subMenu;
+
     public MenuVo(Menu menu) {
         this.setId(menu.getId());
         this.setDescription(menu.getDescription());
@@ -20,7 +22,5 @@ public class MenuVo extends Menu {
         this.setIcon(menu.getIcon());
         this.setIconColor(menu.getIconColor());
     }
-
-    private List<MenuVo> subMenu;
 
 }

@@ -133,7 +133,6 @@ public class ManageController {
         try {
             if(authService.checkAuth(auth))
                 meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
-
             else
                 meeResult.setStatusCode(StatusCode.FAIL.getCode());
 

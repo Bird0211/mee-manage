@@ -11,8 +11,23 @@ import java.util.Map;
 
 public class MeeConfig {
 
-    public static String getMeeSign(String bizId,String userId,Long time,String token,String nonce){
-        StringBuilder md5Str = new StringBuilder();
+    public static String getMeeSign(String bizId,Long time,String token,String nonce){
+        StringBuilder md5Str = new StringBuilder(); 
+        //.append(userId == null ? "":userId)
+        md5Str.append(bizId).append(time).append(nonce).append(token);
+        String md5ign = MD5Util.MD5Encode(md5Str.toString(),MD5Util.UTF8,false);
+        String sign = null;
+        try {
+            sign = URLEncoder.encode(md5ign,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return sign;
+    }
+
+    public static String getMeeUserSign(String bizId,String userId,Long time,String token,String nonce) {
+        StringBuilder md5Str = new StringBuilder(); 
         md5Str.append(bizId).append(userId == null ? "":userId).append(time).append(nonce).append(token);
         String md5ign = MD5Util.MD5Encode(md5Str.toString(),MD5Util.UTF8,false);
         String sign = null;
@@ -80,18 +95,18 @@ public class MeeConfig {
         String bidId = "20";
 
         Long time = DateUtil.getCurrentTime();
-        time = 1583115983404L;
 
         String token = "g4rhAz32KXx6FsSbI9IKIxsygqaAyDhl";
 
         String nonce = "3Q4gD2kz";
 
+        // String userId = "all";
         String userId = "12";
 
-        String sign = getMeeSign(bidId,userId,time,token,nonce);
+        String sign = getMeeSign(bidId,time,token,nonce);
         System.out.println(sign);
-//        String url = bidId+"/"+userId+"/"+time+"/"+nonce+"/"+sign;
-//        System.out.println(url);
+       String url = bidId+"/"+userId+"/"+time+"/"+nonce+"/"+sign;
+       System.out.println(url);
 
 
     }

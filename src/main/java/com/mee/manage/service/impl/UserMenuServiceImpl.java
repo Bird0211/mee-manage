@@ -1,58 +1,59 @@
 package com.mee.manage.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.mee.manage.mapper.IUserMenuMapper;
-import com.mee.manage.po.Menu;
-import com.mee.manage.po.UserMenu;
+import com.mee.manage.po.Role;
+import com.mee.manage.po.RoleMenu;
+import com.mee.manage.po.RoleUser;
 import com.mee.manage.service.IMenuService;
+import com.mee.manage.service.IRoleMenuService;
+import com.mee.manage.service.IRoleService;
+import com.mee.manage.service.IRoleUserService;
 import com.mee.manage.service.IUserMenuService;
 import com.mee.manage.vo.MenuVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class UserMenuServiceImpl extends ServiceImpl<IUserMenuMapper, UserMenu> implements IUserMenuService {
+public class UserMenuServiceImpl implements IUserMenuService {
+
+    @Autowired
+    IRoleUserService roleUserService;
+
+    @Autowired
+    IRoleMenuService roleMenuService;
+
+    @Autowired
+    IRoleService roleService;
 
     @Autowired
     IMenuService menuService;
 
     @Override
-    public List<MenuVo> getMenuByUserId(Long userId) {
-        if(userId == null)
+    public List<MenuVo> getMenuByUserId(Long userId, Long bizId) {
+        if (userId == null)
             return null;
 
-        QueryWrapper<UserMenu> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id",userId);
-
-        List<UserMenu> userMenus = list(queryWrapper);
-        if(userMenus == null)
+        List<RoleUser> roleUsers = roleUserService.getRoleUserByUserId(userId);
+        if (roleUsers == null || roleUsers.isEmpty())
             return null;
 
-        List<Long> menuIds = Lists.newArrayList();
-        for(UserMenu userMenu : userMenus) {
-            menuIds.add(userMenu.getMenuId());
+        List<Long> roleIds = roleUsers.stream().map(item -> item.getRoleId()).collect(Collectors.toList());
+        List<Role> roles = roleService.getRoleById(roleIds, bizId);
+        if (roles == null || roles.isEmpty()) {
+            return null;
         }
-        List<MenuVo> menus = menuService.getMenuByIds(menuIds);
+        roleIds = roles.stream().map(item -> item.getId()).collect(Collectors.toList());
+        List<RoleMenu> roleMenus = roleMenuService.getRoleMenuByRoles(roleIds);
+        if (roleMenus == null || roleMenus.isEmpty())
+            return null;
+
+        List<Long> menuIds = roleMenus.stream().map(item -> item.getMenuId()).collect(Collectors.toList());
+
+        List<MenuVo> menus = menuService.getMenuVoByIds(menuIds);
 
         return menus;
     }
 
-    @Override
-    public boolean addMenu(List<Menu> menus, Long userId) {
-        return false;
-    }
-
-    @Override
-    public boolean removeMenu(List<Menu> menus, Long userId) {
-        return false;
-    }
-
-    @Override
-    public boolean updateMenu(List<Menu> menus, Long userId) {
-        return false;
-    }
 }

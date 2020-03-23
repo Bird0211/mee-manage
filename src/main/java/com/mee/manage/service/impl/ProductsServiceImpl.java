@@ -281,7 +281,7 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
             return null;
 
         String nonce = RandomStringUtils.random(6,true,false);
-        String sign = MeeConfig.getMeeSign(bizId,null,time,token,nonce);
+        String sign = MeeConfig.getMeeSign(bizId,time,token,nonce);
 
         url = url + "/" + bizId + "/" + time + "/" + nonce + "/" + sign;
         logger.info(url);
