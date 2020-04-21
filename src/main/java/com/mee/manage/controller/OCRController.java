@@ -62,7 +62,8 @@ public class OCRController {
     public MeeResult ocr(@RequestParam MultipartFile[] file) {
         MeeResult meeResult = new MeeResult();
         try {
-            InvoiceVo result = iocrService.textOCR(file,"eng+chi_sim");
+            //+chi_sim
+            InvoiceVo result = iocrService.textOCR(file,"eng");
             meeResult.setData(result);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
 

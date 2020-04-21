@@ -32,13 +32,28 @@ public enum InvoiceEnum {
     HH("H&H", "invoice date:", 2, "reference:", 2, "description",
             "quantity", "unit price", "subtotal", null),
 
-    YOMI("Yomi","invoice date",2,"invoice number",2,"description (name, alias, mpn)",
-            "qty.","unit price","subtotal",null),
+    //YOMI("Yomi","invoice date",2,"invoice number",2,"description (name, alias, mpn)",
+    //        "qty.","unit price","subtotal",null),
 
     PAKnSAVE("PAKnSAVE","invoice date",1,"invoice number",1,"product description",
             "supplied\nquantity","unit price",null,"product id"),
 
-    DEFAUTL("null", "invoice date", 1, "invoices no", 1, "description",
+    TOPWAREHOUSE("top warehouse","created date",2,"Ref",2,"item",
+            "qty","unit price","product cost",null),
+    
+    BLOSSOMING("blossoming","date:",1,"invoice no.:",1,"Description",
+            "qty","unit Price","bank name:",null),
+
+    EBRAND("ebrand","invoice date",2,"invoice number",2,"description",
+                "quantity","unit price","INCLUDES",null),
+
+    FLT("flt group","invoice date",2,"invoice no.",2,"description",
+                "quantity","unit price","TOTAL GST","barcode"),
+
+    JASEA("jasea distribution","invoice date",2,"invoice number",2,"Description",
+                "quantity","unit price","subtotal",null),
+
+    DEFAUTL("null", "invoice date", 1, "invoice no", 1, "description",
             "quantity", "unit price", "total", "sku"),
 
     ;

@@ -95,7 +95,7 @@ mee:
     clientSecret: C25CD25C2051AF6B5F9DA36737736457
     weimobTokenUrl: https://dopen.weimob.com/fuwu/b/oauth2/token
     weimobOrderListUrl: https://dopen.weimob.com/api/1_0/ec/order/queryOrderList
-    returnUri: http://data.middle-earth.tech/index.html?page=weimob
+    returnUri: https://external.yiyun.co.nz/data/index.html?page=weimob
     goodsClassifyUrl: https://dopen.weimob.com/api/1_0/ec/goodsClassify/queryClassifyInfoList
     goodListUrl: https://dopen.weimob.com/api/1_0/ec/goods/queryGoodsList
     orderDetail: https://dopen.weimob.com/api/1_0/ec/order/queryOrderDetail
@@ -110,6 +110,9 @@ mee:
     authCode: 03X7LWDxM6A568ratg8phvheQ6Wgm5GK
     url: https://open.ymatou.com/apigateway/v1
 
+  nineteen:
+    orderListUrl: http://api.wfcorp.cn/shop/v1/Identity/orderInfo
+    productUrl: http://api.wfcorp.com/shop/v1/Identity/productsInfo
 
 
 

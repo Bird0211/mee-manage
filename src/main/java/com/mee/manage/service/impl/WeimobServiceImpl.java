@@ -56,7 +56,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
 
     @Override
-    public boolean addCode(String code) {
+    public boolean addCode(String code,Long bizId) {
         if(code == null)
             return false;
 
@@ -67,29 +67,28 @@ public class WeimobServiceImpl implements IWeimobService {
         data.put("client_secret",weimobConfig.getClientSecret());
         data.put("redirect_uri",weimobConfig.getReturnUri());
 
-
         logger.info(JSON.toJSONString(data));
         String result = JoddHttpUtils.sendPost(weimobConfig.getWeimobTokenUrl(),data);
         logger.info(result);
         WeimobTokenResponse weimobTokenResponse = JSON.parseObject(result,WeimobTokenResponse.class);
-        return saveToken(weimobTokenResponse);
+        return saveToken(weimobTokenResponse, bizId);
     }
 
     @Override
-    public CheckTokenResult checkToken() {
+    public CheckTokenResult checkToken(Long bizId) {
 
         boolean flag = false;
         String token = null;
-        Configuration tokenConfig = configurationService.getConfig(Config.WEIMOBTOKEN);
+        Configuration tokenConfig = configurationService.getConfig(Config.WEIMOBTOKEN+"_"+bizId);
         if(tokenConfig != null) {
             if (tokenConfig.getExpir().after(new Date())) {   //token > new date()
                 flag = true;
                 token = tokenConfig.getValue();
             } else {
-                Configuration refreshToken = configurationService.getConfig(Config.WEIMOBREREFRESHTOKEN);
+                Configuration refreshToken = configurationService.getConfig(Config.WEIMOBREREFRESHTOKEN+"_"+bizId);
                 if (refreshToken != null &&
                         refreshToken.getExpir().after(new Date())) { //refreshToken < new date()
-                    return refreshToken(refreshToken.getValue());
+                    return refreshToken(refreshToken.getValue(),bizId);
                 }
             }
         }
@@ -101,8 +100,8 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public String getToken(){
-        CheckTokenResult tokenResult = checkToken();
+    public String getToken(Long bizId){
+        CheckTokenResult tokenResult = checkToken(bizId);
         if (tokenResult == null || !tokenResult.isCuccess()) {
             return null;
         }
@@ -113,7 +112,7 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public CheckTokenResult refreshToken(String refreshToken) {
+    public CheckTokenResult refreshToken(String refreshToken, Long bizId) {
         CheckTokenResult tokenResult = new CheckTokenResult();
         if(refreshToken == null) {
             tokenResult.setCuccess(false);
@@ -134,7 +133,7 @@ public class WeimobServiceImpl implements IWeimobService {
             tokenResult.setCuccess(false);
             return tokenResult;
         }
-        boolean isSaveToken = saveToken(weimobTokenResponse);
+        boolean isSaveToken = saveToken(weimobTokenResponse,bizId);
         tokenResult.setCuccess(isSaveToken);
         if(isSaveToken) {
             tokenResult.setToken(weimobTokenResponse.getAccess_token());
@@ -144,7 +143,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean setToken(String token, Date expire, String refreshToken, Date expireRefreshToken) {
+    public boolean setToken(String token, Date expire, String refreshToken, Date expireRefreshToken,Long bizId) {
         if(token == null || refreshToken == null ||
                 expire.before(new Date()) || expireRefreshToken.before(new Date()))
             return false;
@@ -154,17 +153,17 @@ public class WeimobServiceImpl implements IWeimobService {
 
         //入库、事务
         try {
-            Configuration tokenConfig = configurationService.getConfig(Config.WEIMOBTOKEN);
+            Configuration tokenConfig = configurationService.getConfig(Config.WEIMOBTOKEN+"_"+bizId);
             if(tokenConfig == null)
-                configurationService.insertConfig(Config.WEIMOBTOKEN,token,expire);
+                configurationService.insertConfig(Config.WEIMOBTOKEN+"_"+bizId,token,expire);
             else
-                configurationService.updateConfig(Config.WEIMOBTOKEN,token,expire);
+                configurationService.updateConfig(Config.WEIMOBTOKEN+"_"+bizId,token,expire);
 
-            Configuration reFreshTokenConfig = configurationService.getConfig(Config.WEIMOBREREFRESHTOKEN);
+            Configuration reFreshTokenConfig = configurationService.getConfig(Config.WEIMOBREREFRESHTOKEN+"_"+bizId);
             if(reFreshTokenConfig == null)
-                configurationService.insertConfig(Config.WEIMOBREREFRESHTOKEN,refreshToken,expireRefreshToken);
+                configurationService.insertConfig(Config.WEIMOBREREFRESHTOKEN+"_"+bizId,refreshToken,expireRefreshToken);
             else
-                configurationService.updateConfig(Config.WEIMOBREREFRESHTOKEN,refreshToken,expireRefreshToken);
+                configurationService.updateConfig(Config.WEIMOBREREFRESHTOKEN+"_"+bizId,refreshToken,expireRefreshToken);
 
             flag = true;
         } catch (Exception ex) {
@@ -177,14 +176,14 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public MeeResult getOrderList(WeimobOrderListRequest request) {
+    public MeeResult getOrderList(WeimobOrderListRequest request,Long bizId) {
         MeeResult meeResult = new MeeResult();
         if(request == null) {
             meeResult.setStatusCode(StatusCode.PARAM_ERROR.getCode());
             return meeResult;
         }
 
-        CheckTokenResult tokenResult = checkToken();
+        CheckTokenResult tokenResult = checkToken(bizId);
         if (tokenResult == null || !tokenResult.isCuccess()) {
             meeResult.setStatusCode(StatusCode.PARAM_ERROR.getCode());
             return meeResult;
@@ -229,8 +228,8 @@ public class WeimobServiceImpl implements IWeimobService {
 
             if(result.indexOf("80001001000119") >=0 ){
                 statusCode = StatusCode.WEIMOB_TOKEN_ERROR;
-                configurationService.removeConfig(Config.WEIMOBTOKEN);
-                configurationService.removeConfig(Config.WEIMOBREREFRESHTOKEN);
+                configurationService.removeConfig(Config.WEIMOBTOKEN+'_'+bizId);
+                configurationService.removeConfig(Config.WEIMOBREREFRESHTOKEN+'_'+bizId);
 
                 break;
             }
@@ -266,15 +265,15 @@ public class WeimobServiceImpl implements IWeimobService {
         }while((pageNum-1) * pageSize < totalCount);
 
         if(statusCode == StatusCode.SUCCESS) {
-            meeResult.setData(getOrderListData(datas,request.getSendarea(),request.getOrderType()));
+            meeResult.setData(getOrderListData(datas,request.getSendarea(),request.getOrderType(),bizId));
         }
         meeResult.setStatusCode(statusCode.getCode());
         return meeResult;
     }
 
     @Override
-    public List<WeimobGroupVo> getClassifyInfo() {
-        String token = getToken();
+    public List<WeimobGroupVo> getClassifyInfo(Long bizId) {
+        String token = getToken(bizId);
         if(token == null)
             return null;
 
@@ -306,11 +305,11 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public WeimobOrderDetailVo getWeimobOrder(String orderId) {
+    public WeimobOrderDetailVo getWeimobOrder(String orderId,Long bizId) {
         if(orderId == null)
             return null;
 
-        String token = getToken();
+        String token = getToken(bizId);
         if(token == null)
             return null;
 
@@ -336,9 +335,9 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public List<GoodPageList> getGoodList(GoodListQueryParameter params) {
+    public List<GoodPageList> getGoodList(GoodListQueryParameter params,Long bizId) {
 
-        String token = getToken();
+        String token = getToken(bizId);
         if(StringUtils.isEmpty(token))
             return null;
 
@@ -384,9 +383,9 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public List<GoodInfoVo> getWeimobGoods(GoodListQueryParameter params) {
+    public List<GoodInfoVo> getWeimobGoods(GoodListQueryParameter params,Long bizId) {
 
-        List<GoodPageList> goodList = getGoodList(params);
+        List<GoodPageList> goodList = getGoodList(params,bizId);
         Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct("20");
 
         List<GoodInfoVo>  goodInfos = new ArrayList<>();
@@ -399,7 +398,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
                             @Override
                             public GoodDetailData call() throws Exception {
-                                GoodDetailData goodData = getWeimobGoodDetail(good.getGoodsId());
+                                GoodDetailData goodData = getWeimobGoodDetail(good.getGoodsId(),bizId);
                                 return goodData;
                             }
 
@@ -513,11 +512,11 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public GoodDetailData getWeimobGoodDetail(Long goodId) {
+    public GoodDetailData getWeimobGoodDetail(Long goodId,Long bizId) {
         if(goodId == null)
             return null;
 
-        String token = getToken();
+        String token = getToken(bizId);
         String url = weimobConfig.getGoodDetailUrl()+"?accesstoken="+token;
         Map<String,Object> params = new HashMap<>();
         params.put("goodsId",goodId);
@@ -542,7 +541,7 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public List<PriceUpdateResult> updateWeimobPrice(List<GoodPriceDetail> goodsPrice) {
+    public List<PriceUpdateResult> updateWeimobPrice(List<GoodPriceDetail> goodsPrice, Long bizId) {
         if(goodsPrice == null || goodsPrice.isEmpty())
             return null;
 
@@ -570,7 +569,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
                         @Override
                         public List<PriceUpdateResult> call() throws Exception {
-                            List<PriceUpdateResult> priceUpdate = updatePrice(key,goodPrices);
+                            List<PriceUpdateResult> priceUpdate = updatePrice(key,goodPrices,bizId);
 
                             return priceUpdate;
                         }
@@ -598,7 +597,7 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public GoodInfoVo getWeimobGoodBySku(Long sku) {
+    public GoodInfoVo getWeimobGoodBySku(Long sku,Long bizId) {
         if(sku == null || sku <= 0)
             return null;
 
@@ -610,7 +609,7 @@ public class WeimobServiceImpl implements IWeimobService {
         GoodInfoVo infoVo = null;
 
         Long goodId = weimobOrder.getGoodId();
-        List<WeimobSkuVo> skuVos = getSkuList(goodId);
+        List<WeimobSkuVo> skuVos = getSkuList(goodId,bizId);
 
         if(skuVos != null && !skuVos.isEmpty()) {
             for (WeimobSkuVo skuVo : skuVos) {
@@ -626,9 +625,9 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public boolean refreshWeimob() {
+    public boolean refreshWeimob(Long bizId) {
 
-        List<GoodInfoVo> goods = getWeimobGoods(null);
+        List<GoodInfoVo> goods = getWeimobGoods(null, bizId);
         if(goods == null || goods.isEmpty())
             return false;
 
@@ -675,7 +674,7 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public OrderDeliveryResult orderDelivery(List<DeliveryOrderVo> deleverOrders) {
+    public OrderDeliveryResult orderDelivery(List<DeliveryOrderVo> deleverOrders,Long bizId) {
         OrderDeliveryResult result = new OrderDeliveryResult();
         if(deleverOrders == null || deleverOrders.isEmpty()) {
             logger.info("DeleverOrders params is null");
@@ -692,7 +691,7 @@ public class WeimobServiceImpl implements IWeimobService {
         List<String> error = new ArrayList<>();
         if(splitOrder.getDeleverBatchOrders() != null &&
                 splitOrder.getDeleverBatchOrders().size() > 0) {
-            boolean bathResult = sendBathOrder(splitOrder.getDeleverBatchOrders());
+            boolean bathResult = sendBathOrder(splitOrder.getDeleverBatchOrders(),bizId);
             if(!bathResult) {
                 error.addAll(getErrorOrderId(splitOrder.getDeleverBatchOrders()));
             }
@@ -700,7 +699,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
         if(splitOrder.getDeleverSingleOrders() != null &&
                 splitOrder.getDeleverSingleOrders().size() > 0) {
-            List<DeliveryOrderVo> signleResult = sendSigleOrder(splitOrder.getDeleverSingleOrders());
+            List<DeliveryOrderVo> signleResult = sendSigleOrder(splitOrder.getDeleverSingleOrders(),bizId);
             if(signleResult != null && !signleResult.isEmpty()) {
                 error.addAll(getErrorOrderId(signleResult));
             }
@@ -717,7 +716,7 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public boolean sendBathOrder(List<DeliveryOrderVo> deleverOrders) {
+    public boolean sendBathOrder(List<DeliveryOrderVo> deleverOrders,Long bizId) {
         if (deleverOrders == null || deleverOrders.size() <= 0) {
             logger.info("Batch Order deleverOrders is null!");
             return false;
@@ -725,7 +724,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
         logger.info("BathOrder = {}",deleverOrders);
 
-        String token = getToken();
+        String token = getToken(bizId);
         String url = weimobConfig.getBatchDeliveryUrl() + "?accesstoken="+token;
 
         WeimobBatchDeliveryRequest params = new WeimobBatchDeliveryRequest();
@@ -771,7 +770,7 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     @Override
-    public List<DeliveryOrderVo> sendSigleOrder(List<DeliveryOrderVo> deleverOrders) {
+    public List<DeliveryOrderVo> sendSigleOrder(List<DeliveryOrderVo> deleverOrders,Long bizId) {
         if(deleverOrders == null || deleverOrders.isEmpty()) {
             logger.info("Sigle Order deleverOrders is null!");
             return null;
@@ -779,7 +778,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
         logger.info("SigleOrder = {}",deleverOrders);
 
-        String token = getToken();
+        String token = getToken(bizId);
         String url = weimobConfig.getOrderDeliveryUrl()+ "?accesstoken="+token;
 
         List<DeliveryOrderVo> errorResult = new ArrayList<>();
@@ -822,8 +821,8 @@ public class WeimobServiceImpl implements IWeimobService {
         return errorResult;
     }
 
-    public WeimobDeliveryOrderResp sendSigleOrder(DeliveryOrderVo deleverOrder) {
-        String token = getToken();
+    public WeimobDeliveryOrderResp sendSigleOrder(DeliveryOrderVo deleverOrder, Long bizId) {
+        String token = getToken(bizId);
         String url = weimobConfig.getOrderDeliveryUrl() + "?accesstoken=" + token;
         return sendSigleOrder(deleverOrder, url);
     }
@@ -1020,11 +1019,11 @@ public class WeimobServiceImpl implements IWeimobService {
     */
 
 
-    private List<WeimobSkuVo> getSkuList(Long goodId){
+    private List<WeimobSkuVo> getSkuList(Long goodId,Long bizId){
         if(goodId == null || goodId <= 0)
             return null;
 
-        GoodDetailData goodDetail = getWeimobGoodDetail(goodId);
+        GoodDetailData goodDetail = getWeimobGoodDetail(goodId,bizId);
         if(goodDetail == null)
             return null;
 
@@ -1067,7 +1066,7 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
 
-    private boolean saveToken(WeimobTokenResponse refreshTokenResponse){
+    private boolean saveToken(WeimobTokenResponse refreshTokenResponse,Long bizId){
         if(refreshTokenResponse == null)
             return false;
 
@@ -1076,10 +1075,10 @@ public class WeimobServiceImpl implements IWeimobService {
         int expireToken = refreshTokenResponse.getExpires_in();
         int expireRefreshToken = refreshTokenResponse.getRefresh_token_expires_in();
 
-        return setToken(token,DateUtil.getSuffixSecond(expireToken),reToken, DateUtil.getSuffixSecond(expireRefreshToken));
+        return setToken(token,DateUtil.getSuffixSecond(expireToken),reToken, DateUtil.getSuffixSecond(expireRefreshToken),bizId);
     }
 
-    private WeimobOrderListResponse getOrderListData(List<WeimobOrderData> datas,Integer sendArea,Integer orderType){
+    private WeimobOrderListResponse getOrderListData(List<WeimobOrderData> datas,Integer sendArea,Integer orderType, Long bizId){
         if(datas == null || datas.isEmpty() || datas.size() <=0)
             return null;
 
@@ -1094,7 +1093,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
         List<Long> milkIds = null;
         if(orderType != null) {
-            milkIds = getMilkIds();
+            milkIds = getMilkIds(bizId);
         }
 
         Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct("20");
@@ -1160,7 +1159,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
                                 @Override
                                 public WeimobOrderDetailVo call() throws Exception {
-                                    WeimobOrderDetailVo orderVo = getWeimobOrder(""+item.getOrderNo());
+                                    WeimobOrderDetailVo orderVo = getWeimobOrder(""+item.getOrderNo(),bizId);
                                     if(orderNo == null)
                                         logger.info("weimob is null orderId = {}",item.getOrderNo());
                                     return orderVo;
@@ -1228,14 +1227,14 @@ public class WeimobServiceImpl implements IWeimobService {
         return response;
     }
 
-    private List<Long> getMilkIds(){
+    private List<Long> getMilkIds(Long bizId){
         GoodListQueryParameter queryParameter = new GoodListQueryParameter();
         queryParameter.setSearch(null);
         queryParameter.setGoodsClassifyId(657235243L);
         queryParameter.setGoodsStatus(0);
 
         List<Long> milkIds = null;
-        List<GoodPageList> pageLists = getGoodList(queryParameter);
+        List<GoodPageList> pageLists = getGoodList(queryParameter,bizId);
         if(pageLists != null && pageLists.size() > 0) {
             milkIds = new ArrayList<>();
             for (GoodPageList good : pageLists) {
@@ -1247,7 +1246,7 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
 
-    private List<PriceUpdateResult> updatePrice(Long goodId,List<GoodPriceDetail> goodPrices){
+    private List<PriceUpdateResult> updatePrice(Long goodId,List<GoodPriceDetail> goodPrices, Long bizId){
         if(goodPrices == null || goodPrices.isEmpty()) {
             return null;
         }
@@ -1283,7 +1282,7 @@ public class WeimobServiceImpl implements IWeimobService {
             params.setSkuList(skuList);
 
             logger.info("params = {}",params);
-            boolean isSucc = updateWeimobGood(params);
+            boolean isSucc = updateWeimobGood(params,bizId);
             for (SkuList sku : skuList) {
                 PriceUpdateResult result = new PriceUpdateResult();
                 result.setSku(""+sku.getSkuId());
@@ -1296,11 +1295,11 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
 
-    private boolean updateWeimobGood(WeimobUpdateParams params){
+    private boolean updateWeimobGood(WeimobUpdateParams params,Long bizId){
         if(params == null)
             return false;
 
-        String token = getToken();
+        String token = getToken(bizId);
         String url = weimobConfig.getUpdateGoodUrl()+"?accesstoken="+token;
 
         String result = JoddHttpUtils.sendPostUseBody(url,params);

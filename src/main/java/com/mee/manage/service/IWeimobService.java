@@ -10,38 +10,38 @@ import java.util.List;
 
 public interface IWeimobService {
 
-    boolean addCode(String code);
+    boolean addCode(String code,Long bizId);
 
-    CheckTokenResult checkToken();
+    CheckTokenResult checkToken(Long bizId);
 
-    String getToken();
+    String getToken(Long bizId);
 
-    CheckTokenResult refreshToken(String refreshToken);
+    CheckTokenResult refreshToken(String refreshToken,Long bizId);
 
-    boolean setToken(String token, Date expire,String refreshToken,Date expireRefreshToken);
+    boolean setToken(String token, Date expire,String refreshToken,Date expireRefreshToken,Long bizId);
 
-    MeeResult getOrderList(WeimobOrderListRequest request);
+    MeeResult getOrderList(WeimobOrderListRequest request,Long bizId);
 
-    List<WeimobGroupVo> getClassifyInfo();
+    List<WeimobGroupVo> getClassifyInfo(Long bizId);
 
-    WeimobOrderDetailVo getWeimobOrder(String orderId);
+    WeimobOrderDetailVo getWeimobOrder(String orderId,Long bizId);
 
-    List<GoodPageList> getGoodList(GoodListQueryParameter params);
+    List<GoodPageList> getGoodList(GoodListQueryParameter params,Long bizId);
 
-    List<GoodInfoVo> getWeimobGoods(GoodListQueryParameter params);
+    List<GoodInfoVo> getWeimobGoods(GoodListQueryParameter params,Long bizId);
 
-    GoodDetailData getWeimobGoodDetail(Long goodId);
+    GoodDetailData getWeimobGoodDetail(Long goodId,Long bizId);
 
-    List<PriceUpdateResult> updateWeimobPrice(List<GoodPriceDetail> goodsPrice);
+    List<PriceUpdateResult> updateWeimobPrice(List<GoodPriceDetail> goodsPrice,Long bizId);
 
-    GoodInfoVo getWeimobGoodBySku(Long sku);
+    GoodInfoVo getWeimobGoodBySku(Long sku,Long bizId);
 
-    boolean refreshWeimob();
+    boolean refreshWeimob(Long bizId);
 
-    OrderDeliveryResult orderDelivery(List<DeliveryOrderVo> deleverOrders);
+    OrderDeliveryResult orderDelivery(List<DeliveryOrderVo> deleverOrders,Long bizId);
 
-    boolean sendBathOrder(List<DeliveryOrderVo> deleverOrders);
+    boolean sendBathOrder(List<DeliveryOrderVo> deleverOrders,Long bizId);
 
-    List<DeliveryOrderVo> sendSigleOrder(List<DeliveryOrderVo> deleverOrders);
+    List<DeliveryOrderVo> sendSigleOrder(List<DeliveryOrderVo> deleverOrders,Long bizId);
 
 }

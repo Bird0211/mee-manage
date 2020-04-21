@@ -12,7 +12,13 @@ public enum StatusCode {
     WEIMOB_LOW_PRICE(118005,"Price is lower than Weimob price"),
     AUTH_FAIL(118006,"Auth Fail"),
 
+    OVER_TIME(11807,"Access timeout"),
+    TOKEN_ERROR(11808,"Token is not exist"),
+    SIGN_ERROR(11809,"sign error"),
 
+    BIZ_NOT_EXIST(11810,"BIZ is not exist"),
+    BIZ_STATUS_ERROR(11811,"BIZ ERROR"),
+    BIZ_OVER_TIME(11812,"BIZ is expire")
     ;
 
     private int code;

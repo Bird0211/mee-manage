@@ -95,10 +95,22 @@ public class TextOverlayVo {
         InvoiceEnum[] invoiceEnums = InvoiceEnum.values();
         InvoiceEnum keyInvoice = null;
         boolean flag = false;
-        for(WordsVo word : words){
+        for(int i = 0 ; i < words.size(); i++){
             for(InvoiceEnum invoice : invoiceEnums){
-                if(Tools.isCorrect(word.getWordText(),invoice.getKeyWord())) {
-                    flag = true;
+                String[] keys = invoice.getKeyWord().split(" ");
+                for(int v = 0; v < keys.length ; v++) {
+                    String key = keys[v];
+                    flag = Tools.isCorrect(words.get(i+v).getWordText(),key);
+                    if(!flag) {
+                        break;
+                    }
+                }
+
+                if(!flag) {
+                    continue;
+                }
+
+                if(flag) {
                     keyInvoice = invoice;
                     break;
                 }

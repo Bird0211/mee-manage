@@ -50,7 +50,7 @@ public class LogAspect {
         try {
             logger.info("Request Args   : {}", JSON.toJSON(joinPoint.getArgs()));
         }catch (Exception e) {
-            logger.info("Request Args Error");
+            logger.info("Request Args Error",e);
         }
 
 

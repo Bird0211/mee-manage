@@ -131,10 +131,9 @@ public class ManageController {
         logger.info("Params: = {}", JSON.toJSONString(auth));
         MeeResult meeResult = new MeeResult();
         try {
-            if(authService.checkAuth(auth))
-                meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
-            else
-                meeResult.setStatusCode(StatusCode.FAIL.getCode());
+            StatusCode statusCode = authService.checkAuth(auth);
+            meeResult.setStatusCode(statusCode.getCode());
+            meeResult.setDescription(statusCode.getCodeMsg());
 
         } catch (Exception ex) {
             logger.error("authentication error",ex);
@@ -180,6 +179,6 @@ public class ManageController {
         }
 
         return meeResult;
-    }
+    };
 
 }

@@ -123,4 +123,18 @@ public class MenuServiceImpl extends ServiceImpl<IMenuMapper, Menu> implements I
         return menus;
     }
 
+    @Override
+    public List<MenuVo> getMenuBiz(List<Long> menuIds, Long bizId) {
+        if(menuIds == null || menuIds.isEmpty())
+            return null;
+        List<BizMenu> bizMenus = bizMenuService.getBizMenuByBizId(bizId);
+        if(bizMenus == null || bizMenus.isEmpty()) {
+            return null;
+        }
+
+        List<Long> menus = bizMenus.stream().map(item -> item.getMenuId()).filter(item -> menuIds.indexOf(item) >=0 ).
+                collect(Collectors.toList());
+        return getMenuVoByIds(menus);
+    }
+
 }

@@ -1,13 +1,12 @@
 package com.mee.manage.service.impl;
 
 import com.mee.manage.po.Biz;
-import com.mee.manage.po.Configuration;
 import com.mee.manage.service.IAuthenticationService;
 import com.mee.manage.service.IBizService;
 import com.mee.manage.service.IConfigurationService;
-import com.mee.manage.config.Config;
 import com.mee.manage.service.IUserService;
 import com.mee.manage.util.DateUtil;
+import com.mee.manage.util.StatusCode;
 import com.mee.manage.config.MeeConfig;
 import com.mee.manage.vo.AuthenticationVo;
 import com.mee.manage.vo.Yiyun.YiyunUserData;
@@ -38,10 +37,10 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final int DEFAULT_TIME_LENG = 13;
 
     @Override
-    public boolean checkAuth(AuthenticationVo auth) {
+    public StatusCode checkAuth(AuthenticationVo auth) {
         if(auth == null || auth.isEmpty()) {
             logger.info("Auth is Null");
-            return false;
+            return StatusCode.PARAM_ERROR;
         }
 
         //time
@@ -51,13 +50,13 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                     DateUtil.getPrefixHour(1));
             logger.info("Time error Time = {}, {}",addZeroForNum(auth.getTime(),DEFAULT_TIME_LENG),
                     DateUtil.getPrefixHour(1).getTime());
-            return false;
+            return StatusCode.OVER_TIME;
         }
         //getToken
         String token = getMeeToken(auth.getBizId());
         if(token == null) {
             logger.info("Token is not exist",auth.getBizId());
-            return false;
+            return StatusCode.TOKEN_ERROR;
         }
         String sign = MeeConfig.getMeeUserSign(auth.getBizId(),auth.getUserId(),
                                             Long.parseLong(auth.getTime()),
@@ -66,13 +65,29 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
         logger.info("Token = {},Sign = {}",token,sign);
         boolean isSign = sign.equals(auth.getSign());
-        
-        if(isSign) {
-            YiyunUserData userData = userService.getYiyunUser(auth.getBizId(),auth.getUserId());
-            isSign = userData != null;
+        if(!isSign) {
+            return StatusCode.SIGN_ERROR;
+        }
+
+        Biz bizInfo = bizService.getBiz(Integer.parseInt(auth.getBizId()));
+        if(bizInfo == null) {
+            return StatusCode.BIZ_NOT_EXIST;
+        }
+
+        if(bizInfo.getStatus() == 1) {
+            return StatusCode.BIZ_STATUS_ERROR;
+        }
+
+        if(bizInfo.getExpireDate() != null && bizInfo.getExpireDate().before(new Date())) {
+            return StatusCode.OVER_TIME;
         }
         
-        return isSign;
+        YiyunUserData userData = userService.getYiyunUser(auth.getBizId(),auth.getUserId());
+        if(userData == null) {
+            return StatusCode.USER_NOT_EXIST;
+        }
+        
+        return StatusCode.SUCCESS;
     }
 
     @Override

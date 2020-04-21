@@ -1,6 +1,5 @@
 package com.mee.manage.service.impl;
 
-import com.mee.manage.po.Role;
 import com.mee.manage.po.RoleMenu;
 import com.mee.manage.po.RoleUser;
 import com.mee.manage.service.IMenuService;
@@ -9,6 +8,9 @@ import com.mee.manage.service.IRoleService;
 import com.mee.manage.service.IRoleUserService;
 import com.mee.manage.service.IUserMenuService;
 import com.mee.manage.vo.MenuVo;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +32,11 @@ public class UserMenuServiceImpl implements IUserMenuService {
     @Autowired
     IMenuService menuService;
 
+    protected static final Logger logger = LoggerFactory.getLogger(IUserMenuService.class);
+
     @Override
     public List<MenuVo> getMenuByUserId(Long userId, Long bizId) {
+
         if (userId == null)
             return null;
 
@@ -40,18 +45,20 @@ public class UserMenuServiceImpl implements IUserMenuService {
             return null;
 
         List<Long> roleIds = roleUsers.stream().map(item -> item.getRoleId()).collect(Collectors.toList());
+        /*
         List<Role> roles = roleService.getRoleById(roleIds, bizId);
         if (roles == null || roles.isEmpty()) {
             return null;
         }
         roleIds = roles.stream().map(item -> item.getId()).collect(Collectors.toList());
+        */
         List<RoleMenu> roleMenus = roleMenuService.getRoleMenuByRoles(roleIds);
         if (roleMenus == null || roleMenus.isEmpty())
             return null;
 
         List<Long> menuIds = roleMenus.stream().map(item -> item.getMenuId()).collect(Collectors.toList());
 
-        List<MenuVo> menus = menuService.getMenuVoByIds(menuIds);
+        List<MenuVo> menus = menuService.getMenuBiz(menuIds,bizId);
 
         return menus;
     }

@@ -178,7 +178,12 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         String result = JoddHttpUtils.getData(url);
         logger.info(result);
         List<SuppliersVo> suppliers = null;
-        List<MeeSuppliersResponse> suppliersResponse = JSON.parseArray(result,MeeSuppliersResponse.class);
+        List<MeeSuppliersResponse> suppliersResponse = null;
+        try {
+            suppliersResponse = JSON.parseArray(result,MeeSuppliersResponse.class);
+        } catch (Exception e) {
+           logger.error("Json error", e);
+        }
         if( suppliersResponse != null && suppliersResponse.size() > 0) {
             MeeSuppliersResponse response = suppliersResponse.get(0);
             if(response != null && response.getResult().equals("SUCCESS")) {

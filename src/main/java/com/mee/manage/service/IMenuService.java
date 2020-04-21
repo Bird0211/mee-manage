@@ -14,6 +14,8 @@ public interface IMenuService extends IService<Menu> {
 
     List<MenuVo> getMenuVoByIds(List<Long> menuIds);
 
+    List<MenuVo> getMenuBiz(List<Long> menuIds, Long bizId);
+
     List<Menu> getMenuByIds(List<Long> menuIds);
 
     boolean updateMenu(Menu menu);

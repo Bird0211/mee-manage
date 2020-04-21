@@ -89,6 +89,13 @@ public class MeeConfig {
 
     }
 
+    public static String getMeeURl(String bizId, String nonce, String userId, String token) {
+        Long time = DateUtil.getCurrentTime();
+        String sign = getMeeSign(bizId,time,token,nonce);
+        String url = bizId+"/"+userId+"/"+time+"/"+nonce+"/"+sign;
+        return url;
+    }
+
         public static void main(String[] args) {
 
             //052f2d062c69d1c973337a027e8af968

@@ -222,13 +222,52 @@ public class DateUtil {
         return null;
     }
 
+    /**
+     * 8位日期(对属于YYYYMMDD不规则的处理)
+     *
+     * @param date
+     * @return
+     */
+    public static String get8VaildDate(String date) {
+        String newDate = "";
+        if (date.length() == 5) {
+            newDate = date.substring(0, 4) + "0" + date.substring(4) + "01";
+        } else if (date.length() == 6) {
+            newDate = date + "01";
+        } else if (date.length() == 7) {
+            if ("1".equals(date.substring(4, 5))) {
+                newDate = date.substring(0, 6) + "0" + date.substring(6);
+            } else {
+                newDate = date.substring(0, 4) + "0" + date.substring(4);
+            }
+        } else if (date.length() == 8) {
+                newDate = date;
+        } else {
+                newDate = date.substring(0, 8);
+        }
+    
+        return newDate.substring(0, 4) + '-' + newDate.substring(4, 6) + '-' +newDate.substring(6);
+    }
+
+    public static String getYYYYMMDDDate(String date) {
+        //String result = date;
+        String dateType = date.trim();
+        dateType=dateType.replace("/", "").replace(".", "").replace("-", "");
+        return get8VaildDate(dateType);
+    };
+
     public static void main(String[] args) {
+        String date = "14/04/2020";
+        System.out.println(DateUtil.getYYYYMMDDDate(date));
+
+        /*
         System.out.println("日期：" + dateToStringFormat(new Date(),formatPattern_ch));
 
         DateUtil dt = new DateUtil();
         Integer num = 0;
         dt.test1(num);
         System.out.println("Num:" + num);
+        */
     }
 
     public void test1(Integer num){

@@ -24,12 +24,12 @@ public class WeimobController {
     @Autowired
     IWeimobService weimobService;
 
-    @RequestMapping(value = "/weimobCode/add", method = RequestMethod.POST)
-    public MeeResult addCode(@RequestParam("code") String code) {
+    @RequestMapping(value = "/weimobCode/add/{bizId}", method = RequestMethod.POST)
+    public MeeResult addCode(@PathVariable("bizId") Long bizId,@RequestParam("code") String code) {
         logger.info("Code = {}",code);
         MeeResult meeResult = new MeeResult();
         try {
-            boolean result = weimobService.addCode(code);
+            boolean result = weimobService.addCode(code,bizId);
             if(result){
                 meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             }else
@@ -43,11 +43,11 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/token/check", method = RequestMethod.GET)
-    public MeeResult checkCode() {
+    @RequestMapping(value = "/token/check/{bizId}", method = RequestMethod.GET)
+    public MeeResult checkCode(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
-            CheckTokenResult result = weimobService.checkToken();
+            CheckTokenResult result = weimobService.checkToken(bizId);
             if(result != null && result.isCuccess()){
                 meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             }else
@@ -61,11 +61,11 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/order/queryList", method = RequestMethod.POST)
-    public MeeResult getOrderList(@RequestBody WeimobOrderListRequest request){
+    @RequestMapping(value = "/order/queryList/{bizId}", method = RequestMethod.POST)
+    public MeeResult getOrderList(@PathVariable("bizId") Long bizId, @RequestBody WeimobOrderListRequest request){
         MeeResult meeResult = null;
         try {
-            meeResult = weimobService.getOrderList(request);
+            meeResult = weimobService.getOrderList(request,bizId);
         } catch (Exception ex) {
             logger.error("checkToken Error", ex);
             if(meeResult == null)
@@ -76,12 +76,12 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/classify/queryList", method = RequestMethod.GET)
-    public MeeResult getClassifyInfo(){
+    @RequestMapping(value = "/classify/queryList/{bizId}", method = RequestMethod.GET)
+    public MeeResult getClassifyInfo(@PathVariable("bizId") Long bizId){
 
         MeeResult meeResult = new MeeResult();
         try {
-            List<WeimobGroupVo> classifyVos = weimobService.getClassifyInfo();
+            List<WeimobGroupVo> classifyVos = weimobService.getClassifyInfo(bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(classifyVos);
         } catch (Exception ex) {
@@ -91,12 +91,12 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/order/detail", method = RequestMethod.POST)
-    public MeeResult getOrderDetal(@RequestParam("orderId") String orderId) {
+    @RequestMapping(value = "/order/detail/{bizId}", method = RequestMethod.POST)
+    public MeeResult getOrderDetal(@PathVariable("bizId") Long bizId, @RequestParam("orderId") String orderId) {
 
         MeeResult meeResult = new MeeResult();
         try {
-            WeimobOrderDetailVo weimobOrder = weimobService.getWeimobOrder(orderId);
+            WeimobOrderDetailVo weimobOrder = weimobService.getWeimobOrder(orderId,bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(weimobOrder);
         } catch (Exception ex) {
@@ -106,12 +106,12 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/goods/list", method = RequestMethod.POST)
-    public MeeResult getGoodList(@RequestBody GoodListQueryParameter goodlist) {
+    @RequestMapping(value = "/goods/list/{bizId}", method = RequestMethod.POST)
+    public MeeResult getGoodList(@PathVariable("bizId") Long bizId,@RequestBody GoodListQueryParameter goodlist) {
 
         MeeResult meeResult = new MeeResult();
         try {
-            List<GoodInfoVo> goods = weimobService.getWeimobGoods(goodlist);
+            List<GoodInfoVo> goods = weimobService.getWeimobGoods(goodlist,bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(goods);
         } catch (Exception ex) {
@@ -121,11 +121,11 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/goods/update", method = RequestMethod.POST)
-    public MeeResult updatePrice(@RequestBody List<GoodPriceDetail> goods){
+    @RequestMapping(value = "/goods/update/{bizId}", method = RequestMethod.POST)
+    public MeeResult updatePrice(@PathVariable("bizId") Long bizId,@RequestBody List<GoodPriceDetail> goods){
         MeeResult meeResult = new MeeResult();
         try {
-            List<PriceUpdateResult> result = weimobService.updateWeimobPrice(goods);
+            List<PriceUpdateResult> result = weimobService.updateWeimobPrice(goods,bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(result);
         } catch (Exception ex) {
@@ -135,11 +135,11 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/goods/sku", method = RequestMethod.POST)
-    public MeeResult getWeimobBySku(@RequestParam("sku") Long sku) {
+    @RequestMapping(value = "/goods/sku/{bizId}", method = RequestMethod.POST)
+    public MeeResult getWeimobBySku(@PathVariable("bizId") Long bizId,@RequestParam("sku") Long sku) {
         MeeResult meeResult = new MeeResult();
         try {
-            GoodInfoVo result = weimobService.getWeimobGoodBySku(sku);
+            GoodInfoVo result = weimobService.getWeimobGoodBySku(sku,bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(result);
         } catch (Exception ex) {
@@ -149,11 +149,11 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/goods/refresh", method = RequestMethod.GET)
-    public MeeResult refreshWeimobGood() {
+    @RequestMapping(value = "/goods/refresh/{bizId}", method = RequestMethod.GET)
+    public MeeResult refreshWeimobGood(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
-            boolean result = weimobService.refreshWeimob();
+            boolean result = weimobService.refreshWeimob(bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(result);
         } catch (Exception ex) {
@@ -163,11 +163,11 @@ public class WeimobController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/order/delivery", method = RequestMethod.POST)
-    public MeeResult orderDelivery(@RequestBody List<DeliveryOrderVo> deliverys) {
+    @RequestMapping(value = "/order/delivery/{bizId}", method = RequestMethod.POST)
+    public MeeResult orderDelivery(@PathVariable("bizId") Long bizId,@RequestBody List<DeliveryOrderVo> deliverys) {
         MeeResult meeResult = new MeeResult();
         try {
-            OrderDeliveryResult result = weimobService.orderDelivery(deliverys);
+            OrderDeliveryResult result = weimobService.orderDelivery(deliverys,bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(result);
         } catch (Exception ex) {
