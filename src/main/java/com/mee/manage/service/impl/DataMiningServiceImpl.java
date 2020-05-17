@@ -1,5 +1,6 @@
 package com.mee.manage.service.impl;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.mee.manage.service.IConfigurationService;
 import com.mee.manage.service.IDataMiningService;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.service.NaiveBayesTextClassifier;
@@ -16,6 +18,7 @@ import com.mee.manage.util.NaiveBayesKnowledgeBase;
 import com.mee.manage.vo.MatchingRequest;
 import com.mee.manage.vo.MeeProductVo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdmp.core.algorithm.classification.bayes.NaiveBayesClassifier;
 import org.jdmp.core.dataset.DataSet;
 import org.jdmp.core.dataset.ListDataSet;
@@ -31,6 +34,9 @@ import org.ujmp.core.Matrix;
 public class DataMiningServiceImpl implements IDataMiningService {
 
     private static final Logger logger = LoggerFactory.getLogger(IDataMiningService.class);
+
+    @Autowired
+    IConfigurationService config;
 
 
     @Autowired
@@ -192,11 +198,16 @@ public class DataMiningServiceImpl implements IDataMiningService {
     private List<String> naiveBayes(List<MeeProductVo> meeProductVos,String[] names) {
         Map<String, String[]> trainingExamples = new HashMap<>();
         for (MeeProductVo product : meeProductVos) {
-            trainingExamples.put(product.getCode(),new String[]{product.getName(),product.getChName()});
+            String enName = product.getName();
+            String chName = product.getChName();
+            logger.info("enName:{} , chName: {}}" ,enName,chName);
+            trainingExamples.put(product.getCode(),new String[]{enName,chName});
         }
 
         NaiveBayes nb = new NaiveBayes();//训练分类器
-        nb.setChisquareCriticalValue(6.63); //假设检验中的假定值为0.01
+        String chisquareCriticalValue = config.getValue("ChisquareCriticalValue");
+        logger.info("chisquareCriticalValue: {}",chisquareCriticalValue);
+        nb.setChisquareCriticalValue(chisquareCriticalValue != null ? Double.parseDouble(chisquareCriticalValue) : 6.63); //假设检验中的假定值为0.01
         nb.train(trainingExamples);
 
         //get trained classifier
@@ -207,6 +218,7 @@ public class DataMiningServiceImpl implements IDataMiningService {
 
         List<String> result = new ArrayList<>();
         for(String name : names) {
+            // name = StringUtils.deleteWhitespace(name);
             String output = nb.predict(name);
             logger.info("The sentense {} was classified as {}", name, output);
             result.add(output);

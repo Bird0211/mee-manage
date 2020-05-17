@@ -81,7 +81,8 @@ public class NineTeenServiceImpl implements INineTeenService {
             return null;
         }
 
-        int totalCount = responses.get(0).getData().getTotal();
+        int totalCount = 0;
+
         List<OrderItem> items = new ArrayList<>();
         for (NineTeenResponse nineTeenResponse : responses) {
             if(nineTeenResponse.getCode() != 200) {
@@ -105,6 +106,19 @@ public class NineTeenServiceImpl implements INineTeenService {
 
                 List<ProductVo> products = new ArrayList<>();
                 for(NineTeenOrderDetail orderDetail : order.getOrder_detail()) {
+                    String name = orderDetail.getName();
+                    if(StringUtils.isNotEmpty(searchVo.getFilter())) {
+                        if(searchVo.getFilter().equals("新西兰仓")) {
+                            if(name.indexOf("国内现货") >= 0) {
+                                continue;
+                            }
+                        } else {
+                            if(name.indexOf(searchVo.getFilter()) < 0) {
+                                continue;
+                            }
+                        }
+                    }
+
                     total += orderDetail.getNum();
 
                     ProductVo productVo = new ProductVo();
@@ -113,11 +127,14 @@ public class NineTeenServiceImpl implements INineTeenService {
                     productVo.setSku(orderDetail.getCode());
                     products.add(productVo);
                 }
-                item.setProducts(products);
-                item.setNum(total);
-                items.add(item);
-            }
+                if(products != null && products.size() > 0) {
+                    totalCount += total;
+                    item.setProducts(products);
+                    item.setNum(total);
+                    items.add(item);
+                }
 
+            }
 
         }
 

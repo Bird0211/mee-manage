@@ -59,6 +59,7 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
     @Autowired
     GuavaCache guavaCache;
 
+
     @Override
     public boolean insertProduct(ProVo proVo) {
         if(proVo == null)
@@ -146,8 +147,9 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 
         List<MeeProductVo> products = null;
         try {
-            products = guavaCache.getValue(bizId);
-        } catch (ExecutionException e) {
+            // products = guavaCache.getValue(bizId);
+            products = getMeeProductsByUrl(bizId);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

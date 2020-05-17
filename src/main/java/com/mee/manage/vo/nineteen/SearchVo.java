@@ -26,4 +26,6 @@ public class SearchVo {
         6:退款成功
      */
     Integer state; 
+
+    String filter;
 }

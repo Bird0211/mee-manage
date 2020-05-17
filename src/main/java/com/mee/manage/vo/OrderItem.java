@@ -19,5 +19,4 @@ public class OrderItem {
     String sender;  //发件人姓名
     String remark;  //备注
     String senderPhone;
-
 }
