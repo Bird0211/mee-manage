@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import com.alibaba.fastjson.JSON;
 import com.mee.manage.enums.InvoiceEnum;
+import com.mee.manage.util.DateUtil;
 import com.mee.manage.util.StrUtil;
 
 import org.slf4j.Logger;
@@ -77,12 +78,13 @@ public class TextOverlayVo {
         InvoiceTypeVo invoiceType = getInvoiceType(getAllWords());
         if (invoiceType != null) {
             logger.info("Invoice TypeName = {}",invoiceType.getTypeName());
-            invoice.setInvoiceDate(getInvoceValue(invoiceType.getInvoiceDateName(), invoiceType.getDateLocation()));
+            invoice.setInvoiceDate(DateUtil.stringToDateMatchForm(getInvoceValue(invoiceType.getInvoiceDateName(), invoiceType.getDateLocation())));
             invoice.setInvoiceNo(getInvoceValue(invoiceType.getInvoiceNoName(), invoiceType.getNoLocation()));
         }
         invoice.setProducts(getProducts());
         return invoice;
     }
+
 
     public InvoiceTypeVo getInvoiceType() {
         return getInvoiceType(allWords);

@@ -60,7 +60,7 @@
 		<fast.version>1.24</fast.version>
 		<lombok.version>1.16.16</lombok.version>
 		<pdfbox.version>2.0.17</pdfbox.version>
-		<tess4j.version>4.4.1</tess4j.version>
+		<tess4j.version>4.5.1</tess4j.version>
 
 	</properties>
 
@@ -265,6 +265,14 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-freemarker</artifactId>
 			</dependency>
+
+			<dependency>
+				<groupId>com.auth0</groupId>
+				<artifactId>java-jwt</artifactId>
+				<version>3.10.3</version>
+			</dependency>
+
+
 
 		</dependencies>
 

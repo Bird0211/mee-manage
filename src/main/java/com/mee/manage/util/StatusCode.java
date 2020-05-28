@@ -18,7 +18,10 @@ public enum StatusCode {
 
     BIZ_NOT_EXIST(11810,"BIZ is not exist"),
     BIZ_STATUS_ERROR(11811,"BIZ ERROR"),
-    BIZ_OVER_TIME(11812,"BIZ is expire")
+    BIZ_OVER_TIME(11812,"BIZ is expire"),
+
+    FLYWAY_NOT_EXIST(11813,"FlyWay is not exist"),
+    FLYWAY_LOGIN_ERROR(11814,"FlyWay Login Fail")
     ;
 
     private int code;

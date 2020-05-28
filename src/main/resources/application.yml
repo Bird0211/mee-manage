@@ -113,6 +113,11 @@ mee:
   nineteen:
     orderListUrl: http://api.wfcorp.cn/shop/v1/Identity/orderInfo
     productUrl: http://api.wfcorp.com/shop/v1/Identity/productsInfo
+  
+  flyway:
+    # tokenUrl: https://flywayauthapi.azurewebsites.net/api/auth
+    tokenUrl: https://flywayclientwebappauthapi.azurewebsites.net/api/Auth
+    addOrderUrl: https://flywaywebappapi.azurewebsites.net/api/AddOrders
 
 
 

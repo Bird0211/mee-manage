@@ -16,6 +16,7 @@ public interface IConfigurationService extends IService<Configuration> {
     String getValue(String key);
 
     Integer getIntValue(String key);
+    
     boolean removeConfig(String key);
 
 }

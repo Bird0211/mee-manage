@@ -24,6 +24,19 @@ public class DateUtil {
 
     public static final String formatPattern_ch = "yyyy年MM月dd日";
 
+    public static final String formatPattern_en = "mm/dd/yyyy";
+
+    public static final String formatPattern_space = "dd mm yyyy";
+
+    public static final String[] all_formatPattern = new String[] { formatPattern,
+        formatPattern_Short,
+        formatPattern_Full,
+        formatPattern_24Full,
+        formatPattern_UserAuth,
+        formatPattern_ch,
+        formatPattern_en,
+        formatPattern_space};
+
     /**
      * 获取当前日期
      *
@@ -142,6 +155,13 @@ public class DateUtil {
         return cal.getTime();
     }
 
+    public static Date getSuffixHour(int hour) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.HOUR, hour);   // int
+        return cal.getTime();
+    }
+
     public static Date getPrefixHour(int hour) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
@@ -219,6 +239,22 @@ public class DateUtil {
                 e.printStackTrace();
             }
         }
+        return null;
+    }
+
+    /**
+     * 字符串转换日期
+     * 
+     * @param str
+     * @return
+     */
+    public static Date stringToDateMatchForm(String str) {
+        for(int i = 0; i < all_formatPattern.length; i++){
+            Date date = stringToDate(str,all_formatPattern[i]);
+            if(date != null)
+                return date;
+        }
+        
         return null;
     }
 

@@ -10,6 +10,10 @@
 package com.mee.manage.util;
 
 import com.alibaba.fastjson.JSON;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
 
@@ -24,6 +28,10 @@ import java.util.Map;
  *
  */
 public class JoddHttpUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(JoddHttpUtils.class);
+
+
     /** 默认的连接时间*/
     private static int DEFAULT_CONNECT_TIME_OUT = 40000;
     /** 默认的读取时间*/
@@ -66,6 +74,8 @@ public class JoddHttpUtils {
     public static String sendPost(String url, Map<String, Object> params,
         int connectTimeOut, int readTimeOut, String encoding) {
 
+        long startTime = System.currentTimeMillis();
+
         HttpRequest httpRequest = HttpRequest.post(url)
                 .connectionTimeout(connectTimeOut).timeout(readTimeOut)
                 .formEncoding(encoding);
@@ -73,16 +83,28 @@ public class JoddHttpUtils {
             httpRequest = httpRequest.form(params);
 
         HttpResponse httpResponse = httpRequest.send();
-        return httpResponse.accept(encoding).bodyText();
+        String result = httpResponse.accept(encoding).bodyText();
+        // 打印出参
+        logger.info("sendPost Args  : {}", JSON.toJSON(result));
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result;
     }
 
 
     public static String sendPost(String url, Map<String, Object> params,
                                   int connectTimeOut, int readTimeOut, String encoding,String contentType) {
+
+        long startTime = System.currentTimeMillis();
         HttpResponse httpResponse = HttpRequest.post(url)
                 .connectionTimeout(connectTimeOut).timeout(readTimeOut)
-                .formEncoding(encoding).form(params).contentType(contentType).send();
-        return httpResponse.accept(encoding).bodyText();
+                .formEncoding(encoding).form(params).contentType(contentType).send();        
+        String result = httpResponse.accept(encoding).bodyText();
+        // 打印出参
+        logger.info("sendPost Args  : {}", JSON.toJSON(result));
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result;
     }
 
 
@@ -129,12 +151,48 @@ public class JoddHttpUtils {
      */
     public static String sendPostUseBody(String url, String jsonParamBody,
         int connectTimeOut, int readTimeOut, String encoding) {
+        
+        long startTime = System.currentTimeMillis();
         HttpResponse httpResponse =
             HttpRequest.post(url).connectionTimeout(connectTimeOut)
                 .timeout(readTimeOut).formEncoding(encoding)
                 .bodyText(jsonParamBody, "application/json;", encoding).send();
-        return httpResponse.accept(encoding).bodyText();
+        String result = httpResponse.accept(encoding).bodyText();
+        // 打印出参
+        logger.info("sendPostUseBody Args  : {}", JSON.toJSON(result));
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result;
     }
+
+     /**
+     * <p>Title: sendPostUseBody</p>
+     * <p>author : zhangcan</p>
+     * <p>date : 2016年6月16日 下午3:07:09</p>
+     * 
+     * @param url String 请求地址<br/>
+     * @param jsonParamBody String json格式的数据<br/>
+     * @param connectTimeOut int 连接超时时间(毫秒)<br/>
+     * @param readTimeOut int 读取超时时间(毫秒)<br/>
+     * @param encoding String 编码格式<br/>
+     * @return String 响应内容<br/>
+     */
+    public static String sendPostUseBody(String url, String jsonParamBody,String token) {
+        long startTime = System.currentTimeMillis();
+
+        HttpResponse httpResponse =
+            HttpRequest.post(url).connectionTimeout(DEFAULT_CONNECT_TIME_OUT)
+                .timeout(DEFAULT_READ_TIME_OUT).formEncoding(DEFAULT_ENCODING_UTF_8).tokenAuthentication(token)
+                .bodyText(jsonParamBody, "application/json;", DEFAULT_ENCODING_UTF_8).send();
+
+        String result = httpResponse.accept(DEFAULT_ENCODING_UTF_8).bodyText();
+        // 打印出参
+        logger.info("sendPostUseBody Args  : {}", JSON.toJSON(result));
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result;
+    }
+
 
     /**
      * 
@@ -173,10 +231,18 @@ public class JoddHttpUtils {
      */
     public static String getData(String url, Map<String, String> params,
         int connectTimeOut, int readReadTimeOut, String encoding) {
+        long startTime = System.currentTimeMillis();
+        
         HttpResponse httpResponse =
             HttpRequest.get(url).connectionTimeout(connectTimeOut)
                 .timeout(readReadTimeOut).accept(DEFAULT_APPLICATION_JSON).query(params).send();
-        return httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();
+        
+        String result = httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();
+        // 打印出参
+        logger.info("getData Args  : {}", JSON.toJSON(result));
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result; 
     }
 
     /**
@@ -194,10 +260,18 @@ public class JoddHttpUtils {
      */
     public static String getData(String url,
                                  int connectTimeOut, int readReadTimeOut, String encoding) {
+        long startTime = System.currentTimeMillis();
+
         HttpResponse httpResponse =
                 HttpRequest.get(url).connectionTimeout(connectTimeOut)
                         .timeout(readReadTimeOut).accept(DEFAULT_APPLICATION_JSON).send();
-        return httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();
+
+        String result = httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();
+        // 打印出参
+        logger.info("getData Args  : {}", JSON.toJSON(result));
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result; 
     }
     
     public static void main(String[] args) {

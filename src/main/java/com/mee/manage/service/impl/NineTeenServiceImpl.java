@@ -119,12 +119,25 @@ public class NineTeenServiceImpl implements INineTeenService {
                         }
                     }
 
-                    total += orderDetail.getNum();
+                    
+
+                    String skuStr = orderDetail.getCode();
+                    String[] skus = skuStr.split("X");
+                    String sku = skus[0];
+
+                    Integer num = orderDetail.getNum();
+                    if(skus != null && skus.length > 1) {
+                        for(int i = 1 ; i < skus.length ; i++) {
+                            num = num * Integer.parseInt(skus[i]);
+                        }
+                    }
+                    total += num;
 
                     ProductVo productVo = new ProductVo();
-                    productVo.setNum(orderDetail.getNum());
+                    productVo.setNum(num);
                     productVo.setContent(orderDetail.getName());
-                    productVo.setSku(orderDetail.getCode());
+                    productVo.setSku(sku);
+
                     products.add(productVo);
                 }
                 if(products != null && products.size() > 0) {

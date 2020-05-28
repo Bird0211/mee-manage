@@ -82,9 +82,11 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             return StatusCode.OVER_TIME;
         }
         
-        YiyunUserData userData = userService.getYiyunUser(auth.getBizId(),auth.getUserId());
-        if(userData == null) {
-            return StatusCode.USER_NOT_EXIST;
+        if(!StringUtils.isEmpty(auth.getUserId())) {
+            YiyunUserData userData = userService.getYiyunUser(auth.getBizId(),auth.getUserId());
+            if(userData == null) {
+                return StatusCode.USER_NOT_EXIST;
+            }
         }
         
         return StatusCode.SUCCESS;

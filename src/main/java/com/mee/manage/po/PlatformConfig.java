@@ -1,5 +1,7 @@
 package com.mee.manage.po;
 
+import java.util.Date;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -29,5 +31,7 @@ public class PlatformConfig {
     String clientId;
 
     String clientSecret;
+
+    Date expire;
     
 }
