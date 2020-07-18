@@ -6,7 +6,9 @@ public enum PlatFormCodeEmn {
 
     WEIMOB("weimob"),
 
-    FLYWAY("flyway");
+    FLYWAY("flyway"),
+
+    TRADEMEE("trademe");
 
     String code;
 

@@ -6,10 +6,12 @@ import java.util.stream.Collectors;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.mee.manage.config.Config;
 import com.mee.manage.mapper.IMenuMapper;
 import com.mee.manage.po.BizMenu;
 import com.mee.manage.po.Menu;
 import com.mee.manage.service.IBizMenuService;
+import com.mee.manage.service.IConfigurationService;
 import com.mee.manage.service.IMenuService;
 import com.mee.manage.vo.MenuVo;
 
@@ -22,6 +24,9 @@ public class MenuServiceImpl extends ServiceImpl<IMenuMapper, Menu> implements I
 
     @Autowired
     IBizMenuService bizMenuService;
+
+    @Autowired
+    IConfigurationService configService;
 
     @Override
     public List<MenuVo> getAllMenu(String bizId) {
@@ -55,6 +60,30 @@ public class MenuServiceImpl extends ServiceImpl<IMenuMapper, Menu> implements I
         queryWrapper.eq("parent_id",pid);
         List<Menu> menus = list(queryWrapper);
         return getMenuVos(menus,pid);
+    }
+
+    
+    @Override
+    public List<MenuVo> getSubMenuVoByIds(List<Long> menuIds, Long pid) {
+        if(pid == null)
+            return null;
+
+        List<MenuVo> menuVos = null;
+
+        Menu menu = getById(pid);
+        if(menu != null) {            
+            QueryWrapper<Menu> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("parent_id",pid);
+            queryWrapper.in("id", menuIds);
+            List<Menu> menus = list(queryWrapper);
+            if(menus != null && menus.size() > 0) {
+                menuVos = Lists.newArrayList();
+                MenuVo mVo = new MenuVo(menu);
+                mVo.setSubMenu(getMenuVos(menus,pid));
+                menuVos.add(mVo);
+            }
+        }
+        return menuVos;
     }
 
     @Override
@@ -125,6 +154,12 @@ public class MenuServiceImpl extends ServiceImpl<IMenuMapper, Menu> implements I
 
     @Override
     public List<MenuVo> getMenuBiz(List<Long> menuIds, Long bizId) {
+        List<Long> menus = getMenuIdBiz(menuIds,bizId);
+        return getMenuVoByIds(menus);
+    }
+
+    @Override
+    public List<Long> getMenuIdBiz(List<Long> menuIds, Long bizId) {
         if(menuIds == null || menuIds.isEmpty())
             return null;
         List<BizMenu> bizMenus = bizMenuService.getBizMenuByBizId(bizId);
@@ -134,7 +169,40 @@ public class MenuServiceImpl extends ServiceImpl<IMenuMapper, Menu> implements I
 
         List<Long> menus = bizMenus.stream().map(item -> item.getMenuId()).filter(item -> menuIds.indexOf(item) >=0 ).
                 collect(Collectors.toList());
-        return getMenuVoByIds(menus);
+        
+        return menus;
     }
+
+    @Override
+    public List<Menu> getOrderFlowMenu(Long bizId) {
+        String value = configService.getValue(Config.ORDER_FLOW_MENU);
+        if(value == null) {
+            return null;
+        }
+
+        String [] menuIds = value.split(",");
+        List<Long> menuLongs = Lists.newArrayList();
+
+        for(int i = 0; i < menuIds.length ; i++) {
+            menuLongs.add(Long.parseLong(menuIds[i]));
+        }
+
+        List<Menu> menus = getMenuByIds(menuLongs);
+        List<Menu> sortMenus = null;
+        if(menus != null) {
+            sortMenus = Lists.newArrayList();
+            for(String menuId: menuIds) {
+                List<Menu> filterMenu = menus.stream().filter(item -> 
+                    item.getId().compareTo(Long.parseLong(menuId)) == 0
+                    ).collect(Collectors.toList());
+                
+                if(filterMenu != null) {
+                    sortMenus.add(filterMenu.get(0));
+                }
+            }
+        }
+        return sortMenus;
+    }
+
 
 }

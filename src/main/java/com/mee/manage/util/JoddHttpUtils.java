@@ -10,6 +10,7 @@
 package com.mee.manage.util;
 
 import com.alibaba.fastjson.JSON;
+import com.mee.manage.vo.OAuthVo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,19 +74,23 @@ public class JoddHttpUtils {
      */
     public static String sendPost(String url, Map<String, Object> params,
         int connectTimeOut, int readTimeOut, String encoding) {
+        logger.info("sendUrl: {}", url);
+        logger.info("sendPost Args : {}" , JSON.toJSONString(params));
 
         long startTime = System.currentTimeMillis();
-
+        logger.info("startTime: {}", startTime);
         HttpRequest httpRequest = HttpRequest.post(url)
                 .connectionTimeout(connectTimeOut).timeout(readTimeOut)
                 .formEncoding(encoding);
-        if(params != null)
-            httpRequest = httpRequest.form(params);
 
+        if(params != null) {
+            httpRequest = httpRequest.form(params);
+        }
         HttpResponse httpResponse = httpRequest.send();
         String result = httpResponse.accept(encoding).bodyText();
+        logger.info("send Result: {}", result);
         // 打印出参
-        logger.info("sendPost Args  : {}", JSON.toJSON(result));
+        logger.info("sendPost Response : {}", JSON.toJSONString(result));
         // 执行耗时
         logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
         return result;
@@ -151,7 +156,10 @@ public class JoddHttpUtils {
      */
     public static String sendPostUseBody(String url, String jsonParamBody,
         int connectTimeOut, int readTimeOut, String encoding) {
-        
+
+        logger.info("sendPostUseBody url  : {}", url);
+        logger.info("sendPostUseBody Args  : {}", jsonParamBody);
+
         long startTime = System.currentTimeMillis();
         HttpResponse httpResponse =
             HttpRequest.post(url).connectionTimeout(connectTimeOut)
@@ -159,7 +167,7 @@ public class JoddHttpUtils {
                 .bodyText(jsonParamBody, "application/json;", encoding).send();
         String result = httpResponse.accept(encoding).bodyText();
         // 打印出参
-        logger.info("sendPostUseBody Args  : {}", JSON.toJSON(result));
+        logger.info("sendPostUseBody Result  : {}", JSON.toJSON(result));
         // 执行耗时
         logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
         return result;
@@ -210,9 +218,31 @@ public class JoddHttpUtils {
             DEFAULT_READ_TIME_OUT, DEFAULT_ENCODING_UTF_8);
     }
 
+     /**
+     * 
+     * 使用Jodd发送Get请求<br/>
+     * <p>Title: getData</p>
+     * <p>author : zhangcan</p>
+     * <p>date : 2016年6月15日 下午5:31:08</p>
+     * 
+     * @param url String 请求地址<br/>
+     * @param params Map<String,String> 请求参数<br/>
+     * @return String 响应内容<br/>
+     */
+    public static String getDataWithAuth(String url, Map<String, String> params, OAuthVo oAuth) {
+        return getDataWithAuth(url, params, DEFAULT_CONNECT_TIME_OUT,
+            DEFAULT_READ_TIME_OUT, DEFAULT_ENCODING_UTF_8,oAuth);
+    }
+
     public static String getData(String url) {
         return getData(url, DEFAULT_CONNECT_TIME_OUT,
                 DEFAULT_READ_TIME_OUT, DEFAULT_ENCODING_UTF_8);
+    }
+
+    
+    public static String getDataWithAuth(String url, OAuthVo oAuth) {
+        return getDataWithAuth(url, DEFAULT_CONNECT_TIME_OUT,
+        DEFAULT_READ_TIME_OUT, DEFAULT_ENCODING_UTF_8,oAuth);
     }
 
     /**
@@ -245,6 +275,42 @@ public class JoddHttpUtils {
         return result; 
     }
 
+      /**
+     * 
+     * 使用Jodd发送Get请求<br/>
+     * <p>Title: getData</p>
+     * <p>author : zhangcan</p>
+     * <p>date : 2016年6月15日 下午5:31:08</p>
+     * 
+     * @param url String 请求地址<br/>
+     * @param params Map<String, String> 请求参数<br/>
+     * @param connectTimeOut int 连接超时时间<br/>
+     * @param readReadTimeOut 读取超时时间<br/>
+     * @param encoding String 请求编码格式<br/>
+     * @return String 响应内容<br/>
+     */
+    public static String getDataWithAuth(String url, Map<String, String> params,
+        int connectTimeOut, int readReadTimeOut, String encoding, OAuthVo oAuth) {
+        long startTime = System.currentTimeMillis();
+        
+        HttpResponse httpResponse =
+            HttpRequest.get(url).connectionTimeout(connectTimeOut).header(HttpRequest.HEADER_AUTHORIZATION, oAuth.toString())
+                .timeout(readReadTimeOut).accept(DEFAULT_APPLICATION_JSON).query(params).send();
+        
+        String result = httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();
+        // 打印URL
+        logger.info("getData url  : {}", url);
+        // 打印出参
+        logger.info("getData Args  : {}", JSON.toJSONString(params));
+        // 打印结果
+        logger.info("getData Result  : {}", result);
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result; 
+    }
+
+
+
     /**
      *
      * 使用Jodd发送Get请求<br/>
@@ -264,6 +330,35 @@ public class JoddHttpUtils {
 
         HttpResponse httpResponse =
                 HttpRequest.get(url).connectionTimeout(connectTimeOut)
+                        .timeout(readReadTimeOut).accept(DEFAULT_APPLICATION_JSON).send();
+
+        String result = httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();
+        // 打印出参
+        logger.info("getData Args  : {}", JSON.toJSON(result));
+        // 执行耗时
+        logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        return result; 
+    }
+
+        /**
+     *
+     * 使用Jodd发送Get请求<br/>
+     * <p>Title: getData</p>
+     * <p>author : zhangcan</p>
+     * <p>date : 2016年6月15日 下午5:31:08</p>
+     *
+     * @param url String 请求地址<br/>
+     * @param connectTimeOut int 连接超时时间<br/>
+     * @param readReadTimeOut 读取超时时间<br/>
+     * @param encoding String 请求编码格式<br/>
+     * @return String 响应内容<br/>
+     */
+    public static String getDataWithAuth(String url,
+                                 int connectTimeOut, int readReadTimeOut, String encoding, OAuthVo oAuth) {
+        long startTime = System.currentTimeMillis();
+
+        HttpResponse httpResponse =
+                HttpRequest.get(url).connectionTimeout(connectTimeOut).header(HttpRequest.HEADER_AUTHORIZATION, oAuth.toString())
                         .timeout(readReadTimeOut).accept(DEFAULT_APPLICATION_JSON).send();
 
         String result = httpResponse.accept(DEFAULT_APPLICATION_JSON).bodyText();

@@ -16,5 +16,11 @@ public class NineTeenConfig {
     String orderListUrl;
 
     String productUrl;
+
+    String productTypeUrl;
+
+    String productGroupUrl;
+
+    String editProductUrl;
     
 }

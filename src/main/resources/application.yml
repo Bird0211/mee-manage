@@ -1,9 +1,9 @@
 spring:
   datasource:
     #内网
-    url: jdbc:mysql://rm-j0bt8woy1xl618o5235640.mysql.australia.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+    #url: jdbc:mysql://rm-j0bt8woy1xl618o5235640.mysql.australia.rds.aliyuncs.com:3306/mee_store?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     #外网
-    #url: jdbc:mysql://rm-j0bt8woy1xl618o52so.mysql.australia.rds.aliyuncs.com:3306/mee_store?characterEncoding=utf-8
+    url: jdbc:mysql://rm-j0bt8woy1xl618o52so.mysql.australia.rds.aliyuncs.com:3306/mee_store?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: mee_store
     password: AvRYwTFZpmTEdo/5ACiKnwGk6KgXwQSBHoTfeJTOZyWkr69+GuRj7FqmGNL0TjL1MmdnUlOIuFN+MkF0paYEPw==
     type: com.alibaba.druid.pool.DruidDataSource
@@ -82,6 +82,7 @@ mee:
   allProductUrl: https://biz.yiyun.co.nz/api/getAllProducts
   allSupplieUrl: https://biz.yiyun.co.nz/api/getAllSuppliers
   bizUsersUrl: https://biz.yiyun.co.nz/api/getBizUsers
+  bizSalesUrl: https://biz.yiyun.co.nz/api/getSales
   currencyUrl: https://free.currconv.com/api/v7/convert
   currencyKey: 38e1d5b13ec68a54defa
   stockIntake: https://biz.yiyun.co.nz/api/stockIntake
@@ -90,6 +91,8 @@ mee:
   kdnUserId: 1614896
   kdnKey: 314f2549-7760-4c5d-9f28-3940b25d3dea
   kdnNumberIdentifyUrl: http://api.kdniao.com/Ebusiness/EbusinessOrderHandle.aspx
+  newsUrl: https://newsapi.org/v2/top-headlines
+  startDate: 2019-01-01
   weimob:
     clientId: 73CB87739147019B0A185720E6ED1EC9
     clientSecret: C25CD25C2051AF6B5F9DA36737736457
@@ -111,13 +114,25 @@ mee:
     url: https://open.ymatou.com/apigateway/v1
 
   nineteen:
-    orderListUrl: http://api.wfcorp.cn/shop/v1/Identity/orderInfo
-    productUrl: http://api.wfcorp.com/shop/v1/Identity/productsInfo
-  
+    orderListUrl: https://api.wfcorp.cn/shop/v1/Identity/orderInfo
+    productUrl: https://api.wfcorp.cn/shop/v1/Identity/productsInfo
+    productTypeUrl: https://api.wfcorp.cn/shop/v1/Identity/goodTypeInfo
+    productGroupUrl: https://api.wfcorp.cn/shop/v1/Identity/goodGroupInfo
+    editProductUrl: https://api.wfcorp.cn/shop/v1/Identity/productsEdit
+
   flyway:
     # tokenUrl: https://flywayauthapi.azurewebsites.net/api/auth
     tokenUrl: https://flywayclientwebappauthapi.azurewebsites.net/api/Auth
     addOrderUrl: https://flywaywebappapi.azurewebsites.net/api/AddOrders
+
+  trademe:
+    key: 7670C2A492CBC90325E9F1FB8ED989FE
+    secret: E647F45EE7700D74940605815F7D7407
+    tokenUrl: https://secure.trademe.co.nz/Oauth/RequestToken
+    accessTokenUrl: https://secure.trademe.co.nz/Oauth/AccessToken
+    callbackUrl: https://external.yiyun.co.nz/trademe
+    profileUrl: https://api.trademe.co.nz/v1/MyTradeMe/Summary.JSON
+    soltItemUrl: https://api.trademe.co.nz/v1/MyTradeMe/SoldItems
 
 
 

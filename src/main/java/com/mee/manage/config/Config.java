@@ -17,6 +17,10 @@ public class Config {
 
     public static String PAGE_SEG_MODE = "PAGE_SEG_MODE";
 
+    public static String ORDER_FLOW_MENU = "ORDER_FLOW_MENU";
+
+    public static String DATA_BIZID = "DATA_BIZID";
+
     String ocrApiKey;
 
     String ocrUrl;
@@ -26,6 +30,8 @@ public class Config {
     String allSupplieUrl;
 
     String bizUsersUrl;
+
+    String bizSalesUrl;
 
     String currencyUrl;
 
@@ -42,5 +48,9 @@ public class Config {
     String kdnKey;
 
     String kdnNumberIdentifyUrl;
+
+    String newsUrl;
+
+    String startDate;
 
 }

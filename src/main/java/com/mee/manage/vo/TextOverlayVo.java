@@ -41,7 +41,7 @@ public class TextOverlayVo {
     public TextOverlayVo(List<WordsVo> allWords) {
         if(allWords != null && allWords.size() > 0) {
             this.allWords = allWords;
-            sort();
+            // sort();
         }
     }
 
@@ -269,7 +269,7 @@ public class TextOverlayVo {
                 allWords.addAll(rowWords);
 
         }
-        Collections.sort(allWords);
+        // Collections.sort(allWords);
         logger.info("Allworks = {}",JSON.toJSONString(allWords));
         return allWords;
     }

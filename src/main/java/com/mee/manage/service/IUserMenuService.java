@@ -7,4 +7,6 @@ public interface IUserMenuService {
 
     List<MenuVo> getMenuByUserId(Long userId, Long bizId);
 
+    List<MenuVo> getMenuByUserId(Long userId, Long bizId, Long pid);
+
 }

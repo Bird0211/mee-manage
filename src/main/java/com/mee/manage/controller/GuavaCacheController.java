@@ -17,11 +17,11 @@ public class GuavaCacheController extends BaseController {
     @Autowired
     GuavaCache guavaCache;
 
-    @RequestMapping(value = "/refresh", method = RequestMethod.POST)
-    public MeeResult refresh() {
+    @RequestMapping(value = "/refresh/{bizId}", method = RequestMethod.POST)
+    public MeeResult refresh(@PathVariable("bizId") String bizId) {
         MeeResult meeResult = new MeeResult();
         try {
-            guavaCache.refreshCache();
+            guavaCache.refreshCache(bizId);
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
         } catch (Exception ex) {
             meeResult.setStatusCode(StatusCode.FAIL.getCode());

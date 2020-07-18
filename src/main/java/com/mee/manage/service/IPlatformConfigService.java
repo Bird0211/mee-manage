@@ -15,6 +15,8 @@ public interface IPlatformConfigService extends IService<PlatformConfig> {
 
     List<PlatFormBaseInfo> getPlatFormByPlatCode(Long bizId, String platformCode);
 
+    PlatformConfig getPlatFormByToken(Long bizId, String platformCode, String token);
+
     List<PlatformConfig> getPlatForm(Long bizId, String platformCode);
 
     PlatformConfig getOnePlatForm(Long bizId, String platformCode);

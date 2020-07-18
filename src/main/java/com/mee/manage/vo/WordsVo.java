@@ -29,7 +29,7 @@ public class WordsVo implements Comparable<WordsVo>,Cloneable {
                     result =  1;
                 }
             }
-        }else {
+        } else {
             if (getLeft() > o.getLeft()) {
                 result = 1;
             }else {

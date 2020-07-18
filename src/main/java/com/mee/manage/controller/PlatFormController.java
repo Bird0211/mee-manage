@@ -29,7 +29,7 @@ public class PlatFormController extends BaseController {
     IPlatformConfigService platFormService;
 
     @RequestMapping(value = "/platform/{bizId}/{platcode}", method = RequestMethod.GET)
-    public MeeResult getMenuByUser(@PathVariable("bizId") Long bizId, @PathVariable("platcode") String platcode){
+    public MeeResult getPlatForm(@PathVariable("bizId") Long bizId, @PathVariable("platcode") String platcode){
         MeeResult meeResult = new MeeResult();
         try {
 
@@ -44,5 +44,19 @@ public class PlatFormController extends BaseController {
 
         return meeResult;
     };
+
+    @RequestMapping(value = "/platform/del/{platformId}", method = RequestMethod.DELETE)
+    public MeeResult delPlatFor(@PathVariable("platformId") Long platformId) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            boolean flag = platFormService.removeById(platformId);
+            meeResult.setStatusCode(flag?StatusCode.SUCCESS.getCode():StatusCode.FAIL.getCode());
+        } catch (Exception ex) {
+            logger.error("getUserMenu Error");
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+        return meeResult;
+    }
     
 }

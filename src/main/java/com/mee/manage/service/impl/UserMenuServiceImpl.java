@@ -37,30 +37,40 @@ public class UserMenuServiceImpl implements IUserMenuService {
     @Override
     public List<MenuVo> getMenuByUserId(Long userId, Long bizId) {
 
+        List<Long> menuIds = getRoleMenus(userId);
+
+        List<MenuVo> menus = menuService.getMenuBiz(menuIds,bizId);
+
+        return menus;
+    }
+
+    @Override
+    public List<MenuVo> getMenuByUserId(Long userId, Long bizId, Long pid) {
+        List<Long> menuIds = getRoleMenus(userId);
+        
+        List<Long> bizMenuIds = menuService.getMenuIdBiz(menuIds, bizId);
+
+        List<MenuVo> menus = menuService.getSubMenuVoByIds(bizMenuIds, pid);
+        
+        return menus;
+    }
+
+    private List<Long> getRoleMenus(Long userId) {
         if (userId == null)
-            return null;
+        return null;
 
         List<RoleUser> roleUsers = roleUserService.getRoleUserByUserId(userId);
         if (roleUsers == null || roleUsers.isEmpty())
             return null;
 
         List<Long> roleIds = roleUsers.stream().map(item -> item.getRoleId()).collect(Collectors.toList());
-        /*
-        List<Role> roles = roleService.getRoleById(roleIds, bizId);
-        if (roles == null || roles.isEmpty()) {
-            return null;
-        }
-        roleIds = roles.stream().map(item -> item.getId()).collect(Collectors.toList());
-        */
+
         List<RoleMenu> roleMenus = roleMenuService.getRoleMenuByRoles(roleIds);
         if (roleMenus == null || roleMenus.isEmpty())
             return null;
 
         List<Long> menuIds = roleMenus.stream().map(item -> item.getMenuId()).collect(Collectors.toList());
-
-        List<MenuVo> menus = menuService.getMenuBiz(menuIds,bizId);
-
-        return menus;
+        return menuIds;
     }
 
 }

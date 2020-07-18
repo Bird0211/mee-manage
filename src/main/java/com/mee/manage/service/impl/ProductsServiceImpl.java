@@ -20,6 +20,7 @@ import com.mee.manage.mapper.IProductsMapper;
 import com.mee.manage.po.Products;
 import com.mee.manage.service.GuavaCache;
 import com.mee.manage.service.IAuthenticationService;
+import com.mee.manage.service.IDataTopService;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.util.DateUtil;
 import com.mee.manage.util.JoddHttpUtils;
@@ -31,6 +32,7 @@ import com.mee.manage.vo.MeeProductVo;
 import com.mee.manage.vo.MeeSuppliersResponse;
 import com.mee.manage.vo.ProVo;
 import com.mee.manage.vo.SuppliersVo;
+import com.mee.manage.vo.Yiyun.YiyunTopProduct;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jdmp.core.sample.DefaultSample;
@@ -57,6 +59,9 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 
     @Autowired
     GuavaCache guavaCache;
+
+    @Autowired
+    IDataTopService dataTopService;
 
 
     @Override
@@ -146,8 +151,8 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 
         List<MeeProductVo> products = null;
         try {
-            // products = guavaCache.getValue(bizId);
-            products = getMeeProductsByUrl(bizId);
+            products = guavaCache.getValue(bizId);
+            // products = getMeeProductsByUrl(bizId);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -324,4 +329,26 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
         Double[] out = new Double[output.size()];
         return output.toArray(out);
     }
+
+	@Override
+	public Map<String, MeeProductVo> getMeeProductsBySku(String bizId, List<String> skus) {
+        if(bizId == null || skus == null)
+            return null;
+        
+        List<MeeProductVo> allProducts = getMeeProducts(bizId);
+        if(allProducts == null || allProducts.size() <= 0) {
+            return null;
+        }
+        Map<String,MeeProductVo> mapProducts = new HashMap<>();
+
+        allProducts.stream().filter(item -> skus.indexOf(item.getCode()) >= 0).forEach(item -> mapProducts.put(item.getCode(), item));
+
+        return mapProducts;
+	}
+
+	@Override
+	public List<YiyunTopProduct> getTopProducts(String bizId) {
+
+		return dataTopService.getTopProduct(Integer.parseInt(bizId));
+	}
 }

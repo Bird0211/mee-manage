@@ -21,7 +21,14 @@ public enum StatusCode {
     BIZ_OVER_TIME(11812,"BIZ is expire"),
 
     FLYWAY_NOT_EXIST(11813,"FlyWay is not exist"),
-    FLYWAY_LOGIN_ERROR(11814,"FlyWay Login Fail")
+    FLYWAY_LOGIN_ERROR(11814,"FlyWay Login Fail"),
+
+    YIYUN_ORDER_ERROR(11815,"Yiyun order error"),
+
+    PLATFORM_NOT_EXIST(11816,"Plat is not exist"),
+
+    TRADEME_EXCEED_QUOTA(11817, "You have exceeded your API call quota for the current hour") 
+
     ;
 
     private int code;

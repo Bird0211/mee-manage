@@ -21,5 +21,4 @@ public class MeeProductVo {
     BigDecimal costPrice;       //成本价
 
     BigDecimal retailPrice;     //销售价
-
 }

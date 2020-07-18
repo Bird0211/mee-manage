@@ -1,6 +1,5 @@
 package com.mee.manage.service.impl;
 
-import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +17,6 @@ import com.mee.manage.util.NaiveBayesKnowledgeBase;
 import com.mee.manage.vo.MatchingRequest;
 import com.mee.manage.vo.MeeProductVo;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jdmp.core.algorithm.classification.bayes.NaiveBayesClassifier;
 import org.jdmp.core.dataset.DataSet;
 import org.jdmp.core.dataset.ListDataSet;

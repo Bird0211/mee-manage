@@ -3,6 +3,8 @@ package com.mee.manage.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mee.manage.po.Products;
 import com.mee.manage.vo.*;
+import com.mee.manage.vo.Yiyun.YiyunTopProduct;
+
 import org.jdmp.core.sample.Sample;
 
 import java.util.List;
@@ -29,6 +31,8 @@ public interface IProductsService extends IService<Products> {
 
     List<MeeProductVo> getMeeProductsByUrl(String bizId);
 
+    Map<String, MeeProductVo> getMeeProductsBySku(String bizId, List<String> skus);
+
     List<SuppliersVo> getSuppliers(String bizId);
 
     List<Sample> getSampleProducts(List<MeeProductVo> meeProductVos);
@@ -38,6 +42,8 @@ public interface IProductsService extends IService<Products> {
     Set<String> getSetCode(List<MeeProductVo> meeProductVos);
 
     List<ComparePricesVo> getComparePrice(List<InvoiceProduct> invoiceProducts,String bizId);
+
+    List<YiyunTopProduct> getTopProducts(String bizId);
 
 
 }

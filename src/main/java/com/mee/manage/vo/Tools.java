@@ -2,11 +2,14 @@ package com.mee.manage.vo;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.alibaba.druid.filter.config.ConfigTools;
 import com.alibaba.druid.util.StringUtils;
+import com.google.common.collect.Lists;
 import com.recognition.software.jdeskew.ImageDeskew;
 
 import net.sourceforge.tess4j.util.ImageHelper;
@@ -18,8 +21,14 @@ public class Tools  {
 
     static int index = 0;
 
+    public static void te () {
+        List<Long> result = Lists.newArrayList(null,null,null,null,null,null,null,null);
+        result.stream().filter(Objects::nonNull).reduce(0L, Long::sum);  
+    }
+
 
     public static void main(String[] args) {
+        te();
 
 //        String publicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIS39+jnjLSkSL0ig/IJsjwHnZ9gagoWxDzaoTOhds01oymDQsBP+0hlGs6QKDFWk4BSWp0xpvt30weZhuz04TUCAwEAAQ==";
 

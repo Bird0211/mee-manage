@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.util.StatusCode;
 import com.mee.manage.vo.*;
+import com.mee.manage.vo.Yiyun.YiyunTopProduct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @ResponseBody
@@ -92,11 +95,27 @@ public class ProductController {
         return meeResult;
     }
 
-    @RequestMapping(value = "/getEmptyWeight", method = RequestMethod.GET)
-    public MeeResult getEmptyWeight(){
+    @RequestMapping(value = "/product/skus/{bizId}", method = RequestMethod.POST)
+    public MeeResult getProductsBySku(@PathVariable("bizId") String bizId, @RequestBody List<String> skus) {
         MeeResult meeResult = new MeeResult();
         try {
-            List<MeeProductVo> result = productsService.getMeeProducts("20");
+            Map<String,MeeProductVo> result = productsService.getMeeProductsBySku(bizId, skus);
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+            meeResult.setData(result);
+
+        } catch (Exception ex) {
+            logger.info("addProduct error",ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/getEmptyWeight/{bizId}", method = RequestMethod.GET)
+    public MeeResult getEmptyWeight(@PathVariable("bizId") String bizId){
+        MeeResult meeResult = new MeeResult();
+        try {
+            List<MeeProductVo> result = productsService.getMeeProducts(bizId);
             List<MeeProductVo> emptyWeight = Lists.newArrayList();
             for(MeeProductVo product : result){
                 if (product.getWeight() == null ||
@@ -108,6 +127,21 @@ public class ProductController {
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
             meeResult.setData(emptyWeight);
 
+        } catch (Exception ex) {
+            logger.info("addProduct error",ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/product/top/{bizId}", method = RequestMethod.GET)
+    public MeeResult getTopProduct(@PathVariable("bizId") String bizId) {
+        MeeResult meeResult = new MeeResult();
+        try {
+           List<YiyunTopProduct> topProducts = productsService.getTopProducts(bizId);
+            meeResult.setData(topProducts);
+            meeResult.setStatusCodeDes(StatusCode.SUCCESS);
         } catch (Exception ex) {
             logger.info("addProduct error",ex);
             meeResult.setStatusCode(StatusCode.FAIL.getCode());

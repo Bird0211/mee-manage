@@ -118,7 +118,7 @@ public class DateUtil {
      * @param day
      * @return
      */
-    public static Date getSuffixDate(Date date,int day) {
+    public static Date getSuffixDate(Date date, int day) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DATE, day);   // int

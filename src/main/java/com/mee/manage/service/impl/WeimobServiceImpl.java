@@ -234,7 +234,7 @@ public class WeimobServiceImpl implements IWeimobService {
                 break;
             }
 
-            logger.info(result);
+
             WeimobOrderResponse orderResponse = JSON.parseObject(result,WeimobOrderResponse.class, Feature.IgnoreNotMatch);
             if(orderResponse == null){
                 statusCode = StatusCode.SYS_ERROR;
@@ -1096,7 +1096,7 @@ public class WeimobServiceImpl implements IWeimobService {
             milkIds = getMilkIds(bizId);
         }
 
-        Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct("20");
+        Map<String,MeeProductVo> allProducts = productsService.getMapMeeProduct(bizId.toString());
 
         WeimobOrderListResponse response = new WeimobOrderListResponse();
         List<ListenableFuture<WeimobOrderDetailVo>> futures = Lists.newArrayList();
@@ -1133,6 +1133,10 @@ public class WeimobServiceImpl implements IWeimobService {
                                 if ((orderType == 0) != milkIds.contains(product.getGoodsId().longValue()))
                                     continue;
 
+                            }
+                            if(product.getRightsStatus() != null && (product.getRightsStatus() == 1 || product.getRightsStatus() == 2)) {
+                                
+                                continue;
                             }
                             String goodsTitle = product.getGoodsTitle();
                             if(allProducts != null) {

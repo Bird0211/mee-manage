@@ -12,9 +12,13 @@ public interface IMenuService extends IService<Menu> {
 
     List<MenuVo> getSubMenu(Long pid);
 
+    List<MenuVo> getSubMenuVoByIds(List<Long> menuIds, Long pid);
+
     List<MenuVo> getMenuVoByIds(List<Long> menuIds);
 
     List<MenuVo> getMenuBiz(List<Long> menuIds, Long bizId);
+
+    List<Long> getMenuIdBiz(List<Long> menuIds, Long bizId);
 
     List<Menu> getMenuByIds(List<Long> menuIds);
 
@@ -23,4 +27,8 @@ public interface IMenuService extends IService<Menu> {
     boolean delMenu(Long id);
 
     Menu insertMenu(Menu menu);
+
+    List<Menu> getOrderFlowMenu(Long bizId);
+
+    
 }

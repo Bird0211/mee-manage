@@ -23,7 +23,7 @@ public class MenuController extends BaseController {
     IMenuService menuService;
 
     @RequestMapping(value = "/menu/{bizId}/{userId}", method = RequestMethod.GET)
-    public MeeResult getMenuByUser(@PathVariable("bizId") Long bizId, @PathVariable("userId") Long userId){
+    public MeeResult getMenuByUser(@PathVariable("bizId") Long bizId, @PathVariable("userId") Long userId) {
         MeeResult meeResult = new MeeResult();
         try {
             meeResult.setData(userMenuService.getMenuByUserId(userId,bizId));
@@ -70,6 +70,36 @@ public class MenuController extends BaseController {
         MeeResult meeResult = new MeeResult();
         try {
             meeResult.setData(menuService.updateMenu(menu));
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+
+        } catch (Exception ex) {
+            logger.error("getAllMenu Error ", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/menu/flow/{bizId}", method = RequestMethod.GET)
+    public MeeResult getTopMemu(@PathVariable("bizId") Long bizId) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            meeResult.setData(menuService.getOrderFlowMenu(bizId));
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+
+        } catch (Exception ex) {
+            logger.error("getAllMenu Error ", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/menu/sub/{bizId}/{userId}/{menuId}", method = RequestMethod.GET)
+    public MeeResult getSubMenu(@PathVariable("bizId") Long bizId,
+                                @PathVariable("userId") Long userId,
+                                @PathVariable("menuId") Long menuId) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            meeResult.setData(userMenuService.getMenuByUserId(userId, bizId, menuId));
             meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
 
         } catch (Exception ex) {

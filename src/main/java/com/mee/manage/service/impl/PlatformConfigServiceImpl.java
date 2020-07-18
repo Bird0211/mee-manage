@@ -76,6 +76,17 @@ public class PlatformConfigServiceImpl extends ServiceImpl<IPlatformConfigMapper
         QueryWrapper<PlatformConfig> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("biz_id", bizId);
         queryWrapper.eq("platform_code",platformCode);
+        queryWrapper.last("LIMIT 1");
+        return getOne(queryWrapper);
+    }
+
+    @Override
+    public PlatformConfig getPlatFormByToken(Long bizId, String platformCode, String token) {
+        QueryWrapper<PlatformConfig> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("biz_id", bizId);
+        queryWrapper.eq("platform_code",platformCode);
+        queryWrapper.eq("token", token);
+        queryWrapper.last("LIMIT 1");
         return getOne(queryWrapper);
     }
 

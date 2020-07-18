@@ -68,7 +68,14 @@ public class GuavaCache {
         if(cache != null)
             cache = null;
 
-        getCache();
+        cache.invalidateAll();
+        return true;
+    }
+
+    public boolean refreshCache(String key) {
+        if(cache != null) {
+            getCache().refresh(key);
+        }
         return true;
     }
 

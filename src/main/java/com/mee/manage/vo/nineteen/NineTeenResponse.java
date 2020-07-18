@@ -6,12 +6,12 @@ import lombok.Data;
  * NineTeenResponse
  */
 @Data
-public class NineTeenResponse {
+public class NineTeenResponse<T> {
 
     Integer code;
 
     String msg;
 
-    NineTeenData data;
+    T data;
     
 }
