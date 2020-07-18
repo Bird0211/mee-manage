@@ -1,6 +1,12 @@
 # Compiled class file
 *.class
 
+.classpath
+.log
+.vscode/
+.project
+.factorypath
+
 # Log file
 *.log
 
@@ -26,6 +32,10 @@
 src/resource/linux-x86-64/*
 
 target/
+
+logs/
+
+.settings/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
