@@ -26,7 +26,7 @@ public class DataStatisticsServiceImpl extends ServiceImpl<IDataStatisticsMapper
 	IDataTopService dataTopService;
 
 	@Override
-	public DataStatistics getErrorOrder(Integer bizId) {
+	public DataStatistics getErrorOrder(Long bizId) {
 		return getById(bizId);
 	}
 
@@ -39,7 +39,7 @@ public class DataStatisticsServiceImpl extends ServiceImpl<IDataStatisticsMapper
 	}
 
 	@Override
-	public boolean saveStaticOrder(Integer bizId) {
+	public boolean saveStaticOrder(Long bizId) {
 		YiyunNoShipVo noShipData = orderService.getNoShipData(bizId);
 		YiyunErrorVo errorData = orderService.getErrorData(bizId);
 		boolean flag = false;
@@ -58,7 +58,7 @@ public class DataStatisticsServiceImpl extends ServiceImpl<IDataStatisticsMapper
 	}
 
 	@Override
-	public boolean saveTopProduct(Integer bizId) {
+	public boolean saveTopProduct(Long bizId) {
 		List<YiyunTopProduct> topProducts = orderService.getTopProductsByDays(bizId,30,10);
 		boolean flag = false;
 		if(topProducts != null) {

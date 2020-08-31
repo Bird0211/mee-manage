@@ -23,4 +23,8 @@ public class TradeMeConfig {
     String profileUrl;
 
     String soltItemUrl;
+
+    String editStatusUrl;
+
+    String noteUrl;
 }

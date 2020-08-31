@@ -3,6 +3,7 @@ package com.mee.manage.service.impl;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ import com.mee.manage.vo.Yiyun.YiyunOrderVo;
 import com.mee.manage.vo.Yiyun.YiyunTodayData;
 import com.mee.manage.vo.Yiyun.YiyunTopProduct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +66,7 @@ public class OrderServiceImpl implements IOrderService {
     IDataSalesService dataService;
 
     @Override
-    public List<YiyunOrderSales> getYiyunOrder(Integer bizId, YiyunOrderVo orderVo) throws MeeException {
+    public List<YiyunOrderSales> getYiyunOrder(Long bizId, YiyunOrderVo orderVo) throws MeeException {
 
         List<YiyunOrderSales> sales = null;
 
@@ -87,7 +89,7 @@ public class OrderServiceImpl implements IOrderService {
 
         Long time = DateUtil.getCurrentTime();
 
-        String sign = getSigh(bizId, orderVo.getFrom(), orderVo.getTo(), time.toString(), nonce, token);
+        String sign = getSigh(bizId, time.toString(), nonce, token);
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("bizid", bizId);
@@ -96,6 +98,8 @@ public class OrderServiceImpl implements IOrderService {
         paramMap.put("time", time);
         paramMap.put("nonce", nonce);
         paramMap.put("sign", sign);
+        if(StringUtils.isNotEmpty(orderVo.getExternalSaleId())) 
+            paramMap.put("externalSaleID", orderVo.getExternalSaleId());
 
         logger.info("Param: {}", paramMap);
         String result = JoddHttpUtils.sendPost(config.getBizSalesUrl(), paramMap);
@@ -116,8 +120,8 @@ public class OrderServiceImpl implements IOrderService {
         return sales;
     }
 
-    private String getSigh(Integer bizId, String from, String to, String time, String nonce, String token) {
-        String md5Str = bizId + from + to + time + nonce + token;
+    private String getSigh(Long bizId, String time, String nonce, String token) {
+        String md5Str = bizId + time + nonce + token;
 
         String md5ign = MD5Util.MD5Encode(md5Str, MD5Util.UTF8, false);
         String sign = null;
@@ -131,7 +135,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public YiyunTodayData getTodayData(Integer bizId) {
+    public YiyunTodayData getTodayData(Long bizId) {
         YiyunOrderVo yOrderVo = new YiyunOrderVo();
         yOrderVo.setFrom(DateUtil.getCurrentDate());
         yOrderVo.setTo(DateUtil.getCurrentDate());
@@ -162,9 +166,9 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public DataTotal getTotalData(Integer bizId) {
+    public DataTotal getTotalData(Long bizId) {
         DataTotal dataTotal = dataService.getTotalData(bizId);
-        YiyunTodayData todayData = getTodayData(bizId.intValue());
+        YiyunTodayData todayData = getTodayData(bizId);
 
         if (todayData != null) {
             dataTotal.setTotalNumber(dataTotal.getTotalNumber() + todayData.getTotalNum());
@@ -174,7 +178,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public YiyunNoShipVo getNoShipData(Integer bizId) {
+    public YiyunNoShipVo getNoShipData(Long bizId) {
         YiyunOrderVo oVo = getYiyunOrderVo(7, 0);
         long noShipNum = getNoshipNumber(bizId, oVo);
 
@@ -185,7 +189,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public YiyunErrorVo getErrorData(Integer bizId) {
+    public YiyunErrorVo getErrorData(Long bizId) {
         YiyunOrderVo oVo = getYiyunOrderVo(30, 7);
         long errorNum = getNoshipNumber(bizId, oVo);
 
@@ -195,7 +199,7 @@ public class OrderServiceImpl implements IOrderService {
         return errorVo;
     }
 
-    private Long getNoshipNumber(Integer bizId, YiyunOrderVo oVo) {
+    private Long getNoshipNumber(Long bizId, YiyunOrderVo oVo) {
 
         List<Long> result = handleYiyunOrder(bizId, oVo, new IHandleOrder<Long>() {
 
@@ -232,7 +236,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public <T> List<T> handleYiyunOrder(Integer bizId, YiyunOrderVo orderVo, IHandleOrder<T> handleOrder)
+    public <T> List<T> handleYiyunOrder(Long bizId, YiyunOrderVo orderVo, IHandleOrder<T> handleOrder)
             throws MeeException {
         List<String> dates = splitDate(orderVo);
         if (dates == null || dates.isEmpty()) {
@@ -307,12 +311,12 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<OrderStatisticsData> getStatistionDatas(Integer bizId, YiyunOrderDatePeriod orderVo) {
+    public List<OrderStatisticsData> getStatistionDatas(Long bizId, YiyunOrderDatePeriod orderVo) {
         return dataService.getDatasDay(bizId, orderVo.getFrom(), orderVo.getTo());
     }
 
 	@Override
-	public List<YiyunTopProduct> getTopProducts(Integer bizId, YiyunOrderVo oVo, Integer limit) {
+	public List<YiyunTopProduct> getTopProducts(Long bizId, YiyunOrderVo oVo, Integer limit) {
 
         List<YiyunTopProduct> topProducts = null;
         
@@ -361,9 +365,80 @@ public class OrderServiceImpl implements IOrderService {
 	}
 
 	@Override
-	public List<YiyunTopProduct> getTopProductsByDays(Integer bizId, Integer day, Integer limit) {
+	public List<YiyunTopProduct> getTopProductsByDays(Long bizId, Integer day, Integer limit) {
         YiyunOrderVo orderVo = getYiyunOrderVo(day, 0);
 
 		return getTopProducts(bizId, orderVo, limit);
 	}
+
+    @Override
+    public List<YiyunOrderSales> getYiyunOrderByExtId(Long bizId, List<String> extIds) {
+        
+        List<List<YiyunOrderSales>> datas = handleYiyunOrder(bizId, extIds, new IHandleOrder<List<YiyunOrderSales>>(){
+
+            @Override
+            public List<YiyunOrderSales> handle(List<YiyunOrderSales> salesOrders) {
+                if(salesOrders == null || salesOrders.size() <= 0)
+                    return null;
+                return salesOrders.stream().filter(item -> item.getStatus().equals("已出库完成")).
+                    collect(Collectors.toList());
+            }
+            
+        });
+
+        List<YiyunOrderSales> result = null;
+        if(datas != null && datas.size() > 0) {
+            result = new ArrayList<>();
+            for(List<YiyunOrderSales> item : datas) {
+                if(item != null && item.size() > 0) {
+                    result.addAll(item);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public <T> List<T> handleYiyunOrder(Long bizId, List<String> extIds, IHandleOrder<T> handleOrder)
+            throws MeeException {
+        
+                List<T> objects = null;
+        
+                if (extIds != null && extIds.size() > 0) {
+                    List<ListenableFuture<T>> futures = Lists.newArrayList();
+                    for (String extId : extIds) {
+                        ListenableFuture<T> task = GuavaExecutors.getDefaultCompletedExecutorService()
+                                .submit(new Callable<T>() {
+        
+                                    @Override
+                                    public T call() throws Exception {
+                                        YiyunOrderVo oVo = new YiyunOrderVo();
+                                        oVo.setExternalSaleId(extId);
+                                        List<YiyunOrderSales> oSales = getYiyunOrder(bizId, oVo);
+        
+                                        T object = null;
+                                        if (handleOrder != null)
+                                            object = handleOrder.handle(oSales);
+        
+                                        return object;
+                                    }
+        
+                                });
+        
+                        futures.add(task);
+                    }
+        
+                    ListenableFuture<List<T>> resultsFuture = Futures.successfulAsList(futures);
+                    try {
+                        objects = resultsFuture.get();
+        
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+        
+                return objects;
+    }
 }

@@ -16,7 +16,7 @@ import lombok.Data;
 public class Biz {
 
     @TableId
-    Integer id;
+    Long id;
 
     String name;
 

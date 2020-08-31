@@ -21,7 +21,7 @@ public class BizServiceImpl extends ServiceImpl<IBizMapper, Biz> implements IBiz
     }
 
     @Override
-    public Biz getBiz(Integer bizId) {
+    public Biz getBiz(Long bizId) {
         return getById(bizId);
     }
 

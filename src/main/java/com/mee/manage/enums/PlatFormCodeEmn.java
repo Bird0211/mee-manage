@@ -8,7 +8,9 @@ public enum PlatFormCodeEmn {
 
     FLYWAY("flyway"),
 
-    TRADEMEE("trademe");
+    TRADEMEE("trademe"),
+
+    NZ_POST("nzpost");
 
     String code;
 

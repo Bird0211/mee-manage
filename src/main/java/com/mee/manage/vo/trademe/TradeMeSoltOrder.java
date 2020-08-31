@@ -7,6 +7,8 @@ public class TradeMeSoltOrder {
     
     String orderId;
 
+    Integer purchaseId;
+
     String reference;
 
     String soldDate;

@@ -5,12 +5,12 @@ import com.mee.manage.po.DataStatistics;
 
 public interface IDataStatisticsService extends IService<DataStatistics> {
 
-    DataStatistics getErrorOrder(Integer bizId);
+    DataStatistics getErrorOrder(Long bizId);
 
     boolean saveErrorOrder(DataStatistics data);
 
-    boolean saveStaticOrder(Integer bizId);
+    boolean saveStaticOrder(Long bizId);
 
-    boolean saveTopProduct(Integer bizId);
+    boolean saveTopProduct(Long bizId);
     
 }

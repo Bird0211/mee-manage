@@ -39,7 +39,7 @@ public class OrderController extends BaseController {
     IDataStatisticsService dataStatisticsService;
 
     @RequestMapping(value = "/order/{bizId}", method = RequestMethod.POST)
-    public MeeResult queryOrder(@PathVariable("bizId") Integer bizId, @RequestBody YiyunOrderVo orderVo) {
+    public MeeResult queryOrder(@PathVariable("bizId") Long bizId, @RequestBody YiyunOrderVo orderVo) {
         MeeResult meeResult = new MeeResult();
         try {
             List<YiyunOrderSales> sales = orderService.getYiyunOrder(bizId, orderVo);
@@ -57,7 +57,7 @@ public class OrderController extends BaseController {
     }
 
     @RequestMapping(value = "/today/{bizId}", method = RequestMethod.GET)
-    public MeeResult todayData(@PathVariable("bizId") Integer bizId) {
+    public MeeResult todayData(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
             YiyunTodayData sales = orderService.getTodayData(bizId);
@@ -75,7 +75,7 @@ public class OrderController extends BaseController {
     }
 
     @RequestMapping(value = "/total/{bizId}", method = RequestMethod.GET)
-    public MeeResult totalData(@PathVariable("bizId") Integer bizId) {
+    public MeeResult totalData(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
             DataTotal totalData = orderService.getTotalData(bizId);
@@ -93,7 +93,7 @@ public class OrderController extends BaseController {
     }
 
     @RequestMapping(value = "/noshipped/{bizId}", method = RequestMethod.GET)
-    public MeeResult noshipped(@PathVariable("bizId") Integer bizId) {
+    public MeeResult noshipped(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
             YiyunNoShipVo data = orderService.getNoShipData(bizId);
@@ -111,7 +111,7 @@ public class OrderController extends BaseController {
     }
     
     @RequestMapping(value = "/errororder/{bizId}", method = RequestMethod.GET)
-    public MeeResult errorOrder(@PathVariable("bizId") Integer bizId) {
+    public MeeResult errorOrder(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
             YiyunErrorVo data = orderService.getErrorData(bizId);
@@ -129,7 +129,7 @@ public class OrderController extends BaseController {
     }
 
     @RequestMapping(value = "/datastatic/{bizId}", method = RequestMethod.GET)
-    public MeeResult getDataStatic(@PathVariable("bizId") Integer bizId) {
+    public MeeResult getDataStatic(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
             DataStatistics data = dataStatisticsService.getErrorOrder(bizId);
@@ -148,7 +148,7 @@ public class OrderController extends BaseController {
 
 
  @RequestMapping(value = "/refreshdatastatic/{bizId}", method = RequestMethod.PUT)
-    public MeeResult refreshDataStatic(@PathVariable("bizId") Integer bizId) {
+    public MeeResult refreshDataStatic(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
             boolean data = dataStatisticsService.saveStaticOrder(bizId);
@@ -169,7 +169,7 @@ public class OrderController extends BaseController {
     }
 
     @RequestMapping(value = "/statistics/{bizId}", method = RequestMethod.POST)
-    public MeeResult orderData(@PathVariable("bizId") Integer bizId, @RequestBody YiyunOrderDatePeriod orderVo) {
+    public MeeResult orderData(@PathVariable("bizId") Long bizId, @RequestBody YiyunOrderDatePeriod orderVo) {
         MeeResult meeResult = new MeeResult();
         try {
             List<OrderStatisticsData> data = orderService.getStatistionDatas(bizId, orderVo);

@@ -12,5 +12,5 @@ public interface IBizService extends IService<Biz> {
 
     List<Biz> getAllBiz();
 
-    Biz getBiz(Integer bizId);
+    Biz getBiz(Long bizId);
 }

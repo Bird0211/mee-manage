@@ -10,7 +10,7 @@ import lombok.Data;
 public class DataStatistics {
 
     @TableId
-    Integer bizId;
+    Long bizId;
     
     Long noShip;
 

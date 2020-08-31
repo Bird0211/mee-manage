@@ -34,7 +34,7 @@ public class BizController extends BaseController {
             if(bizId.equals("all"))
                 meeResult.setData(bizService.getAllBiz());
             else
-                meeResult.setData(bizService.getBiz(Integer.parseInt(bizId)));
+                meeResult.setData(bizService.getBiz(Long.parseLong(bizId)));
 
         } catch (Exception ex) {
             meeResult.setStatusCode(StatusCode.FAIL.getCode());

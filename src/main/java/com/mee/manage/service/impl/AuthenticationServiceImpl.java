@@ -69,7 +69,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             return StatusCode.SIGN_ERROR;
         }
 
-        Biz bizInfo = bizService.getBiz(Integer.parseInt(auth.getBizId()));
+        Biz bizInfo = bizService.getBiz(Long.parseLong(auth.getBizId()));
         if(bizInfo == null) {
             return StatusCode.BIZ_NOT_EXIST;
         }
@@ -97,7 +97,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         if(StringUtils.isEmpty(bizId))
             return null;
         //getToken
-        Biz biz = bizService.getBiz(Integer.parseInt(bizId));
+        Biz biz = bizService.getBiz(Long.parseLong(bizId));
         if (biz == null) {
             return null;
         }

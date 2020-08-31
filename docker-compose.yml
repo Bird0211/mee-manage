@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  mee-manage:
+    image: mee-manage
+    build: .
+    ports:
+      - 8801

@@ -347,8 +347,8 @@ public class ProductsServiceImpl extends ServiceImpl<IProductsMapper, Products>
 	}
 
 	@Override
-	public List<YiyunTopProduct> getTopProducts(String bizId) {
+	public List<YiyunTopProduct> getTopProducts(Long bizId) {
 
-		return dataTopService.getTopProduct(Integer.parseInt(bizId));
+		return dataTopService.getTopProduct(bizId);
 	}
 }

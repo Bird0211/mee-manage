@@ -37,4 +37,6 @@ public class WeimobConfig {
     String batchDeliveryUrl;
 
     String orderDeliveryUrl;
+
+    String flagOrderUrl;
 }

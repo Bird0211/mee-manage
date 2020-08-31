@@ -27,7 +27,13 @@ public enum StatusCode {
 
     PLATFORM_NOT_EXIST(11816,"Plat is not exist"),
 
-    TRADEME_EXCEED_QUOTA(11817, "You have exceeded your API call quota for the current hour") 
+    TRADEME_EXCEED_QUOTA(11817, "You have exceeded your API call quota for the current hour"),
+    
+    TRADEME_AUTH_ERROR(11818, "TradeMe auth error"),
+
+    NZPOST_TOKEN_ERROR(11819, "Nzpost token error"),
+
+    NZPOST_CONFIG_NOT_EXIST(11820, "Nzpost config is not exist")
 
     ;
 

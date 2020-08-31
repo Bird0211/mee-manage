@@ -51,4 +51,9 @@ public class WeimobOrderDataList {
     String expectDeliveryTime;
     Long deliveryOrderId;
 
+    String deliveryCode;
+    String deliveryCom;
+
+    boolean isSplit;
+
 }

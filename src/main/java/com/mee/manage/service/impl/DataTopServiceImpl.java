@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class DataTopServiceImpl extends ServiceImpl<IDataTopMapper,DataTop> implements IDataTopService {
 
 	@Override
-	public boolean saveDataTop(Integer bizId, List<YiyunTopProduct> datas) {
+	public boolean saveDataTop(Long bizId, List<YiyunTopProduct> datas) {
         if(datas == null)
             return false;
 
@@ -37,7 +37,7 @@ public class DataTopServiceImpl extends ServiceImpl<IDataTopMapper,DataTop> impl
 		return saveBatch(dataTops);
     }
     
-    private boolean removeDataTop(Integer bizId) {
+    private boolean removeDataTop(Long bizId) {
         QueryWrapper<DataTop> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("biz_id", bizId);
 
@@ -45,7 +45,7 @@ public class DataTopServiceImpl extends ServiceImpl<IDataTopMapper,DataTop> impl
     }
 
 	@Override
-	public List<YiyunTopProduct> getTopProduct(Integer bizId) {
+	public List<YiyunTopProduct> getTopProduct(Long bizId) {
         QueryWrapper<DataTop> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("biz_id", bizId);
         List<DataTop> datas = list(queryWrapper);

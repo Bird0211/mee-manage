@@ -94,11 +94,11 @@ public class TesseractServiceImpl implements ITesseractService {
 
 //            TextOverlayVo textOverlayVo = getTextOverLay(instance, textImage);
             List<TextOverlayVo> textOverlayVoes = getTextOverlaies(instance, textImage);
-            if (textOverlayVoes == null) {
-                result = null;
-            } else {
+            result = null;
+            if (textOverlayVoes != null) {
                 TextOverlayVo textOverlayvo = FileUtil.mergeTextOver(textOverlayVoes);
-                result = textOverlayvo.getInVoice();
+                if(textOverlayvo != null)
+                    result = textOverlayvo.getInVoice();
 //                result = invoice.toString();
             }
             logger.info("Finish doOCR");

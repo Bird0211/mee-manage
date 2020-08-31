@@ -14,5 +14,6 @@ public class WeimobOrderListRequest {
     Integer orderStatuses;
     Integer orderType;  //0:奶粉;1:其他
     Integer sendarea;
+    Integer flagRanks;
 
 }

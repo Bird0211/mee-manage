@@ -3,13 +3,16 @@ package com.mee.manage.controller;
 import java.util.List;
 
 import com.mee.manage.exception.MeeException;
+import com.mee.manage.service.INzpostService;
 import com.mee.manage.service.ITradeMeService;
 import com.mee.manage.util.StatusCode;
 import com.mee.manage.vo.MeeResult;
+import com.mee.manage.vo.trademe.PurchaseItem;
 import com.mee.manage.vo.trademe.SoltItemFilter;
 import com.mee.manage.vo.trademe.TradeMeAccessToken;
+import com.mee.manage.vo.trademe.TradeMePayResult;
 import com.mee.manage.vo.trademe.TradeMeProfile;
-import com.mee.manage.vo.trademe.TradeMeSoltOrder;
+import com.mee.manage.vo.trademe.TradeMeSoldOrderResp;
 import com.mee.manage.vo.trademe.TradeMeTokenResult;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +33,11 @@ public class TradeMeController extends BaseController {
     @Autowired
     ITradeMeService trademeService;
 
+    @Autowired
+    INzpostService nzPostService;
+
     @RequestMapping(value = "/requesttoken/{bizId}", method = RequestMethod.POST)
-    public MeeResult requestToken(@PathVariable("bizId") Long bizId){
+    public MeeResult requestToken(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
             TradeMeTokenResult result = trademeService.requestToken(bizId);
@@ -105,20 +111,38 @@ public class TradeMeController extends BaseController {
 
         MeeResult meeResult = new MeeResult();
         try {
-            List<TradeMeSoltOrder> orders = trademeService.getSoltItem(platformId, filter);
-            meeResult.setData(orders);
+            TradeMeSoldOrderResp order = trademeService.getSoltItem(platformId, filter);
+            meeResult.setData(order);
             meeResult.setStatusCodeDes(StatusCode.SUCCESS);
         } catch (MeeException meeEx) {
             logger.error("requestToken Error", meeEx);
             meeResult.setStatusCodeDes(meeEx.getStatusCode());
-
         } catch (Exception ex) {
             logger.error("requestToken Error", ex);
             meeResult.setStatusCode(StatusCode.FAIL.getCode());
         } 
 
         return meeResult;
+    }
+    
+    @RequestMapping(value = "/paid/{platformId}", method = RequestMethod.POST)
+    public MeeResult paidItems(@PathVariable("platformId") Integer platformId, @RequestBody PurchaseItem items) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            List<TradeMePayResult> result = trademeService.paidItem(platformId, items);
+            meeResult.setData(result);
+            meeResult.setStatusCodeDes(StatusCode.SUCCESS);
+        } catch (MeeException meeEx) {
+            logger.error("requestToken Error", meeEx);
+            meeResult.setStatusCodeDes(meeEx.getStatusCode());
+        } catch (Exception ex) {
+            logger.error("requestToken Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        } 
 
-    } 
+        return meeResult;
+    }
+
+
 
 }

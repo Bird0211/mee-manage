@@ -71,7 +71,7 @@ public class DataSalesServiceImpl extends ServiceImpl<IDataSalesMapper, DataSale
                 return ;
             }
             startDate = DateUtil.dateToStringFormat(DateUtil.getSuffixDate(dataSales.getSalesDate(),1), DateUtil.formatPattern);
-            logger.info("Loat Date: {}", dataSales.getSalesDate());
+            logger.info("Load Date: {}", dataSales.getSalesDate());
             logger.info("startDate: {}", startDate);
         }
 
@@ -100,7 +100,7 @@ public class DataSalesServiceImpl extends ServiceImpl<IDataSalesMapper, DataSale
         orderVo.setFrom(date);
         orderVo.setTo(date);
 
-        List<YiyunOrderSales> yiyunOrders = orderService.getYiyunOrder( bizId.intValue(), orderVo);
+        List<YiyunOrderSales> yiyunOrders = orderService.getYiyunOrder( bizId, orderVo);
         DataTotal dateTotal = changeToDataSale(yiyunOrders);
         DataSales dataSales = new DataSales();
 
@@ -139,7 +139,7 @@ public class DataSalesServiceImpl extends ServiceImpl<IDataSalesMapper, DataSale
     }
 
     @Override
-    public DataTotal getTotalData(Integer bizId) {
+    public DataTotal getTotalData(Long bizId) {
         DataTotal totalData = new DataTotal();
         totalData.setTotalNumber(0L);
         totalData.setTotalPrice(BigDecimal.ZERO);
@@ -161,7 +161,7 @@ public class DataSalesServiceImpl extends ServiceImpl<IDataSalesMapper, DataSale
     }
 
     @Override
-    public List<DataSales> getDatas(Integer bizId, Date from, Date to) {
+    public List<DataSales> getDatas(Long bizId, Date from, Date to) {
         QueryWrapper<DataSales> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("biz_id", bizId);
         queryWrapper.between("sales_date", from, to);
@@ -169,7 +169,7 @@ public class DataSalesServiceImpl extends ServiceImpl<IDataSalesMapper, DataSale
     }
 
     @Override
-    public List<OrderStatisticsData> getDatasDay(Integer bizId, Date from, Date to) {
+    public List<OrderStatisticsData> getDatasDay(Long bizId, Date from, Date to) {
         logger.info("from: {}" , from);
         logger.info("to: {}" , to);
         QueryWrapper<DataSales> queryWrapper = new QueryWrapper<>();

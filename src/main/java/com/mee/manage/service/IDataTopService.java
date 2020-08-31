@@ -8,8 +8,8 @@ import com.mee.manage.vo.Yiyun.YiyunTopProduct;
 
 public interface IDataTopService extends IService<DataTop> {
     
-    boolean saveDataTop(Integer bizId, List<YiyunTopProduct> datas);
+    boolean saveDataTop(Long bizId, List<YiyunTopProduct> datas);
 
-    List<YiyunTopProduct> getTopProduct(Integer bizId);
+    List<YiyunTopProduct> getTopProduct(Long bizId);
 
 }

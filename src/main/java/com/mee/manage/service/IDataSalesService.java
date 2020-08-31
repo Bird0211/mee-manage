@@ -16,10 +16,10 @@ public interface IDataSalesService extends IService<DataSales> {
     
     DataSales getLastData(Long bizId);
 
-    DataTotal getTotalData(Integer bizId);
+    DataTotal getTotalData(Long bizId);
 
-    List<DataSales> getDatas(Integer bizId, Date from, Date to);
+    List<DataSales> getDatas(Long bizId, Date from, Date to);
 
-    List<OrderStatisticsData> getDatasDay(Integer bizId, Date from, Date to);
+    List<OrderStatisticsData> getDatasDay(Long bizId, Date from, Date to);
     
 }

@@ -1,6 +1,5 @@
 package com.mee.manage.controller;
 
-import com.google.common.collect.Lists;
 import com.mee.manage.service.IProductsService;
 import com.mee.manage.util.StatusCode;
 import com.mee.manage.vo.*;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 @ResponseBody
 @RequestMapping("/api")
 @CrossOrigin
-public class ProductController {
+public class ProductController extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
@@ -116,7 +116,7 @@ public class ProductController {
         MeeResult meeResult = new MeeResult();
         try {
             List<MeeProductVo> result = productsService.getMeeProducts(bizId);
-            List<MeeProductVo> emptyWeight = Lists.newArrayList();
+            List<MeeProductVo> emptyWeight = new ArrayList<MeeProductVo>();
             for(MeeProductVo product : result){
                 if (product.getWeight() == null ||
                 product.getWeight().equals("") ||
@@ -136,7 +136,7 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/product/top/{bizId}", method = RequestMethod.GET)
-    public MeeResult getTopProduct(@PathVariable("bizId") String bizId) {
+    public MeeResult getTopProduct(@PathVariable("bizId") Long bizId) {
         MeeResult meeResult = new MeeResult();
         try {
            List<YiyunTopProduct> topProducts = productsService.getTopProducts(bizId);

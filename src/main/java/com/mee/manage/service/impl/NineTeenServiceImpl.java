@@ -127,7 +127,7 @@ public class NineTeenServiceImpl implements INineTeenService {
                     String name = orderDetail.getName();
                     if (StringUtils.isNotEmpty(searchVo.getFilter())) {
                         if (searchVo.getFilter().equals("新西兰仓")) {
-                            if (name.indexOf("国内现货") >= 0) {
+                            if (name.indexOf("国内现货") >= 0 || name.indexOf("香港一仓") >= 0) {
                                 continue;
                             }
                         } else {

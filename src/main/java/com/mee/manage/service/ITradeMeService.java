@@ -5,8 +5,10 @@ import java.util.List;
 import com.mee.manage.vo.MeeResult;
 import com.mee.manage.vo.trademe.SoltItemFilter;
 import com.mee.manage.vo.trademe.TradeMeAccessToken;
+import com.mee.manage.vo.trademe.PurchaseItem;
+import com.mee.manage.vo.trademe.TradeMePayResult;
 import com.mee.manage.vo.trademe.TradeMeProfile;
-import com.mee.manage.vo.trademe.TradeMeSoltOrder;
+import com.mee.manage.vo.trademe.TradeMeSoldOrderResp;
 import com.mee.manage.vo.trademe.TradeMeTokenResult;
 
 public interface ITradeMeService {
@@ -19,6 +21,8 @@ public interface ITradeMeService {
     
     TradeMeProfile getProfile(Long bizId, Integer platFormId);
 
-    List<TradeMeSoltOrder> getSoltItem(Integer platFormId, SoltItemFilter filter);
+    TradeMeSoldOrderResp getSoltItem(Integer platFormId, SoltItemFilter filter);
+
+    List<TradeMePayResult> paidItem(Integer platFormId, PurchaseItem items);
 
 }

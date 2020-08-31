@@ -13,7 +13,7 @@ public class DataTop {
     @TableId(type = IdType.ID_WORKER)
     Long id;
 
-    Integer bizId;
+    Long bizId;
     
     String sku;
 

@@ -13,8 +13,8 @@ public class YiyunOrderDetail {
         if(details != null) {
             String[] info = details.split("\\|");
             if(info != null && info.length == 7) {
-                this.id = info[0];
-                this.sku = info[1];
+                this.id = info[0].trim();
+                this.sku = info[1].trim();
                 this.name = info[2];
                 this.weight = Integer.parseInt(info[3].trim());
                 this.price = info[4];

@@ -43,7 +43,7 @@ public interface IProductsService extends IService<Products> {
 
     List<ComparePricesVo> getComparePrice(List<InvoiceProduct> invoiceProducts,String bizId);
 
-    List<YiyunTopProduct> getTopProducts(String bizId);
+    List<YiyunTopProduct> getTopProducts(Long bizId);
 
 
 }

@@ -6,4 +6,5 @@ import lombok.Data;
 public class YiyunOrderVo {
     String from;
     String to;
+    String externalSaleId;
 }

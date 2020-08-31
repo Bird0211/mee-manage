@@ -23,4 +23,6 @@ public class DeliveryOrderVo {
 
     List<DeliverySkuInfo> skuInfo;
 
+    boolean split;
+
 }

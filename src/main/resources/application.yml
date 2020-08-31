@@ -1,9 +1,9 @@
 spring:
   datasource:
     #内网
-    #url: jdbc:mysql://rm-j0bt8woy1xl618o5235640.mysql.australia.rds.aliyuncs.com:3306/mee_store?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    url: jdbc:mysql://rm-j0bt8woy1xl618o5235640.mysql.australia.rds.aliyuncs.com:3306/mee_store?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     #外网
-    url: jdbc:mysql://rm-j0bt8woy1xl618o52so.mysql.australia.rds.aliyuncs.com:3306/mee_store?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    #url: jdbc:mysql://rm-j0bt8woy1xl618o52so.mysql.australia.rds.aliyuncs.com:3306/mee_store?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: mee_store
     password: AvRYwTFZpmTEdo/5ACiKnwGk6KgXwQSBHoTfeJTOZyWkr69+GuRj7FqmGNL0TjL1MmdnUlOIuFN+MkF0paYEPw==
     type: com.alibaba.druid.pool.DruidDataSource
@@ -106,6 +106,7 @@ mee:
     goodDetailUrl: https://dopen.weimob.com/api/1_0/ec/goods/queryGoodsDetail
     batchDeliveryUrl: https://dopen.weimob.com/api/1_0/ec/order/batchDeliveryOrder
     orderDeliveryUrl: https://dopen.weimob.com/api/1_0/ec/order/deliveryOrder
+    flagOrderUrl: https://dopen.weimob.com/api/1_0/ec/order/updateOrderFlag
 
   ymtou:
     appId: IkCIPGv4SCYNhVQ0z9
@@ -126,19 +127,31 @@ mee:
     addOrderUrl: https://flywaywebappapi.azurewebsites.net/api/AddOrders
 
   trademe:
-    key: 7670C2A492CBC90325E9F1FB8ED989FE
-    secret: E647F45EE7700D74940605815F7D7407
-    tokenUrl: https://secure.trademe.co.nz/Oauth/RequestToken
-    accessTokenUrl: https://secure.trademe.co.nz/Oauth/AccessToken
+    #key: 7670C2A492CBC90325E9F1FB8ED989FE     
+    #secret: E647F45EE7700D74940605815F7D7407
+    key: B7B9BE9F74FFE26A6ED3CCA0394102D6
+    secret: 724C902437D31E55FB58665C3A2EE2D6
+    tokenUrl: https://secure.tmsandbox.co.nz/Oauth/RequestToken
+    accessTokenUrl: https://secure.tmsandbox.co.nz/Oauth/AccessToken
     callbackUrl: https://external.yiyun.co.nz/trademe
-    profileUrl: https://api.trademe.co.nz/v1/MyTradeMe/Summary.JSON
-    soltItemUrl: https://api.trademe.co.nz/v1/MyTradeMe/SoldItems
-
-
-
-
-
-
-
-
+    profileUrl: https://api.tmsandbox.co.nz/v1/MyTradeMe/Summary.JSON
+    soltItemUrl: https://api.tmsandbox.co.nz/v1/MyTradeMe/SoldItems
+    editStatusUrl: https://api.tmsandbox.co.nz/v1/MyTradeMe/Status
+    noteUrl: https://api.tmsandbox.co.nz/v1/MyTradeMe/Notes.JSON
+  nzpost:
+    # clientId: 82f3c23906524e888e189f1311998545
+    clientId: b5dc889df1db48abba2705e7317f966f
+    # secret: e9152484081A4850a56a1804FFDF05D1
+    secret: d4fDe946CBE84155B333ba5a44825941
+    # siteCode: 77457
+    siteCode: 68669
+    #accessTokenUrl: https://oauth.nzpost.co.nz/as/token.oauth2
+    accessTokenUrl: https://oauth.uat.nzpost.co.nz/as/token.oauth2    
+    #createLabelUrl: https://api.nzpost.co.nz/parcellabel/v3/labels
+    createLabelUrl: https://api.uat.nzpost.co.nz/parcellabel/v3/labels
+    #shippedOptionUrl: https://api.nzpost.co.nz/shippingoptions/2.0/domestic
+    shippedOptionUrl: https://api.uat.nzpost.co.nz/shippingoptions/2.0/domestic
+    #statusOfLabelUrl: https://api.nzpost.co.nz/parcellabel/v3/labels
+    statusOfLabelUrl: https://api.uat.nzpost.co.nz/parcellabel/v3/labels
+    bookingUrl: https://api.uat.nzpost.co.nz/parcelpickup/v3/bookings
 

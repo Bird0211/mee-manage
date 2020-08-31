@@ -10,13 +10,13 @@ import java.util.regex.Pattern;
 import com.alibaba.druid.filter.config.ConfigTools;
 import com.alibaba.druid.util.StringUtils;
 import com.google.common.collect.Lists;
-import com.recognition.software.jdeskew.ImageDeskew;
+// import com.recognition.software.jdeskew.ImageDeskew;
 
 import net.sourceforge.tess4j.util.ImageHelper;
 
 public class Tools  {
 
-    private final static double MINIMUM_DESKEW_THRESHOLD = 0.05d;
+    // private final static double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
 
     static int index = 0;
@@ -25,7 +25,6 @@ public class Tools  {
         List<Long> result = Lists.newArrayList(null,null,null,null,null,null,null,null);
         result.stream().filter(Objects::nonNull).reduce(0L, Long::sum);  
     }
-
 
     public static void main(String[] args) {
         te();
@@ -114,7 +113,7 @@ public class Tools  {
         return image;
     }
 
-    
+    /*
     private static BufferedImage rotateImage(BufferedImage textImg) {
         ImageDeskew id = new ImageDeskew(textImg);
         double imageSkewAngle = id.getSkewAngle(); // determine skew angle
@@ -124,6 +123,7 @@ public class Tools  {
         return textImg;
 
     }
+    */
 
     private static BufferedImage ssn(BufferedImage image) {
         int w = image.getWidth();
