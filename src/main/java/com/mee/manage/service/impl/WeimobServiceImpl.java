@@ -2,6 +2,7 @@ package com.mee.manage.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -204,7 +205,7 @@ public class WeimobServiceImpl implements IWeimobService {
 
         String token = tokenResult.getToken();
         int pageNum = 1;
-        int pageSize = request.getPageSize();
+        int pageSize = 100;
         int totalCount = 0;
         
         List<WeimobOrderData> datas = new ArrayList<>();
@@ -214,8 +215,8 @@ public class WeimobServiceImpl implements IWeimobService {
 
         do {
             // 代码语句
-            orderRequest.setPageNum(request.getPageNum());
-            orderRequest.setPageSize(request.getPageSize());
+            orderRequest.setPageNum(pageNum);
+            orderRequest.setPageSize(pageSize);
 
             WeimobQueryParameter parameter = new WeimobQueryParameter();
             parameter.setCreateStartTime(request.getCreateStartTime().getTime());
@@ -838,13 +839,10 @@ public class WeimobServiceImpl implements IWeimobService {
 
     public WeimobDeliveryOrderResp sendSingleOrder(DeliveryOrderVo deliveryOrder, String url) {
         WeimobSingleRequest request = new WeimobSingleRequest();
-        // WeimobDeliveryCompany deliveryCom =
-        // kdnService.identifyOrder(deliveryOrder.getDeliveryId());
-        // WeimobDeliveryCompany deliveryCom =
-        // expressService.getExpressComByCode(deliveryOrder.getDeliveryId());
-        WeimobDeliveryCompany deliveryCom = WeimobDeliveryCompany.getExpCompany(deliveryOrder.getExpressComCode());
+        WeimobDeliveryCompany deliveryCom = WeimobDeliveryCompany.getExpCompanyByCode(deliveryOrder.getExpressComCode());
 
         if (deliveryCom == null) {
+            logger.info("sendSigleOrder deliveryCom is null!");
             WeimobDeliveryOrderResp errorResp = new WeimobDeliveryOrderResp();
             errorResp.setDeliveryOrder(deliveryOrder);
             return errorResp;
@@ -873,6 +871,8 @@ public class WeimobServiceImpl implements IWeimobService {
         }
 
         if (skus == null || skus.size() <= 0) {
+            logger.info("sendSigleOrder SKU is null!");
+
             WeimobDeliveryOrderResp errorResp = new WeimobDeliveryOrderResp();
             errorResp.setDeliveryOrder(deliveryOrder);
             return errorResp;
@@ -1234,23 +1234,81 @@ public class WeimobServiceImpl implements IWeimobService {
         String token = getToken(bizId);
         String url = weimobConfig.getFlagOrderUrl() + "?accesstoken=" + token;
 
-        List<Long> orders = new ArrayList<>();
+        Map<String, WeimobFlagOrderParam> flagParams = new HashMap<>();
         orderIds.stream().forEach((item) -> {
+            
             String[] str = item.split("-")[0].split(";");
             for (String s : str) {
                 if (StringUtils.isEmpty(s))
                     continue;
 
-                orders.add(Long.parseLong(s));
+                String key = s;
+
+                WeimobFlagOrderParam p = flagParams.get(key);
+                if(p == null) {
+                    p = new WeimobFlagOrderParam();
+                    p.setFlagRank(flagRank);
+                    p.setFlagContent("易云系统已处理<br>" + "订单编号:" + item + "/");
+                    p.setOrderNoList(Lists.newArrayList(Long.parseLong(key)));
+                } else {
+                    String content = p.getFlagContent();
+                    if(!StringUtils.isEmpty(content)) {
+                        String[] contents = content.split("<br>");
+                        for(String c: contents) {
+                            if(c.indexOf("订单编号:") >= 0) {
+                                c += item + "/";
+                            }
+                        };
+                        p.setFlagContent(Joiner.on("<br>").join(contents));
+                    }
+                }
+                flagParams.put(key, p);
             }
         });
 
-        WeimobFlagOrderParam params = new WeimobFlagOrderParam();
-        params.setFlagRank(flagRank);
-        params.setFlagContent("易云系统已处理");
-        params.setOrderNoList(orders);
+        List<ListenableFuture<Boolean>> futures = Lists.newArrayList();
+        for(WeimobFlagOrderParam param: flagParams.values()) {
+            ListenableFuture<Boolean> task = GuavaExecutors.getDefaultCompletedExecutorService()
+            .submit(new Callable<Boolean>() {
 
-        String result = JoddHttpUtils.sendPostUseBody(url, params);
+                @Override
+                public Boolean call() throws Exception {
+                    boolean flag = false;
+                    try {
+                       flag = flagOrder(url,param);
+                    } catch (Exception e) {
+                        logger.error("flagOrder Error {} ", param ,e);
+                    }
+                    return flag;
+                }
+            });
+
+            futures.add(task);
+        }
+
+        boolean result = false;
+        ListenableFuture<List<Boolean>> resultsFuture = Futures.successfulAsList(futures);
+        try {
+            List<Boolean> resultObj = resultsFuture.get();
+            logger.info("Result: {}" ,resultObj);
+            if (resultObj != null && resultObj.size() > 0 && resultObj.stream().filter(item -> item == null || item == false).count() <= 0 ) {
+                result = true;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            logger.error("flagOrder Total Error", e);
+
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            logger.error("flagOrder Total Exp", e);
+
+        }
+        
+        return result;
+    }
+
+    private boolean flagOrder(String url, WeimobFlagOrderParam param) {
+        String result = JoddHttpUtils.sendPostUseBody(url, param);
         if (result == null || result.isEmpty())
             return false;
 
@@ -1299,16 +1357,32 @@ public class WeimobServiceImpl implements IWeimobService {
         if( datas != null) {
             result =  Lists.newArrayList();
 
-            List<String> extId = datas.stream().map(item -> item.getOrderNo().toString()).collect(Collectors.toList());
+            Set<String> extId = new HashSet<>();
+            datas.stream().forEach(item -> {
+                String[] str = null;
+                if(!StringUtils.isEmpty(item.getFlagContent())) {
+                    str = getOrderIdByContent(item.getFlagContent());
+
+                }  
+                if (str == null || str.length <= 0) {
+                    extId.add(item.getOrderNo().toString());
+                } else {
+                    for(String s: str) {
+                        if(!StringUtils.isEmpty(s))
+                            extId.add(s);
+                    }
+                }
+            });
+
+            // List<String> extId = datas.stream().map(item -> item.getOrderNo().toString()).collect(Collectors.toList());
             List<YiyunOrderSales> orders = orderService.getYiyunOrderByExtId(bizId, extId);
             if(orders == null) {
                 return null;
             }
 
             for(WeimobOrderDataList item: datas) {
-                
                 List<YiyunOrderSales> logicIds = orders.stream().
-                                            filter(i -> i.getExternalId().replace("\"", "").equals(item.getOrderNo().toString())&& i.getLogistic() != null &&  i.getLogistic().getLogisticId() != null).
+                                            filter(i -> i.getExternalId().replace("\"", "").indexOf(item.getOrderNo().toString()) >= 0 && i.getLogistic() != null &&  i.getLogistic().getLogisticId() != null).
                                             collect(Collectors.toList());
                 
                 if(logicIds != null && logicIds.size() > 0) {
@@ -1326,7 +1400,6 @@ public class WeimobServiceImpl implements IWeimobService {
                             collect(Collectors.toList());
                         logger.info("WeimobItem {}", items);   
                         item.setSplit(items.size() < item.getItemList().size()); 
-
                         item.setItemList(items);
                         result.add(item);
                     }
@@ -1337,7 +1410,30 @@ public class WeimobServiceImpl implements IWeimobService {
         return result;
     }
 
+    private String[] getOrderIdByContent(String content) {
+        if(StringUtils.isEmpty(content)){
+            return null;
+        }
 
+        if(content.indexOf("订单编号") < 0) {
+            return null;
+        }
+
+        String[] contents = content.split("<br>");
+        if(contents == null || contents.length <= 0) {
+            return null;
+        }
+
+        
+        String[] str = null;
+        for (String c: contents) {
+            if(c.indexOf("订单编号:") >= 0 && c.length() > 5) {
+                str = c.substring(5).split("/");
+            }
+        }
+
+        return str;
+    }
 
 
 

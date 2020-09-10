@@ -120,6 +120,8 @@ mee:
     productTypeUrl: https://api.wfcorp.cn/shop/v1/Identity/goodTypeInfo
     productGroupUrl: https://api.wfcorp.cn/shop/v1/Identity/goodGroupInfo
     editProductUrl: https://api.wfcorp.cn/shop/v1/Identity/productsEdit
+    logisticsUrl: https://api.wfcorp.cn/shop/v1/Identity/logistics
+    deliveryUrl: https://api.wfcorp.cn/shop/v1/Identity/manualDeliver
 
   flyway:
     # tokenUrl: https://flywayauthapi.azurewebsites.net/api/auth

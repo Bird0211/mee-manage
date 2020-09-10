@@ -1,6 +1,7 @@
 package com.mee.manage.service;
 
 import java.util.List;
+import java.util.Set;
 
 import com.mee.manage.exception.MeeException;
 import com.mee.manage.vo.DataTotal;
@@ -17,7 +18,7 @@ public interface IOrderService {
 
     List<YiyunOrderSales> getYiyunOrder(Long bizId, YiyunOrderVo orderVo);
 
-    List<YiyunOrderSales> getYiyunOrderByExtId(Long bizId, List<String> extId);
+    List<YiyunOrderSales> getYiyunOrderByExtId(Long bizId, Set<String> extId);
 
     YiyunTodayData getTodayData(Long bizId);
 
@@ -31,7 +32,7 @@ public interface IOrderService {
 
     <T> List<T> handleYiyunOrder(Long bizId, YiyunOrderVo orderVo, IHandleOrder<T> handleOrder) throws MeeException;
 
-    <T> List<T> handleYiyunOrder(Long bizId, List<String> extIds, IHandleOrder<T> handleOrder) throws MeeException;
+    <T> List<T> handleYiyunOrder(Long bizId, Set<String> extIds, IHandleOrder<T> handleOrder) throws MeeException;
 
     List<YiyunTopProduct> getTopProducts(Long bizId, YiyunOrderVo orderVo, Integer limit);
 

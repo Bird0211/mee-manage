@@ -48,7 +48,4 @@ public class NineTeenOrder {
 
     List<NineTeenOrderDetail> order_detail;
 
-
-
-
 }

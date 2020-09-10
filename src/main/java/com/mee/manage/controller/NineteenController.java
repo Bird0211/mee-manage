@@ -6,7 +6,12 @@ import com.mee.manage.exception.MeeException;
 import com.mee.manage.service.INineTeenService;
 import com.mee.manage.util.StatusCode;
 import com.mee.manage.vo.MeeResult;
+import com.mee.manage.vo.OrderDeliveryResult;
 import com.mee.manage.vo.OrderListResponse;
+import com.mee.manage.vo.nineteen.DeliverOrders;
+import com.mee.manage.vo.nineteen.DeliveryInfo;
+import com.mee.manage.vo.nineteen.DeliveryParam;
+import com.mee.manage.vo.nineteen.LogisticsVo;
 import com.mee.manage.vo.nineteen.NineTeenProductGroupVo;
 import com.mee.manage.vo.nineteen.NineTeenProductParam;
 import com.mee.manage.vo.nineteen.NineTeenProductResponse;
@@ -122,6 +127,64 @@ public class NineteenController  extends BaseController{
         }
 
         return meeResult;
+    }
+
+    @RequestMapping(value = "/delivery/list/{bizId}/{platformId}", method = RequestMethod.POST)
+    public MeeResult getDeliveryList(@PathVariable("platformId") Integer platformId, 
+                                     @PathVariable("bizId") Long bizId, 
+                                     @RequestBody DeliveryParam search) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            List<DeliverOrders> response = nineteenService.deliveryList(search, platformId, bizId);
+            meeResult.setData(response);
+            meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+
+        } catch (Exception ex) {
+            logger.error("getOrderList Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/logistics/{platformId}", method = RequestMethod.GET)
+    public MeeResult getLogistics(@PathVariable("platformId") Integer platformId) {
+        MeeResult meeResult = new MeeResult();
+            try {
+                List<LogisticsVo> response = nineteenService.getLogistics(platformId);
+                meeResult.setData(response);
+                meeResult.setStatusCode(StatusCode.SUCCESS.getCode());
+
+            } catch (Exception ex) {
+                logger.error("getOrderList Error", ex);
+                meeResult.setStatusCode(StatusCode.FAIL.getCode());
+            }
+
+        return meeResult;
+    }
+
+    @RequestMapping(value = "/delivery/{platformId}", method = RequestMethod.POST)
+    public MeeResult delivery(@PathVariable("platformId") Integer platformId, @RequestBody List<DeliveryInfo> deliveryInfos) {
+        MeeResult meeResult = new MeeResult();
+        try {
+            OrderDeliveryResult data = nineteenService.delivery(platformId, deliveryInfos);
+            if(data == null) {
+                meeResult.setStatusCode(StatusCode.FAIL.getCode());
+            } else if(!data.isSuccess()) {
+                meeResult.setData(data.getErrorOrderIds());
+                meeResult.setStatusCode(StatusCode.FAIL.getCode());
+            } else if(data.isSuccess()) {
+                meeResult.setData(data);
+            } else {
+                meeResult.setStatusCode(StatusCode.FAIL.getCode());
+            }
+
+        } catch (Exception ex) {
+            logger.error("getOrderList Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
+
+    return meeResult;
     }
     
 }

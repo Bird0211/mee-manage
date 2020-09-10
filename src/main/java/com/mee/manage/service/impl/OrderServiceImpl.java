@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -372,7 +373,7 @@ public class OrderServiceImpl implements IOrderService {
 	}
 
     @Override
-    public List<YiyunOrderSales> getYiyunOrderByExtId(Long bizId, List<String> extIds) {
+    public List<YiyunOrderSales> getYiyunOrderByExtId(Long bizId, Set<String> extIds) {
         
         List<List<YiyunOrderSales>> datas = handleYiyunOrder(bizId, extIds, new IHandleOrder<List<YiyunOrderSales>>(){
 
@@ -399,7 +400,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public <T> List<T> handleYiyunOrder(Long bizId, List<String> extIds, IHandleOrder<T> handleOrder)
+    public <T> List<T> handleYiyunOrder(Long bizId, Set<String> extIds, IHandleOrder<T> handleOrder)
             throws MeeException {
         
                 List<T> objects = null;

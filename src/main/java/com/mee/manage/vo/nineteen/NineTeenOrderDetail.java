@@ -23,5 +23,7 @@ public class NineTeenOrderDetail {
     String name;
 
     String sku;
+
+    String detail_id;
     
 }

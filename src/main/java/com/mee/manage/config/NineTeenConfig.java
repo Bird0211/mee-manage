@@ -23,4 +23,8 @@ public class NineTeenConfig {
 
     String editProductUrl;
     
+    String logisticsUrl;
+
+    String deliveryUrl;
+
 }
