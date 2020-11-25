@@ -10,7 +10,11 @@ public enum PlatFormCodeEmn {
 
     TRADEMEE("trademe"),
 
-    NZ_POST("nzpost");
+    NZ_POST("nzpost"),
+
+    UGG("ugg"),
+
+    UGG_LOGIN("ugg-login");
 
     String code;
 

@@ -28,6 +28,9 @@ public class DateUtil {
 
     public static final String formatPattern_space = "dd mm yyyy";
 
+    public static final String formatPattern_simple = "yyMMddHH";
+    
+
     public static final String[] all_formatPattern = new String[] { formatPattern,
         formatPattern_Short,
         formatPattern_Full,
@@ -122,6 +125,18 @@ public class DateUtil {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DATE, day);   // int
+        return cal.getTime();
+    }
+
+    /**
+     * 获取几分钟之后的日期
+     * @param day
+     * @return
+     */
+    public static Date getSuffixMinute(int minute) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.MINUTE, minute);   // int
         return cal.getTime();
     }
 
@@ -293,8 +308,7 @@ public class DateUtil {
     };
 
     public static void main(String[] args) {
-        String date = "14/04/2020";
-        System.out.println(DateUtil.getYYYYMMDDDate(date));
+        System.out.println("日期：" + dateToStringFormat(new Date(),formatPattern_simple));
 
         /*
         System.out.println("日期：" + dateToStringFormat(new Date(),formatPattern_ch));

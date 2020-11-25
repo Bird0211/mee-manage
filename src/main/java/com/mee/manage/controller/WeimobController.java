@@ -9,6 +9,7 @@ import com.mee.manage.vo.weimob.WeimobGroupVo;
 import com.mee.manage.vo.weimob.WeimobOrderDataList;
 import com.mee.manage.vo.weimob.WeimobOrderDetailVo;
 import com.mee.manage.vo.weimob.WeimobOrderListRequest;
+import com.mee.manage.vo.weimob.WeimobOrderListRespVo;
 import com.mee.manage.vo.weimob.WeimobOrderListResponse;
 
 import org.slf4j.Logger;
@@ -79,7 +80,22 @@ public class WeimobController {
             logger.error("checkToken Error", ex);
             meeResult.setStatusCode(StatusCode.FAIL.getCode());
         }
+        return meeResult;
+    }
 
+    @RequestMapping(value = "/order/queryList/v2/{bizId}", method = RequestMethod.POST)
+    public MeeResult getList(@PathVariable("bizId") Long bizId, @RequestBody WeimobOrderListRequest request){
+        MeeResult meeResult = new MeeResult();
+        try {
+            WeimobOrderListRespVo response = weimobService.getList(request,bizId);
+            meeResult.setData(response);
+            meeResult.setStatusCodeDes(StatusCode.SUCCESS);
+        } catch (MeeException ex){
+            meeResult.setStatusCodeDes(ex.getStatusCode());
+        } catch (Exception ex) {
+            logger.error("checkToken Error", ex);
+            meeResult.setStatusCode(StatusCode.FAIL.getCode());
+        }
         return meeResult;
     }
 

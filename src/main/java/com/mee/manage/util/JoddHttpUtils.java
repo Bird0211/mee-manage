@@ -234,7 +234,7 @@ public class JoddHttpUtils {
         HttpResponse httpResponse =
             HttpRequest.post(url).connectionTimeout(connectTimeOut)
                 .timeout(readTimeOut).formEncoding(encoding)
-                .bodyText(jsonParamBody, "application/json;", encoding).send();
+                .bodyText(jsonParamBody, "application/json;", encoding).contentType(DEFAULT_APPLICATION_JSON).send();
         String result = httpResponse.accept(encoding).bodyText();
         // 打印出参
         logger.info("sendPostUseBody Result  : {}", JSON.toJSON(result));
@@ -257,16 +257,20 @@ public class JoddHttpUtils {
      */
     public static String sendPostUseBody(String url, String jsonParamBody,String token) {
         long startTime = System.currentTimeMillis();
+        // 打印出参
+        logger.info("sendPostUseBody Param  : {}", jsonParamBody);
 
         HttpResponse httpResponse =
             HttpRequest.post(url).connectionTimeout(DEFAULT_CONNECT_TIME_OUT)
                 .timeout(DEFAULT_READ_TIME_OUT).formEncoding(DEFAULT_ENCODING_UTF_8).tokenAuthentication(token)
                 .bodyText(jsonParamBody, "application/json;", DEFAULT_ENCODING_UTF_8).send();
 
+        logger.info("sendPostUseBody statusCode  : {}", httpResponse.accept(DEFAULT_ENCODING_UTF_8).statusCode());
+        
         String result = httpResponse.accept(DEFAULT_ENCODING_UTF_8).bodyText();
 
         // 打印出参
-        logger.info("sendPostUseBody Args  : {}", JSON.toJSON(result));
+        logger.info("sendPostUseBody Result  : {}", JSON.toJSON(result));
         // 执行耗时
         logger.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
         return result;

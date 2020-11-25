@@ -7,7 +7,8 @@ public enum WeimobDeliveryCompany {
 
     ftd("FTD","ftd","富腾达快递"),
     shunfeng("SF","shunfeng","顺丰速运"),
-    flyway("CG","flyway","程光快递");
+    flyway("CG","flyway","程光快递"),
+    zhongtong("ZTO","zhongtong","中通速运");
 
     String meeCode;
 

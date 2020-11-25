@@ -7,4 +7,8 @@ public interface IJob {
     void loadErrorData();
     
     void loadTopOrderData();
+
+    void loadUggDelivery();
+
+    void refreshWeimobToken();
 }

@@ -20,12 +20,10 @@ import com.mee.manage.util.JoddHttpUtils;
 import com.mee.manage.util.StatusCode;
 import com.mee.manage.vo.*;
 import com.mee.manage.vo.Yiyun.YiyunOrderSales;
-import com.mee.manage.vo.Yiyun.YiyunlogisticInfo;
 import com.mee.manage.vo.weimob.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -84,18 +82,29 @@ public class WeimobServiceImpl implements IWeimobService {
 
     @Override
     public CheckTokenResult checkToken(Long bizId) {
-
         boolean flag = false;
         String token = null;
         Configuration tokenConfig = configurationService.getConfig(Config.WEIMOBTOKEN + "_" + bizId);
         if (tokenConfig != null) {
-            if (tokenConfig.getExpir().after(new Date())) { // token > new date()
+            if (tokenConfig.getExpir().after(DateUtil.getSuffixMinute(30))) { // token > new date()
                 flag = true;
                 token = tokenConfig.getValue();
+                logger.info("Token is Available Token = {}, Expire = {}", 
+                        token, 
+                        DateUtil.dateToStringFormat(tokenConfig.getExpir()), DateUtil.formatPattern_24Full);
             } else {
                 Configuration refreshToken = configurationService.getConfig(Config.WEIMOBREREFRESHTOKEN + "_" + bizId);
-                if (refreshToken != null && refreshToken.getExpir().after(new Date())) { // refreshToken < new date()
-                    return refreshToken(refreshToken.getValue(), bizId);
+                if(refreshToken == null) {
+                    logger.info("Refresh Token is null"); 
+                } else {
+                    logger.info("Refresh Token = {}, Refresh Expire = {}", 
+                        DateUtil.dateToStringFormat(refreshToken.getExpir(), DateUtil.formatPattern_24Full));
+
+                    if (refreshToken.getExpir().after(new Date())) { // refreshToken > new date()
+                        return refreshToken(refreshToken.getValue(), bizId);
+                    } else {
+                        logger.info("Refresh Token is Expire"); 
+                    }
                 }
             }
         }
@@ -110,6 +119,7 @@ public class WeimobServiceImpl implements IWeimobService {
     public String getToken(Long bizId) {
         CheckTokenResult tokenResult = checkToken(bizId);
         if (tokenResult == null || !tokenResult.isCuccess()) {
+            logger.info("Token Error");
             return null;
         }
 
@@ -155,7 +165,12 @@ public class WeimobServiceImpl implements IWeimobService {
             return false;
 
         boolean flag = false;
-        logger.info("saveToken Token: {}; RefreshToken: {}", token, refreshToken);
+        logger.info("saveToken Token: {}; Expire: {}", 
+            token, 
+            DateUtil.dateToStringFormat(expire, DateUtil.formatPattern_24Full));
+        logger.info("saveRefreshToken : Token {}; RefreshExpire: {}", 
+            refreshToken, 
+            DateUtil.dateToStringFormat(expireRefreshToken, DateUtil.formatPattern_24Full));
 
         // 入库、事务
         try {
@@ -177,7 +192,7 @@ public class WeimobServiceImpl implements IWeimobService {
             flag = true;
         } catch (Exception ex) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            logger.error("withDraw Err ", ex);
+            logger.error("set Weimob Token Err ", ex);
             flag = false;
         }
 
@@ -186,13 +201,26 @@ public class WeimobServiceImpl implements IWeimobService {
 
     @Override
     public WeimobOrderListResponse getOrderList(WeimobOrderListRequest request, Long bizId) throws MeeException {
-        // MeeResult meeResult = new MeeResult();
         if (request == null) {
             throw new MeeException(StatusCode.PARAM_ERROR);
         }
         List<WeimobOrderData> datas = getOrderData(request, bizId);
 
         return getOrderListData(datas, request.getSendarea(), request.getOrderType(),
+                request.getFlagRanks(), bizId);
+    }
+
+    @Override
+    public WeimobOrderListRespVo getList(WeimobOrderListRequest request, Long bizId) {
+        if (request == null) {
+            throw new MeeException(StatusCode.PARAM_ERROR);
+        }
+        List<WeimobOrderData> datas = getOrderData(request, bizId);
+        if(datas == null || datas.isEmpty()) {
+            return null;
+        }
+
+        return getListData(datas, request.getSendarea(), request.getOrderType(),
                 request.getFlagRanks(), bizId);
     }
 
@@ -322,12 +350,18 @@ public class WeimobServiceImpl implements IWeimobService {
 
     @Override
     public WeimobOrderDetailVo getWeimobOrder(String orderId, Long bizId) {
-        if (orderId == null)
+        if (orderId == null) {
+            logger.info("OrderId is null");
             return null;
+        }
+
 
         String token = getToken(bizId);
-        if (token == null)
+        if (token == null) {
+            logger.info("Token is null bizId {}", bizId);
             return null;
+        }
+
 
         Map<String, Object> params = new HashMap<>();
         params.put("orderNo", orderId);
@@ -337,8 +371,10 @@ public class WeimobServiceImpl implements IWeimobService {
         String url = weimobConfig.getOrderDetail() + "?accesstoken=" + token;
         logger.info(JSON.toJSONString(params));
         String result = JoddHttpUtils.sendPostUseBody(url, params);
-        if (result == null || result.isEmpty())
+        if (result == null || result.isEmpty()) {
+
             return null;
+        }
 
         logger.info("WeimobOrder = {}", result);
 
@@ -831,6 +867,7 @@ public class WeimobServiceImpl implements IWeimobService {
         return errorResult;
     }
 
+    @Override
     public WeimobDeliveryOrderResp sendSingleOrder(DeliveryOrderVo deleverOrder, Long bizId) {
         String token = getToken(bizId);
         String url = weimobConfig.getOrderDeliveryUrl() + "?accesstoken=" + token;
@@ -838,6 +875,12 @@ public class WeimobServiceImpl implements IWeimobService {
     }
 
     public WeimobDeliveryOrderResp sendSingleOrder(DeliveryOrderVo deliveryOrder, String url) {
+        if(deliveryOrder == null ) {
+            logger.info("deliveryOrder is null!");
+            WeimobDeliveryOrderResp errorResp = new WeimobDeliveryOrderResp();
+            errorResp.setDeliveryOrder(deliveryOrder);
+            return errorResp;
+        }
         WeimobSingleRequest request = new WeimobSingleRequest();
         WeimobDeliveryCompany deliveryCom = WeimobDeliveryCompany.getExpCompanyByCode(deliveryOrder.getExpressComCode());
 
@@ -856,18 +899,20 @@ public class WeimobServiceImpl implements IWeimobService {
         request.setDeliveryRemark(null);
         request.setIsNeedLogistics(true);
         request.setIsSplitPackage(true);
-
+        
         List<WeimobSingleSku> skus = null;
         List<DeliverySkuInfo> skuInfos = deliveryOrder.getSkuInfo();
-        for (DeliverySkuInfo skuInfo : skuInfos) {
-            WeimobSingleSku singleSku = new WeimobSingleSku();
-
-            singleSku.setSkuId(skuInfo.getSkuId());
-            singleSku.setItemId(skuInfo.getItemId());
-            singleSku.setSkuNum(skuInfo.getSkuNum());
-            if (skus == null)
-                skus = new ArrayList<>();
-            skus.add(singleSku);
+        if(skuInfos != null) {
+            for (DeliverySkuInfo skuInfo : skuInfos) {
+                WeimobSingleSku singleSku = new WeimobSingleSku();
+    
+                singleSku.setSkuId(skuInfo.getSkuId());
+                singleSku.setItemId(skuInfo.getItemId());
+                singleSku.setSkuNum(skuInfo.getSkuNum());
+                if (skus == null)
+                    skus = new ArrayList<>();
+                skus.add(singleSku);
+            }
         }
 
         if (skus == null || skus.size() <= 0) {
@@ -1008,6 +1053,7 @@ public class WeimobServiceImpl implements IWeimobService {
                     String mobile = item.getReceiverMobile();
                     String name = item.getReceiverName();
                     Long orderNo = item.getOrderNo();
+                    String sender = item.getUserNickname();
 
                     List<WeimobItem> products = item.getItemList();
                     StringBuffer content = new StringBuffer();
@@ -1075,6 +1121,169 @@ public class WeimobServiceImpl implements IWeimobService {
                     WeimobItemsResponse weimobItem = new WeimobItemsResponse();
                     weimobItem.setAddress(address);
                     weimobItem.setContent(content.toString());
+                    weimobItem.setName(name);
+                    weimobItem.setNum(num);
+                    weimobItem.setOrderNo(orderNo);
+                    weimobItem.setPhone(mobile);
+                    weimobItem.setIdCardNo(null);
+                    weimobItem.setSender(sender);
+
+                    weimobItems.add(weimobItem);
+                }
+            }
+        }
+
+        ListenableFuture<List<WeimobOrderDetailVo>> resultsFuture = Futures.successfulAsList(futures);
+        try {
+            List<WeimobOrderDetailVo> orderDetails = resultsFuture.get();
+            Map<Long, String> map = new HashMap<>();
+            if (orderDetails != null && !orderDetails.isEmpty()) {
+                for (WeimobOrderDetailVo goodDetailData : orderDetails) {
+                    if (goodDetailData == null)
+                        continue;
+                    WeimobDeliveryDetailVo deliveryDetail = goodDetailData.getDeliveryDetail();
+                    if (deliveryDetail != null) {
+                        LogisticsDeliveryDetail logisticsDelivery = deliveryDetail.getLogisticsDeliveryDetail();
+                        if (logisticsDelivery != null) {
+                            String idCardNo = logisticsDelivery.getIdCardNo();
+                            map.put(goodDetailData.getOrderNo(), idCardNo);
+
+                            logger.info("{} IdcardNo = {}", goodDetailData.getOrderNo(), idCardNo);
+                        } else
+                            logger.info("logisticsDelivery is null");
+                    } else {
+                        logger.info("deliveryDetail is null!");
+                    }
+                }
+            }
+
+            if (map != null && !map.isEmpty()) {
+
+                weimobItems.forEach((item) -> {
+                    String idCardNo = map.get(item.getOrderNo());
+                    if (!StringUtils.isEmpty(idCardNo))
+                        item.setIdCardNo(idCardNo);
+                });
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        response.setItems(weimobItems);
+
+        return response;
+    }
+
+
+    private WeimobOrderListRespVo getListData(List<WeimobOrderData> datas, Integer sendArea, Integer orderType,
+            Integer flagFrank, Long bizId) {
+        if (datas == null || datas.isEmpty() || datas.size() <= 0)
+            return null;
+
+        String filterTxt = null;
+        if (sendArea != null) {
+            if (sendArea == 0) {
+                filterTxt = "新西兰仓";
+            } else if (sendArea == 1) {
+                filterTxt = "国内现货";
+            }
+        }
+
+        List<Long> milkIds = null;
+        if (orderType != null) {
+            milkIds = getMilkIds(bizId);
+        }
+
+        Map<String, MeeProductVo> allProducts = productsService.getMapMeeProduct(bizId.toString());
+
+        WeimobOrderListRespVo response = new WeimobOrderListRespVo();
+        List<ListenableFuture<WeimobOrderDetailVo>> futures = Lists.newArrayList();
+
+        List<WeimobItemsRespVo> weimobItems = new ArrayList<>();
+
+        for (int i = 0; i < datas.size(); i++) {
+            WeimobOrderData data = datas.get(i);
+            if (i == 0) {
+                response.setPageNum(data.getPageNum());
+                response.setPageSize(data.getPageSize());
+                response.setTotalCount(data.getTotalCount());
+            }
+            List<WeimobOrderDataList> items = data.getPageList();
+            if (items != null && items.size() > 0) {
+                for (WeimobOrderDataList item : items) {
+                    String address = item.getReceiverAddress();
+                    String mobile = item.getReceiverMobile();
+                    String name = item.getReceiverName();
+                    Long orderNo = item.getOrderNo();
+
+                    List<WeimobItem> products = item.getItemList();
+                    List<WeimobItemVo> itemVos = Lists.newArrayList();
+                    // StringBuffer content = new StringBuffer();
+                    int num = 0;
+                    if (flagFrank != null && flagFrank == 0) {
+                        if (item.getFlagRank() != null && item.getFlagRank() > 0) {
+                            continue;
+                        }
+                    }
+
+                    if (products != null && !products.isEmpty()) {
+                        for (WeimobItem product : products) {
+                            if (filterTxt != null && product.getGoodsTitle().indexOf(filterTxt) <= 0) {
+                                continue;
+                            }
+
+                            if (orderType != null && milkIds != null) {
+                                logger.info("ProductId = {}", product.getGoodsId());
+                                if ((orderType == 0) != milkIds.contains(product.getGoodsId().longValue()))
+                                    continue;
+
+                            }
+
+                            if (product.getRightsStatus() != null
+                                    && (product.getRightsStatus() == 1 || product.getRightsStatus() == 2)) {
+
+                                continue;
+                            }
+                            String goodsTitle = product.getGoodsTitle();
+                            if (allProducts != null) {
+                                MeeProductVo meeProduct = allProducts.get(product.getSkuCode());
+                                if (meeProduct != null) {
+                                    goodsTitle = meeProduct.getChName();
+                                }
+                            }
+
+                            WeimobItemVo iVo = new WeimobItemVo();
+                            iVo.setImageUrl(product.getImageUrl());
+                            iVo.setItemName(goodsTitle);
+                            iVo.setNum(product.getSkuNum());
+                            iVo.setSku(product.getSkuCode());
+                            itemVos.add(iVo);
+
+                            num += product.getSkuNum();
+                        }
+                    }
+
+                    ListenableFuture<WeimobOrderDetailVo> task = GuavaExecutors.getDefaultCompletedExecutorService()
+                            .submit(new Callable<WeimobOrderDetailVo>() {
+
+                                @Override
+                                public WeimobOrderDetailVo call() throws Exception {
+                                    WeimobOrderDetailVo orderVo = getWeimobOrder("" + item.getOrderNo(), bizId);
+                                    if (orderNo == null)
+                                        logger.info("weimob is null orderId = {}", item.getOrderNo());
+                                    return orderVo;
+                                }
+
+                            });
+
+                    futures.add(task);
+
+                    WeimobItemsRespVo weimobItem = new WeimobItemsRespVo();
+                    weimobItem.setAddress(address);
+                    weimobItem.setItems(itemVos);
                     weimobItem.setName(name);
                     weimobItem.setNum(num);
                     weimobItem.setOrderNo(orderNo);
@@ -1434,7 +1643,6 @@ public class WeimobServiceImpl implements IWeimobService {
 
         return str;
     }
-
 
 
 }

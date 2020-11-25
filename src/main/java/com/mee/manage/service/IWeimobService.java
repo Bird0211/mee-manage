@@ -2,11 +2,13 @@ package com.mee.manage.service;
 
 import com.mee.manage.exception.MeeException;
 import com.mee.manage.vo.*;
+import com.mee.manage.vo.weimob.WeimobDeliveryOrderResp;
 import com.mee.manage.vo.weimob.WeimobDeliveryVo;
 import com.mee.manage.vo.weimob.WeimobGroupVo;
 import com.mee.manage.vo.weimob.WeimobOrderDataList;
 import com.mee.manage.vo.weimob.WeimobOrderDetailVo;
 import com.mee.manage.vo.weimob.WeimobOrderListRequest;
+import com.mee.manage.vo.weimob.WeimobOrderListRespVo;
 import com.mee.manage.vo.weimob.WeimobOrderListResponse;
 
 import java.util.Date;
@@ -25,6 +27,8 @@ public interface IWeimobService {
     boolean setToken(String token, Date expire,String refreshToken,Date expireRefreshToken,Long bizId);
 
     WeimobOrderListResponse getOrderList(WeimobOrderListRequest request,Long bizId);
+
+    WeimobOrderListRespVo getList(WeimobOrderListRequest request,Long bizId);
 
     List<WeimobGroupVo> getClassifyInfo(Long bizId);
 
@@ -45,6 +49,8 @@ public interface IWeimobService {
     OrderDeliveryResult orderDelivery(List<DeliveryOrderVo> deleverOrders,Long bizId);
 
     boolean sendBathOrder(List<DeliveryOrderVo> deleverOrders,Long bizId);
+
+    WeimobDeliveryOrderResp sendSingleOrder(DeliveryOrderVo deleverOrder, Long bizId);
 
     List<DeliveryOrderVo> sendSingleOrder(List<DeliveryOrderVo> deleverOrders,Long bizId);
 

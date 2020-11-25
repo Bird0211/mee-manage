@@ -69,6 +69,8 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public List<YiyunOrderSales> getYiyunOrder(Long bizId, YiyunOrderVo orderVo) throws MeeException {
 
+        
+
         List<YiyunOrderSales> sales = null;
 
         Biz biz = bizService.getBiz(bizId);
@@ -103,7 +105,8 @@ public class OrderServiceImpl implements IOrderService {
             paramMap.put("externalSaleID", orderVo.getExternalSaleId());
 
         logger.info("Param: {}", paramMap);
-        String result = JoddHttpUtils.sendPost(config.getBizSalesUrl(), paramMap);
+        // String result = JoddHttpUtils.sendPost(config.getBizSalesUrl(), paramMap);
+        String result = null;
 
         List<YiyunOrderResult> orders = JSON.parseArray(result, YiyunOrderResult.class);
         if (orders == null || orders.size() <= 0) {

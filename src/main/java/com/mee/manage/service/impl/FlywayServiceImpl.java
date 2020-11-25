@@ -137,11 +137,13 @@ public class FlywayServiceImpl implements IFlywayService {
         String url = flywayConfig.getAddOrderUrl();
 
         String result = JoddHttpUtils.sendPostUseBody(url, JSON.toJSONString(flyway),config.getToken());
-        logger.info(result);
+        if(StringUtils.isEmpty(result)) {
+            throw new MeeException(StatusCode.FAIL);
+        }
 
         List<FlywayOrderResponse> oResponses = JSON.parseArray(result, FlywayOrderResponse.class);
         if(oResponses == null || oResponses.isEmpty())
-            throw new MeeException(StatusCode.FLYWAY_LOGIN_ERROR);
+            throw new MeeException(StatusCode.FAIL);
         
         return oResponses;
     }

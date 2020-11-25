@@ -25,7 +25,7 @@ public enum StatusCode {
 
     YIYUN_ORDER_ERROR(11815,"Yiyun order error"),
 
-    PLATFORM_NOT_EXIST(11816,"Plat is not exist"),
+    PLATFORM_NOT_EXIST(11816,"PlatForm is not exist"),
 
     TRADEME_EXCEED_QUOTA(11817, "You have exceeded your API call quota for the current hour"),
     
@@ -33,8 +33,13 @@ public enum StatusCode {
 
     NZPOST_TOKEN_ERROR(11819, "Nzpost token error"),
 
-    NZPOST_CONFIG_NOT_EXIST(11820, "Nzpost config is not exist")
+    NZPOST_CONFIG_NOT_EXIST(11820, "Nzpost config is not exist"),
 
+    PRODUCT_NOT_EXIST(11821, "Product is not exist!"),
+
+    ORDER_STATUS_ERROR(11822, "Order status error!"),
+
+    UGG_ORDER_ERROR(11823, "Ugg Order error!")
     ;
 
     private int code;

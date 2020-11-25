@@ -2,15 +2,19 @@ package com.mee.manage.vo;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.alibaba.druid.filter.config.ConfigTools;
 import com.alibaba.druid.util.StringUtils;
-import com.google.common.collect.Lists;
 // import com.recognition.software.jdeskew.ImageDeskew;
+import com.mee.manage.util.DateUtil;
+
+import org.apache.commons.lang3.RandomStringUtils;
 
 import net.sourceforge.tess4j.util.ImageHelper;
 
@@ -18,45 +22,57 @@ public class Tools  {
 
     // private final static double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
-
-    static int index = 0;
-
     public static void te () {
-        List<Long> result = Lists.newArrayList(null,null,null,null,null,null,null,null);
-        result.stream().filter(Objects::nonNull).reduce(0L, Long::sum);  
+        // List<Long> result = Lists.newArrayList(null,null,null,null,null,null,null,null);
+        // result.stream().filter(Objects::nonNull).reduce(0L, Long::sum);  
+
+        List<String> testList = new ArrayList<>(Arrays.asList("1", "93", "43", "234"));
+
+        System.out.println("----");
+    }
+
+    public static int[] productExceptSelf(int[] nums) {
+        if(nums == null)
+            return null;
+        
+        int n = nums.length, right = 1;
+        int[] res = new int[n];
+        res[0] = 1;
+        for (int i = 1; i < n; ++i) {
+            res[i] = res[i - 1] * nums[i - 1];
+            System.out.println(res[i]);
+        }
+
+        System.out.println("--------------");
+        for (int i = n - 1; i >= 0; --i) {
+            res[i] *= right;
+            right *= nums[i];
+            System.out.println(res[i]);
+        }
+        return res;
+
+    }
+
+    public static String getBatchId(Integer bizId) {
+
+        String batchId = bizId + DateUtil.dateToStringFormat(new Date(), DateUtil.formatPattern_simple) + RandomStringUtils.random(4, false, true);
+        
+        return batchId;
+    }
+
+    public static void test() {
+        double a = 295.04;
+             int  b = 300;
+             byte c = (byte) a;
+             byte d = (byte) b;
+             System.out.println(c + " "  + d);
     }
 
     public static void main(String[] args) {
-        te();
-
-//        String publicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIS39+jnjLSkSL0ig/IJsjwHnZ9gagoWxDzaoTOhds01oymDQsBP+0hlGs6QKDFWk4BSWp0xpvt30weZhuz04TUCAwEAAQ==";
-
-//        String password = "mvpWSjWQ2itv3KgYAZqSLV94WXe6l5sDoc5a5CTlTQBkRKSGf4yXy9ZuAohrzseVeGvZKpdB9VvdkojtAm0n1A==";
-        try {
-//            String publicKey = ConfigTools.getPublicKey(null);
-//            String pwd = ConfigTools.encrypt("B75Sq*qn");
-            String pwd = ConfigTools.encrypt("397SKa8j");
-
-//            String pwd = ConfigTools.decrypt(password);
-            System.out.printf(pwd);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        /*
-        String word = "Descrip@on";
-        String target = "description";
-
-        String correct = EnWordChecker.getInstance().correct(word.toLowerCase());
-
-        System.out.println("word = "+word + ",correct = "+correct);
-
-        float similarity = SimilarityStrUtil.getSimilarityRatio(target.toLowerCase().trim(),word.toLowerCase().trim());
-        System.out.println(similarity);
-
-        */
-    }
+        for(int i = 1; i < 3; i++)
+        for(int j = 3; j >= 1; j--)
+           assert i!=j : i; 
+    }   
 
 
 

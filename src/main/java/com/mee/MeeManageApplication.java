@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class MeeManageApplication {
 
-
     public static void main(String[] args) {
 
         SpringApplication.run(MeeManageApplication.class, args);

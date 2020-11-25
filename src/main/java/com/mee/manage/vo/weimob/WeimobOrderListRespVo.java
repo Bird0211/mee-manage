@@ -1,14 +1,15 @@
 package com.mee.manage.vo.weimob;
 
-import lombok.Data;
-
 import java.util.List;
 
-@Data
-public class WeimobOrderListResponse {
+import lombok.Data;
 
+@Data
+public class WeimobOrderListRespVo {
+    
     int pageNum;
     int pageSize;
     int totalCount;
-    List<WeimobItemsResponse> items;
+    List<WeimobItemsRespVo> items;
+
 }

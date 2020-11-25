@@ -110,9 +110,9 @@ public class MeeConfig {
         String nonce = "3Q4gD2kz";
 
         // String userId = "all";
-        String userId = "12";
+        String userId = "20";
 
-        String sign = getMeeSign(bidId,time,token,nonce);
+        String sign = getMeeUserSign(bidId,userId,time,token,nonce);
         System.out.println(sign);
        String url = bidId+"/"+userId+"/"+time+"/"+nonce+"/"+sign;
        System.out.println(url);

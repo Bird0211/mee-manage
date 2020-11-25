@@ -16,7 +16,7 @@ public class InitServiceImpl implements IInitService, ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        job.loadYiyunData();
+        // job.loadYiyunData();
         // job.loadTopOrderData();
     }
     
