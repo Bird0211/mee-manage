@@ -59,7 +59,7 @@
 
 		<fast.version>1.24</fast.version>
 		<lombok.version>1.18.12</lombok.version>
-		<pdfbox.version>2.0.17</pdfbox.version>
+		<pdfbox.version>2.0.24</pdfbox.version>
 		<tess4j.version>4.5.1</tess4j.version>
 
 	</properties>
