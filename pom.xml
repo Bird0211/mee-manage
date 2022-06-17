@@ -53,7 +53,7 @@
 		<httpclient.version>4.3.6</httpclient.version>
 		<jstl.version>1.2</jstl.version>
 		<servlet-api.version>3.1.0</servlet-api.version>
-		<fastjson.version>1.2.59</fastjson.version>
+		<fastjson.version>1.2.83</fastjson.version>
 		<tomcat.embed.version>8.5.13</tomcat.embed.version>
 		<tomcat.embed.logging.version>8.5.2</tomcat.embed.logging.version>
 
